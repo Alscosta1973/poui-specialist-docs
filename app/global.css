@@ -1,0 +1,15 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+:root {
+  --color-fd-primary: #0c6c94;
+  --color-fd-primary-foreground: #ffffff;
+  --color-fd-ring: #0c6c94;
+}
+
+.dark {
+  --color-fd-primary: #0c6c94;
+  --color-fd-primary-foreground: #ffffff;
+  --color-fd-ring: #0c6c94;
+}
