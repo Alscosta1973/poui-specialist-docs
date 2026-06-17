@@ -1,0 +1,43 @@
+name: Sync from Plugin
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Motivo do sync (ex: release v1.4.0)'
+        required: false
+        default: 'manual sync'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout docs repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup SSH for plugin repo
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PLUGIN_DEPLOY_KEY }}
+
+      - name: Clone plugin repo (read-only)
+        run: |
+          git clone git@github.com:Alscosta1973/poui-specialist.git /tmp/poui-specialist
+
+      - name: Run sync script
+        run: |
+          bash scripts/sync-from-plugin.sh /tmp/poui-specialist
+
+      - name: Commit synced files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add content/docs/templates/ content/docs/componentes/ content/docs/padroes/
+          if git diff --cached --quiet; then
+            echo "Nenhuma mudança detectada."
+          else
+            git commit -m "chore(sync): atualiza templates/componentes/padrões do plugin"
+            git push
+          fi
