@@ -1,0 +1,75 @@
+---
+title: Code Reviewer
+description: Agente especializado em review de código PO-UI Angular para boas práticas, performance e acessibilidade
+---
+
+# Code Reviewer
+
+Agente especializado em revisar código Angular com componentes PO-UI, identificando problemas de boas práticas, performance e acessibilidade com sugestões de correção acionáveis.
+
+## Quando usar
+
+O agente é ativado automaticamente quando você:
+
+- Invoca `/poui-specialist:review` com um arquivo ou diretório
+- Pede para revisar, verificar ou auditar código PO-UI Angular
+
+## Categorias de review
+
+### Boas Práticas (BP)
+
+| ID | Severidade | Regra |
+|----|-----------|-------|
+| BP-001 | CRITICAL | `ChangeDetectionStrategy.OnPush` ausente |
+| BP-002 | WARNING | Uso de tipo `any` |
+| BP-003 | WARNING | Observable subscrito sem cleanup (`takeUntilDestroyed`) |
+| BP-004 | INFO | `@Input()` legado em vez de `input()` signal |
+| BP-005 | INFO | `@Output()/EventEmitter` em vez de `output()` signal |
+| BP-006 | WARNING | Manipulação direta do DOM |
+| BP-007 | WARNING | Erro ao usuário via `console` ou `alert` em vez de `PoNotificationService` |
+
+### Performance (PERF)
+
+| ID | Severidade | Regra |
+|----|-----------|-------|
+| PERF-001 | CRITICAL | `track` ausente em `@for` / `trackBy` ausente em `*ngFor` |
+| PERF-002 | WARNING | Método que retorna Observable usado diretamente no template |
+| PERF-003 | WARNING | Rota eagerly loaded (não lazy) |
+| PERF-004 | INFO | Chamada HTTP no constructor em vez de `ngOnInit` |
+
+### Acessibilidade (A11Y)
+
+| ID | Severidade | Regra |
+|----|-----------|-------|
+| A11Y-001 | WARNING | Campo PO-UI sem `p-label` |
+| A11Y-002 | WARNING | `PoTableAction` sem `label` |
+| A11Y-003 | INFO | Botão com ícone sem `aria-label` |
+
+## Exemplo de uso
+
+```bash
+# Revisar um arquivo
+/poui-specialist:review src/app/financeiro/pedidos-list/pedidos-list.component.ts
+
+# Revisar um diretório inteiro
+/poui-specialist:review src/app/financeiro/
+
+# Revisar com foco específico
+/poui-specialist:review src/app/ --focus performance
+/poui-specialist:review src/app/ --focus acessibilidade
+```
+
+## Formato do relatório
+
+O agente produz um relatório por arquivo com severidade, localização (linha aproximada), código atual e sugestão de correção:
+
+```
+## Review: pedidos-list.component.ts
+
+### CRITICAL (1)
+1. **[BP-001]** linha 8 — OnPush ausente
+   Atual:    @Component({ standalone: true, ... })
+   Sugestão: @Component({ standalone: true, changeDetection: ChangeDetectionStrategy.OnPush, ... })
+
+### Resumo: 1 critical, 1 warning, 0 info
+```

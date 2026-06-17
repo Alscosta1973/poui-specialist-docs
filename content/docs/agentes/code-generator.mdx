@@ -1,0 +1,83 @@
+---
+title: Code Generator
+description: Agente especializado em geração de código PO-UI Angular 17+ para TOTVS Protheus
+---
+
+# Code Generator
+
+Agente especializado em gerar artifacts Angular 17+ com componentes PO-UI, integrados à API REST do TOTVS Protheus.
+
+## Quando usar
+
+O agente é ativado automaticamente quando você:
+
+- Invoca `/poui-specialist:generate` com qualquer tipo
+- Pede para gerar ou criar um componente, página ou service PO-UI
+- Fornece um arquivo `.prw` ou `.tlpp` e pede para converter para PO-UI
+
+## Princípios de geração
+
+Todos os artifacts gerados seguem estas regras sem exceção:
+
+| Regra | Detalhe |
+|-------|---------|
+| **Standalone** | Sempre `standalone: true` — nunca NgModule-based |
+| **OnPush** | `changeDetection: ChangeDetectionStrategy.OnPush` em todo componente |
+| **Signals** | `signal<T>()` para estado local, `input()` para inputs, `output()` para outputs |
+| **Sem `any`** | Interfaces TypeScript definidas para todos os tipos de resposta Protheus |
+| **Contrato Protheus** | Services esperam `{ items: T[], hasNext: boolean }` |
+
+## Tipos disponíveis
+
+### Páginas de lista
+
+| Tipo | Quando usar |
+|------|-------------|
+| `page-list` | Lista simples com busca rápida |
+| `page-dynamic-search` | Lista + busca avançada + disclaimers (padrão Protheus) |
+| `page-dynamic` | Zero-boilerplate via `PoPageDynamicTableComponent` |
+| `master-detail` | Lista com linhas filho expansíveis (pedido/itens) |
+| `stacked-browse` | Dois po-table empilhados com navegação por teclado |
+| `two-panel-browse` | Dois po-table lado a lado para conciliação/matching |
+
+### Páginas de edição / detalhe
+
+| Tipo | Quando usar |
+|------|-------------|
+| `page-edit` | Formulário com muitos campos, navega via rota |
+| `page-detail` | Detalhe read-only, rota `:id/detalhe` |
+| `modal-crud` | Tudo-em-um: lista + modal add/edit (até ~10 campos) |
+| `stepper-form` | Formulário wizard multi-etapas com `po-stepper` |
+
+### Outros
+
+| Tipo | Quando usar |
+|------|-------------|
+| `service` | Service HttpClient consumindo Protheus REST |
+| `module` | Estrutura de módulo (routing, barrel) |
+| `dashboard` | KPIs com `po-widget` + `po-chart` |
+| `models` | Interfaces TypeScript (simples, chave composta, flat relational) |
+| `tlpp-contract` | Contrato REST backend com skeleton WsRestFul |
+| `refactor` | Converte `.prw`/`.tlpp` existente para PO-UI |
+
+## Exemplo de uso
+
+```bash
+# Gerar uma lista de pedidos no módulo vendas
+/poui-specialist:generate page-list Pedidos --module vendas
+
+# Gerar formulário de edição
+/poui-specialist:generate page-edit EditarPedido --module vendas
+
+# Converter ADVPL existente para PO-UI
+/poui-specialist:generate refactor FATA001.prw
+```
+
+## O que o agente entrega
+
+Após a geração, você recebe:
+
+1. Lista prévia dos arquivos que serão criados (confirmação antes de escrever)
+2. Arquivos `.ts`, `.html` e `.scss` com todo o código funcional
+3. Sugestão da rota a adicionar em `app.routes.ts`
+4. Verificação automática das entradas de tema PO-UI no `angular.json`

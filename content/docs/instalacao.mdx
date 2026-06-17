@@ -1,0 +1,59 @@
+---
+title: Instalação
+description: Como instalar o plugin poui-specialist no Claude Code
+---
+
+# Instalação
+
+## Pré-requisitos
+
+- [Claude Code](https://claude.ai/code) instalado e autenticado
+- Projeto Angular com `@totvs/po-ui` ou `@po-ui/ng-components` instalado
+- Node.js 18+ (para o projeto Angular)
+
+## Instalar o plugin
+
+Execute os dois comandos dentro do Claude Code (não no terminal do sistema):
+
+```bash
+/plugin marketplace add Alscosta1973/poui-specialist
+/plugin install poui-specialist@Alscosta1973-poui-specialist
+```
+
+O primeiro comando adiciona o repositório ao marketplace local. O segundo instala e ativa o plugin na sessão atual.
+
+## Verificar instalação
+
+Após instalar, confirme que os comandos estão disponíveis:
+
+```bash
+/poui-specialist:generate --help
+/poui-specialist:docs po-table
+/poui-specialist:review --help
+```
+
+Se os comandos responderem, o plugin está ativo.
+
+## Atualizar o plugin
+
+Para atualizar para uma versão mais recente:
+
+```bash
+/plugin update poui-specialist@Alscosta1973-poui-specialist
+```
+
+## Desinstalar
+
+```bash
+/plugin uninstall poui-specialist@Alscosta1973-poui-specialist
+```
+
+## Primeiro uso
+
+Após instalar, o ponto de partida mais comum é gerar um componente:
+
+```bash
+/poui-specialist:generate page-list Pedidos --module vendas
+```
+
+Veja a página [/generate](/docs/comandos/generate) para todos os tipos disponíveis.
