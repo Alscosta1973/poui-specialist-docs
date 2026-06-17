@@ -19,7 +19,7 @@ add_frontmatter() {
 
   {
     echo "---"
-    echo "title: $title"
+    echo "title: \"$title\""
     [ -n "$description" ] && echo "description: \"$description\""
     echo "---"
     echo ""
