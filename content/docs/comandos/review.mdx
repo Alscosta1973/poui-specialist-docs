@@ -1,0 +1,49 @@
+---
+title: /review
+description: Revisa código PO-UI Angular para boas práticas, performance e acessibilidade
+---
+
+# /poui-specialist:review
+
+Revisa código Angular com componentes PO-UI contra regras estabelecidas de boas práticas, performance e acessibilidade.
+
+## Sintaxe
+
+```bash
+/poui-specialist:review <arquivo|diretório> [--focus <categoria>]
+```
+
+## Categorias de foco
+
+| Flag | Regras aplicadas |
+|------|-----------------|
+| `boas-praticas` | OnPush, tipagem, signals, unsubscribe |
+| `performance` | trackBy, AsyncPipe, lazy loading |
+| `acessibilidade` | p-label, aria-label |
+| `all` | Todas as categorias (padrão) |
+
+## Exemplos
+
+```bash
+# Revisar um arquivo específico
+/poui-specialist:review src/app/financeiro/pedidos-list/pedidos-list.component.ts
+
+# Revisar um módulo inteiro
+/poui-specialist:review src/app/financeiro/
+
+# Focar apenas em performance
+/poui-specialist:review src/app/ --focus performance
+
+# Focar em acessibilidade
+/poui-specialist:review src/app/ --focus acessibilidade
+```
+
+## Severidades
+
+| Severidade | Significado |
+|-----------|-------------|
+| **CRITICAL** | Causa bug em produção ou degradação severa de performance |
+| **WARNING** | Viola boas práticas estabelecidas, pode causar problemas futuros |
+| **INFO** | Sugestão de modernização (Angular 17+ signals, etc.) |
+
+Veja o agente [Code Reviewer](/docs/agentes/code-reviewer) para a lista completa de regras.

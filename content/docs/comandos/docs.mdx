@@ -1,0 +1,50 @@
+---
+title: /docs
+description: Consulta documentação de componentes PO-UI diretamente no Claude Code
+---
+
+# /poui-specialist:docs
+
+Consulta a documentação de componentes PO-UI a partir da skill de referência embutida no plugin — sem precisar abrir o browser.
+
+## Sintaxe
+
+```bash
+/poui-specialist:docs <nome-do-componente>
+```
+
+## Exemplos
+
+```bash
+/poui-specialist:docs po-table
+/poui-specialist:docs po-lookup
+/poui-specialist:docs po-page-edit
+/poui-specialist:docs po-input
+/poui-specialist:docs po-select
+/poui-specialist:docs po-modal
+/poui-specialist:docs po-dynamic-form
+/poui-specialist:docs po-chart
+```
+
+## O que retorna
+
+Para cada componente, o comando retorna:
+
+- **Descrição** — o que o componente faz e quando usar
+- **Inputs** (`@Input()`) — todos os atributos com tipo, obrigatoriedade e descrição
+- **Outputs** (`@Output()`) — todos os eventos com tipo do payload
+- **Exemplo de uso** — código HTML e TypeScript prontos para copiar
+- **Quirks** — comportamentos não óbvios documentados de produção (quando existem)
+
+## Cobertura
+
+O comando cobre todos os componentes PO-UI documentados na skill `poui-components`:
+
+- Campos de formulário (`po-input`, `po-select`, `po-combo`, `po-lookup`, `po-datepicker`, etc.)
+- Tabelas (`po-table`, `po-dynamic-table`)
+- Páginas (`po-page-list`, `po-page-edit`, `po-page-default`, `po-page-detail`)
+- Modais e overlays (`po-modal`, `po-dialog`, `po-popover`)
+- Navegação (`po-menu`, `po-breadcrumb`, `po-tabs`, `po-stepper`)
+- Feedback (`po-notification`, `po-loading`, `po-progress`)
+- Formulários dinâmicos (`po-dynamic-form`, `po-dynamic-view`)
+- Utilitários (`po-divider`, `po-widget`, `po-chart`, `po-tag`)

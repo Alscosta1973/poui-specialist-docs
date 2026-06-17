@@ -1,0 +1,80 @@
+---
+title: /generate
+description: Gera artifacts Angular 17+ com PO-UI para integração com TOTVS Protheus
+---
+
+# /poui-specialist:generate
+
+Gera artifacts Angular 17+ com componentes PO-UI integrados à API REST do TOTVS Protheus.
+
+## Sintaxe
+
+```bash
+/poui-specialist:generate <tipo> <Nome> [--module <modulo>]
+```
+
+## Tipos disponíveis
+
+```bash
+# Páginas de lista
+page-list            # Lista simples com busca rápida
+page-dynamic-search  # Lista + busca avançada (padrão Protheus)
+page-dynamic         # Zero-boilerplate via PoPageDynamicTableComponent
+master-detail        # Lista com linhas filho expansíveis
+stacked-browse       # Dois po-table empilhados com teclado ArrowUp/Down
+two-panel-browse     # Dois po-table lado a lado para conciliação
+
+# Edição e detalhe
+page-edit            # Formulário completo em página separada
+page-detail          # Detalhe read-only (rota :id/detalhe)
+modal-crud           # Lista + modal add/edit em um componente
+stepper-form         # Formulário wizard multi-etapas
+
+# Utilitários
+service              # Service HttpClient para Protheus REST
+module               # Estrutura de módulo (routing + barrel)
+dashboard            # KPIs com po-widget + po-chart
+models               # Interfaces TypeScript
+tlpp-contract        # Contrato REST backend (WsRestFul)
+refactor             # Converte .prw/.tlpp para PO-UI
+```
+
+## Exemplos
+
+```bash
+# Lista de pedidos no módulo vendas
+/poui-specialist:generate page-list Pedidos --module vendas
+
+# Busca avançada de clientes
+/poui-specialist:generate page-dynamic-search Clientes --module cadastros
+
+# Formulário de edição de produto
+/poui-specialist:generate page-edit EditarProduto --module estoque
+
+# Modal de cadastro rápido
+/poui-specialist:generate modal-crud CadastroFornecedor --module compras
+
+# Dashboard com KPIs
+/poui-specialist:generate dashboard PainelFinanceiro --module financeiro
+
+# Converter ADVPL para PO-UI
+/poui-specialist:generate refactor FATA001.prw
+
+# Contrato TLPP backend
+/poui-specialist:generate tlpp-contract Pedidos --module vendas
+```
+
+## Fluxo de geração
+
+1. **Planejamento** — o agente apresenta a lista de arquivos que serão criados e pede confirmação
+2. **Geração** — escreve os arquivos com código funcional e atribuição `@generated poui-specialist`
+3. **Pós-verificação** — verifica entradas do tema PO-UI no `angular.json` e reporta ajustes necessários
+
+## Convenções de nomenclatura
+
+| Elemento | Convenção | Exemplo (nome: `PedidosList`, módulo: `vendas`) |
+|----------|-----------|--------------------------------------------------|
+| Seletor CSS | `app-` + kebab-case | `app-pedidos-list` |
+| Classe | PascalCase + sufixo | `PedidosListComponent` |
+| Arquivo | kebab-case.component.ts | `pedidos-list.component.ts` |
+| Diretório | `src/app/<modulo>/<kebab>/` | `src/app/vendas/pedidos-list/` |
