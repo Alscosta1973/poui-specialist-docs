@@ -23,7 +23,15 @@ add_frontmatter() {
     [ -n "$description" ] && echo "description: \"$description\""
     echo "---"
     echo ""
-    cat "$src"
+    # Normalize unsupported Shiki languages to 'text'
+    sed 's/^```advpl$/```text/
+         s/^```tlpp$/```text/
+         s/^```prw$/```text/
+         s/^```prx$/```text/' "$src" \
+    | awk 'BEGIN{in_code=0}
+           /^```/{in_code=!in_code; print; next}
+           !in_code{gsub(/\{/, "\\{"); gsub(/\}/, "\\}")}
+           {print}'
   } > "$dest"
 }
 
