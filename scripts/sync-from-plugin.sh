@@ -6,6 +6,23 @@ set -euo pipefail
 PLUGIN_DIR="${1:?Informe o diretório do plugin clonado}"
 DOCS_DIR="$(dirname "$0")/../content/docs"
 
+PREVIEWS_DIR="$(dirname "$0")/../public/previews"
+BASEPATH="/poui-specialist-docs"
+
+inject_preview() {
+  local dest="$1"
+  local name="$2"
+  local preview_file="${PREVIEWS_DIR}/${name}.svg"
+  [ -f "$preview_file" ] || return 0
+  local src_attr="${BASEPATH}/previews/${name}.svg"
+  awk -v modal="<PreviewModal src=\"${src_attr}\" label=\"Ver como fica a tela\" />" '
+    BEGIN { h1=0; inserted=0 }
+    /^# / { h1=1; print; next }
+    h1 && !inserted && /^[^#]/ && NF>0 { print; print ""; print modal; inserted=1; next }
+    { print }
+  ' "$dest" > "${dest}.tmp" && mv "${dest}.tmp" "$dest"
+}
+
 add_frontmatter() {
   local src="$1"
   local dest="$2"
@@ -43,6 +60,7 @@ for f in "$PLUGIN_DIR/skills/poui-code-generation"/*.md; do
   [ "$name" = "SKILL" ] && continue
   dest="$DOCS_DIR/templates/${name}.mdx"
   add_frontmatter "$f" "$dest"
+  inject_preview "$dest" "$name"
   echo "Synced: templates/${name}.mdx"
 done
 
@@ -54,6 +72,7 @@ for f in "$PLUGIN_DIR/skills/poui-components"/*.md; do
   [ "$name" = "SKILL" ] && continue
   dest="$DOCS_DIR/componentes/${name}.mdx"
   add_frontmatter "$f" "$dest"
+  inject_preview "$dest" "$name"
   echo "Synced: componentes/${name}.mdx"
 done
 
@@ -65,6 +84,7 @@ for f in "$PLUGIN_DIR/skills/poui-patterns"/*.md; do
   [ "$name" = "SKILL" ] && continue
   dest="$DOCS_DIR/padroes/${name}.mdx"
   add_frontmatter "$f" "$dest"
+  inject_preview "$dest" "$name"
   echo "Synced: padroes/${name}.mdx"
 done
 
