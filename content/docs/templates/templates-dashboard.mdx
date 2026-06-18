@@ -1,13 +1,11 @@
 ---
 title: "Template: dashboard"
-description: "Gera uma página de dashboard analítico com po-widget (cards KPI), po-chart (linhas/barras) e po-loading-overlay."
+description: "Gera uma página de dashboard analítico standalone com po-widget (cartões KPI), po-chart (linha/barra) e po-loading-ov"
 ---
 
 # Template: dashboard
 
-Gera uma página de dashboard analítico com `po-widget` (cards KPI), `po-chart` (linhas/barras) e `po-loading-overlay`.
-
-<PreviewModal src="/poui-specialist-docs/previews/templates-dashboard.svg" label="Ver exemplo de dashboard" />
+Gera uma página de dashboard analítico standalone com `po-widget` (cartões KPI), `po-chart` (linha/barra) e `po-loading-overlay`.
 
 ## \{\{kebab-name\}\}.component.ts
 
@@ -52,7 +50,7 @@ export class {{ComponentClass}} implements OnInit {
 
   readonly loading = signal(true);
 
-  // TODO: substituir os signals de KPI com dados do service
+  // TODO: substitua os signals de KPI com dados do service
   readonly kpi1Title = signal('KPI 1');
   readonly kpi1Value = signal('—');
   readonly kpi1Desc  = signal('');
@@ -73,7 +71,7 @@ export class {{ComponentClass}} implements OnInit {
   readonly chartSeries = signal<PoChartSerie[]>([]);
 
   ngOnInit(): void {
-    // TODO: injetar um service e carregar os dados do dashboard
+    // TODO: injete um service e carregue os dados do dashboard
     // Exemplo:
     // inject(DashService).getStats()
     //   .pipe(
@@ -102,7 +100,7 @@ export class {{ComponentClass}} implements OnInit {
   }
 
   @if (!loading()) {
-    <!-- Cards KPI -->
+    <!-- Cartões KPI -->
     <div class="po-row">
       <po-widget class="po-md-12 po-lg-4 po-mt-2" [p-title]="kpi1Title()">
         <div class="po-font-subtitle po-text-center">{{ kpi1Value() }}</div>
