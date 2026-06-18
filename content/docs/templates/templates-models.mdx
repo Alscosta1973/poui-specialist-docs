@@ -76,7 +76,7 @@ deleteByKey(codigo: string, loja: string): Observable<void> {
 
 > **Importante:** Protheus **não** retorna objetos aninhados.
 > Retorna campos "achatados" com prefixo. Não use objetos compostos
-> como `{ fornecedor: { codigo, nome } }` — o backend Protheus retornará
+> como `\{ fornecedor: \{ codigo, nome \} \}` — o backend Protheus retornará
 > `fornecedorCodigo` e `fornecedorNome` no mesmo nível do objeto raiz.
 
 ```typescript

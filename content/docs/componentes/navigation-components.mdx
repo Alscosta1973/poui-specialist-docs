@@ -309,13 +309,13 @@ exibir dados relacionados em diferentes visões sem navegação de rota.
 ### PoTab
 
 ```typescript
-interface PoTab {
+interface PoTab \{
   label:    string;           // texto exibido na aba
   id?:      string;           // identificador único
   disabled?: boolean;         // desabilita a aba
   icon?:    string;           // ícone PO antes do label
-  badge?:   { value: number; color?: string }; // contador na aba
-}
+  badge?:   \{ value: number; color?: string \}; // contador na aba
+\}
 ```
 
 ### Key Outputs
@@ -327,21 +327,21 @@ interface PoTab {
 ### Exemplo
 
 ```typescript
-import { PoTabsModule, PoTab } from '@po-ui/ng-components';
+import \{ PoTabsModule, PoTab \} from '@po-ui/ng-components';
 // em imports do @Component: [PoTabsModule]
 
 readonly abas: PoTab[] = [
-  { label: 'Dados Gerais',  id: 'dados'    },
-  { label: 'Endereço',      id: 'endereco' },
-  { label: 'Financeiro',    id: 'fin'      },
-  { label: 'Histórico',     id: 'hist',   disabled: true },
+  \{ label: 'Dados Gerais',  id: 'dados'    \},
+  \{ label: 'Endereço',      id: 'endereco' \},
+  \{ label: 'Financeiro',    id: 'fin'      \},
+  \{ label: 'Histórico',     id: 'hist',   disabled: true \},
 ];
 
 abaAtiva = 'dados';
 
-onTabChange(tab: PoTab): void {
+onTabChange(tab: PoTab): void \{
   this.abaAtiva = tab.id ?? '';
-}
+\}
 ```
 
 ```html
@@ -375,7 +375,7 @@ toggle de visualização (grade/lista), ou seleção de período.
 ### PoButtonGroupItem
 
 ```typescript
-interface PoButtonGroupItem {
+interface PoButtonGroupItem \{
   label:     string;
   action?:   (button: PoButtonGroupItem) => void;
   disabled?: boolean;
@@ -383,24 +383,24 @@ interface PoButtonGroupItem {
   selected?: boolean;         // estado inicial selecionado
   tooltip?:  string;
   type?:     'danger' | 'default' | 'primary' | 'link';
-}
+\}
 ```
 
 ### Exemplo
 
 ```typescript
-import { PoButtonGroupModule, PoButtonGroupItem } from '@po-ui/ng-components';
+import \{ PoButtonGroupModule, PoButtonGroupItem \} from '@po-ui/ng-components';
 // em imports: [PoButtonGroupModule]
 
 readonly viewButtons: PoButtonGroupItem[] = [
-  { label: 'Grade',  icon: 'po-icon-menu-grid',  selected: true,  action: () => this.setView('grid')  },
-  { label: 'Lista',  icon: 'po-icon-menu-lines',  selected: false, action: () => this.setView('list')  },
+  \{ label: 'Grade',  icon: 'po-icon-menu-grid',  selected: true,  action: () => this.setView('grid')  \},
+  \{ label: 'Lista',  icon: 'po-icon-menu-lines',  selected: false, action: () => this.setView('list')  \},
 ];
 
-setView(mode: 'grid' | 'list'): void {
+setView(mode: 'grid' | 'list'): void \{
   this.viewButtons.forEach(b => b.selected = b.label.toLowerCase() === mode);
   this.viewMode.set(mode);
-}
+\}
 ```
 
 ```html
@@ -425,7 +425,7 @@ em massa ou ações de cabeçalho quando há muitas opções que não cabem como
 ### PoDropdownItem
 
 ```typescript
-interface PoDropdownItem {
+interface PoDropdownItem \{
   label:      string;
   action?:    () => void;
   disabled?:  boolean;
@@ -433,19 +433,19 @@ interface PoDropdownItem {
   separator?: boolean;        // linha separadora antes deste item
   type?:      'danger' | 'default';
   url?:       string;
-}
+\}
 ```
 
 ### Exemplo
 
 ```typescript
-import { PoDropdownModule, PoDropdownItem } from '@po-ui/ng-components';
+import \{ PoDropdownModule, PoDropdownItem \} from '@po-ui/ng-components';
 // em imports: [PoDropdownModule]
 
 readonly exportActions: PoDropdownItem[] = [
-  { label: 'Exportar CSV',  icon: 'po-icon-export', action: () => this.exportCsv()  },
-  { label: 'Exportar PDF',  icon: 'po-icon-pdf',    action: () => this.exportPdf()  },
-  { separator: true, label: 'Imprimir', icon: 'po-icon-print', action: () => this.print() },
+  \{ label: 'Exportar CSV',  icon: 'po-icon-export', action: () => this.exportCsv()  \},
+  \{ label: 'Exportar PDF',  icon: 'po-icon-pdf',    action: () => this.exportPdf()  \},
+  \{ separator: true, label: 'Imprimir', icon: 'po-icon-print', action: () => this.print() \},
 ];
 ```
 
@@ -469,7 +469,7 @@ de formulários, modais ou containers sem criar estrutura extra.
 ### Exemplos
 
 ```typescript
-import { PoDividerModule } from '@po-ui/ng-components';
+import \{ PoDividerModule \} from '@po-ui/ng-components';
 // em imports do @Component: [PoDividerModule]
 ```
 

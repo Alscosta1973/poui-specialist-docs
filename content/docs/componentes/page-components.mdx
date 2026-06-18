@@ -207,5 +207,5 @@ import { PoPageModule } from '@po-ui/ng-components';
 
 > **Quirk:** `po-page-default` usa `PoPageContentComponent` internamente — conteúdo inicia
 > com `opacity: 0` e só torna-se visível após um `setTimeout`. Em componentes `OnPush` com
-> dados síncronos, adicione `ngAfterViewInit() { setTimeout(() => this.cdr.markForCheck()); }`
+> dados síncronos, adicione `ngAfterViewInit() \{ setTimeout(() => this.cdr.markForCheck()); \}`
 > para garantir que o conteúdo apareça (ver Quirk #1 em `po-ui-quirks.md`).

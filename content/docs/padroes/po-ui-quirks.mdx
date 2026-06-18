@@ -13,7 +13,7 @@ when generating or reviewing code.
 
 | # | Component / API | Symptom | Fix |
 |---|---|---|---|
-| 1 | po-page-content | **Content invisible on load in OnPush + sync data** | `ngAfterViewInit() { setTimeout(() => this.cdr.markForCheck()); }` |
+| 1 | po-page-content | **Content invisible on load in OnPush + sync data** | `ngAfterViewInit() \{ setTimeout(() => this.cdr.markForCheck()); \}` |
 | 2 | po-input | Buttons 8px below field edge | `margin-bottom: 8px` on the button container |
 | 3 | po-table | Horizontal scroll in side-by-side panels | Override checkbox col to 41px via `::ng-deep`; recalculate `p-width` sum |
 | 4 | po-input | `NG8002` on `p-max-length` | Use `p-maxlength` (no hyphen between `max` and `length`) |
@@ -392,7 +392,7 @@ private _moverCursor(delta: number): void {
 
 ### Part 3 — DOM highlight + scroll (manual, because CSS `:focus` does not reach table rows)
 
-> **⚠️ Never use `row.scrollIntoView({ block: 'nearest' })`** — it does not account for the
+> **⚠️ Never use `row.scrollIntoView(\{ block: 'nearest' \})`** — it does not account for the
 > sticky `thead`. When navigating to row 0 (or any row near the top), the row becomes hidden
 > behind the fixed header. Use the manual scroll calculation below instead.
 

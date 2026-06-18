@@ -26,7 +26,7 @@ Use cases: SC5/SC6 (orders + items), invoice lines, stock entries, any ERP maste
 | Keyboard navigation | `@HostListener('window:keydown')` routes ArrowUp/Down to active browse; Tab switches browse |
 | Scroll sync | `_scrollRowIntoView()` walks DOM to find real scrollable ancestor; callers use `setTimeout(..., 50)` NOT 0ms |
 | No page scroll | `masterHeight` + `detailHeight` computed signals using `_winH() - OFFSET` |
-| Focus ring suppression | `::ng-deep *:focus, ::ng-deep *:focus-visible { outline: none }` inside each browse container |
+| Focus ring suppression | `::ng-deep *:focus, ::ng-deep *:focus-visible \{ outline: none \}` inside each browse container |
 | Compact filter bar | `--font-size: 12px` CSS variable on `.filtros-bar` cascades to all PO-UI children |
 | Remover Filtro | Always rendered + always red; cursor and underline-hover only when `isFiltrado()` is true |
 | Demo data | `const DEMO_*` at top of component file; loaded in `error` callback of service call |
