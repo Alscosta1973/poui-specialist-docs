@@ -1,0 +1,150 @@
+---
+title: Otimização de Tokens
+description: Como usar o formato manifesto para gerar múltiplos componentes PO-UI com custo fixo de tokens por sessão
+---
+
+# Otimização de Tokens
+
+## Por que otimizar?
+
+Ao usar o `/poui-specialist:generate` em uma sessão com múltiplos componentes, o contexto acumula tokens a cada turno:
+
+| Turno | Contexto acumulado |
+|---|---|
+| 1º componente | ~25 KB |
+| 3º componente | ~60 KB |
+| 5º componente | ~120 KB+ |
+
+Com o `/poui-specialist:generate-batch`, cada componente é gerado em um subagente com contexto isolado e descartável. O custo por componente é fixo, independentemente de quantos você gerar na mesma sessão.
+
+## Prompt Manifesto
+
+O manifesto é um formato estruturado que descreve todos os componentes a gerar em um único prompt. Você preenche uma vez — o plugin gera tudo em sequência.
+
+```
+/poui-specialist:generate-batch
+
+MODULO: financeiro/contas-receber        ← pasta dentro de src/app/
+API_BASE: /rest/api/custom/v1            ← prefixo comum a todos os endpoints
+PASTA_DESTINO: src/app/financeiro/contas-receber
+
+COMPONENTES:
+| tipo      | classe                  | endpoint      | campos                                                     |
+|-----------|-------------------------|---------------|------------------------------------------------------------|
+| page-list | TitulosListComponent    | /titulos      | codTit, nomCli, valor, vencto, status                      |
+| page-edit | TitulosEditComponent    | /titulos/{id} | codTit(req), nomCli(req), valor(req), vencto(req), obs     |
+| service   | TitulosService          | /titulos      | -                                                          |
+
+REGRAS:
+- Status: A=Aberto B=Baixado C=Cancelado
+- Apenas status=A pode ser editado
+- Valor formatado como moeda BRL
+```
+
+### Convenções
+
+| Elemento | Significado | Exemplo |
+|---|---|---|
+| `(req)` após campo | Campo obrigatório no formulário | `nome(req)` |
+| `-` em campos | Sem campos específicos | `service` sempre usa `-` |
+| `REGRAS:` | Apenas regras que afetam código gerado | Status, formatação, validações |
+
+## Tipos de Componente
+
+| Tipo | Quando usar |
+|---|---|
+| `page-list` | Lista simples com busca rápida |
+| `page-dynamic-search` | Lista + filtros avançados + disclaimers (padrão Protheus) |
+| `page-dynamic` | Lista zero-boilerplate via `PoPageDynamicTable` |
+| `page-edit` | Formulário com muitos campos, navegação por rota |
+| `page-detail` | Tela de detalhe somente leitura |
+| `modal-crud` | Lista + modal de adição/edição (até ~10 campos) |
+| `stepper-form` | Formulário com 3+ seções ou etapas |
+| `master-detail` | Lista com linhas filho expansíveis (pedido/itens) |
+| `stacked-browse` | Dois `po-table` empilhados com navegação por teclado |
+| `two-panel-browse` | Dois `po-table` lado a lado para conciliação/matching |
+| `service` | Apenas o serviço Angular + interface do modelo |
+| `dashboard` | Analytics, KPIs, gráficos |
+
+## Exemplos Completos
+
+### Módulo de Parceiros
+
+```
+/poui-specialist:generate-batch
+
+MODULO: cadastros/parceiros
+API_BASE: /rest/api/custom/v1
+PASTA_DESTINO: src/app/cadastros/parceiros
+
+COMPONENTES:
+| tipo      | classe                 | endpoint        | campos                                       |
+|-----------|------------------------|-----------------|----------------------------------------------|
+| page-list | ParceirosListComponent | /parceiros      | codPar, nomPar, cgcCpf, email, ativo         |
+| page-edit | ParceirosEditComponent | /parceiros/{id} | codPar(req), nomPar(req), cgcCpf(req), email, telefone, ativo |
+| service   | ParceirosService       | /parceiros      | -                                            |
+
+REGRAS:
+- cgcCpf deve ser validado como CPF ou CNPJ
+- Ativo: 1=Sim 2=Não
+```
+
+### Módulo Financeiro Completo
+
+```
+/poui-specialist:generate-batch
+
+MODULO: financeiro/titulos
+API_BASE: /rest/api/custom/v1
+PASTA_DESTINO: src/app/financeiro/titulos
+
+COMPONENTES:
+| tipo                | classe                 | endpoint        | campos                                                 |
+|---------------------|------------------------|-----------------|--------------------------------------------------------|
+| page-dynamic-search | TitulosListComponent   | /titulos        | codTit, nomCli, valor, vencto, status                  |
+| page-edit           | TitulosEditComponent   | /titulos/{id}   | codTit(req), nomCli(req), valor(req), vencto(req), obs |
+| page-detail         | TitulosDetailComponent | /titulos/{id}   | codTit, nomCli, valor, vencto, status, obs             |
+| service             | TitulosService         | /titulos        | -                                                      |
+
+REGRAS:
+- Status: A=Aberto B=Baixado C=Cancelado
+- Apenas status=A pode ser editado
+- Valor formatado como moeda BRL
+- vencto é data no formato DD/MM/YYYY
+```
+
+## Boas Práticas
+
+**Descreva apenas o que afeta o código gerado:**
+
+```
+❌ REGRAS:
+- Sistema migrado do Protheus 11 para 12 em 2024
+- Aprovado pelo time de arquitetura em reunião de maio
+
+✅ REGRAS:
+- Status: A=Aberto B=Baixado
+- Valor em BRL, máximo 15 dígitos inteiros
+```
+
+**Use `(req)` apenas em campos realmente obrigatórios no formulário:**
+
+```
+campos: codTit(req), nomCli(req), valor(req), obs, complemento
+```
+Os campos `obs` e `complemento` acima serão opcionais no formulário gerado.
+
+**Para serviços, use sempre `-` em campos — o service não tem formulário:**
+
+```
+| service | ParceirosService | /parceiros | - |
+```
+
+**Mantenha regras em uma linha cada:**
+
+```
+REGRAS:
+- Status: A=Aberto B=Baixado C=Cancelado
+- Apenas status=A pode ser editado
+- Valor formatado como moeda BRL
+```
