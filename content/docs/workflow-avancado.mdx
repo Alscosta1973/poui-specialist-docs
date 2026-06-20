@@ -1,0 +1,236 @@
+---
+title: Workflow Avançado
+description: Skills que complementam o ciclo de geração — descoberta automática de campos, contexto do projeto, verificação de build e auditoria de qualidade
+---
+
+# Workflow Avançado
+
+Quatro skills para além da geração: descobrir o que gerar, evitar duplicatas, verificar se compilou e auditar qualidade.
+
+```
+/poui-specialist:discover    → inspeciona endpoint e gera manifesto
+/poui-specialist:context     → escaneia projeto para evitar duplicatas
+/poui-specialist:build-fix   → compila e corrige erros automaticamente
+/poui-specialist:quality     → audita critérios de qualidade dos componentes
+```
+
+---
+
+## Auto-Discovery de Campos
+
+Antes de escrever o manifesto manualmente, use o `/poui-specialist:discover` para inspecionar o endpoint e gerar o manifesto automaticamente.
+
+```
+/poui-specialist:discover /api/custom/v1/titulos
+```
+
+O plugin:
+1. Lê o `proxy.conf.json` do projeto Angular para obter a URL do AppServer
+2. Chama `GET <appserver>/rest/api/custom/v1/titulos?pageSize=1`
+3. Inspeciona os campos do primeiro registro — tipos, nomes, padrão de chave composta
+4. Gera o manifesto pré-preenchido com a tripla `page-list + page-edit + service`
+5. Pergunta se deseja gerar os componentes — se sim, despacha o `generate-batch` direto
+
+### O que é inferido automaticamente
+
+| Campo | Inferência |
+|---|---|
+| Nome começa com `Cd`, `Cod`, `Num` | Marcado como `(req)` no page-edit |
+| Nome contém `Dt`, `Dat`, `Data` | REGRA: `usar po-datepicker` |
+| Nome contém `Vl`, `Vlr`, `Val`, `Valor` | REGRA: `formatar como moeda BRL` |
+| Response tem `codigo` + `loja` | Chave composta: endpoint `/{codigo}/{loja}` |
+
+### Exemplo de saída
+
+```
+Manifesto gerado a partir de GET http://192.168.1.100:8084/rest/api/custom/v1/titulos?pageSize=1
+
+MODULO: <modulo>
+API_BASE: /rest/api/custom/v1
+PASTA_DESTINO: src/app/<modulo>
+
+COMPONENTES:
+| tipo      | classe               | endpoint        | campos                                         |
+|-----------|----------------------|-----------------|------------------------------------------------|
+| page-list | TitulosListComponent | /titulos        | codTit, nomCli, vlrTit, dtVenc, status         |
+| page-edit | TitulosEditComponent | /titulos/{id}   | codTit(req), nomCli(req), vlrTit, dtVenc, obs  |
+| service   | TitulosService       | /titulos        | -                                              |
+
+REGRAS:
+- vlrTit: formatar como moeda BRL
+- dtVenc: usar po-datepicker
+
+Ajuste MODULO e PASTA_DESTINO conforme necessário, então confirme.
+Deseja gerar os componentes agora? [S/n]
+```
+
+Ajuste `MODULO` e `PASTA_DESTINO` antes de confirmar (ex: `financeiro/titulos`). Os demais campos são preenchidos automaticamente.
+
+---
+
+## Geração Codebase-Aware
+
+Antes de gerar componentes, use `/poui-specialist:context` para escanear o projeto e evitar duplicatas.
+
+```
+/poui-specialist:context
+```
+
+O plugin:
+1. Localiza `angular.json` subindo até 3 níveis
+2. Lê `app.routes.ts` e extrai todas as rotas registradas
+3. Lista os serviços gerados pelo plugin (`@generated poui-specialist`) com seus endpoints
+4. Exibe o snapshot e pergunta se deseja ativá-lo para as próximas gerações
+
+### O que o contexto faz na geração
+
+| Situação detectada | Ação |
+|---|---|
+| Rota já registrada | Avisa e não duplica no `app.routes.ts` |
+| Serviço com mesmo endpoint já existe | Reutiliza o serviço em vez de criar novo arquivo |
+| `API_BASE` não informado no manifesto | Sugere o valor inferido dos serviços existentes |
+
+### Como usar com `/generate-batch`
+
+Após ativar o contexto, o plugin exibe um bloco `CONTEXTO_PROJETO:` para colar no manifesto:
+
+```
+/poui-specialist:generate-batch
+
+MODULO: financeiro/titulos
+API_BASE: /api/financeiro
+PASTA_DESTINO: src/app/financeiro/titulos
+
+CONTEXTO_PROJETO:
+  rotas: [faturamento/gerar-nf-pedido, financeiro/divergencias-cartao]
+  servicos: [CadTaxaService → /api/financeiro/cad-taxa]
+  padrao: src/app/<módulo>/<entidade>/
+
+COMPONENTES:
+| tipo      | classe               | endpoint  | campos                  |
+|-----------|----------------------|-----------|-------------------------|
+| page-list | TitulosListComponent | /titulos  | codTit, nomCli, vlrTit  |
+| service   | TitulosService       | /titulos  | -                       |
+```
+
+O contexto não persiste entre sessões — re-execute `/context` a cada nova sessão Claude.
+
+---
+
+## Verificação de Build Automática
+
+Após gerar os componentes, o plugin compila o projeto Angular automaticamente e corrige erros TypeScript/template sem intervenção do usuário.
+
+```
+/poui-specialist:build-fix
+```
+
+> Esta skill é invocada automaticamente pelo `/generate` e `/generate-batch` — não é necessário chamá-la manualmente.
+
+### Como funciona
+
+1. Localiza o `angular.json` subindo até 3 níveis a partir do diretório atual
+2. Executa `ng build --configuration development` com timeout de 120 segundos
+3. Se o build passou: exibe confirmação e encerra
+4. Se houver erros: lê cada arquivo com erro e aplica correção automática
+5. Repete até o build passar ou esgotar 3 tentativas
+
+### Filtro de segurança
+
+O plugin **só modifica arquivos que ele mesmo gerou** — identificados pelo header `@generated  poui-specialist`. Arquivos pré-existentes do projeto aparecem no relatório final mas não são tocados.
+
+### Tipos de erro corrigidos automaticamente
+
+| Erro TypeScript | Correção aplicada |
+|---|---|
+| `Property 'x' does not exist on type 'Y'` | Adiciona propriedade à interface ou corrige referência |
+| `Cannot find module '...'` | Corrige path do import ou adiciona import ausente |
+| `Type 'string' is not assignable to type 'number'` | Ajusta casting ou tipo na interface |
+| `Expected N arguments, but got M` | Ajusta chamada do método |
+| `Property 'p-xxx' does not exist` em template HTML | Verifica nome correto do input PO-UI |
+| `Object is possibly 'undefined'` | Adiciona optional chaining `?.` |
+
+### Relatório de resultado
+
+**Build passou na primeira tentativa:**
+```
+## Build Verification
+
+✅ Build passou na tentativa 1 — nenhum erro TypeScript ou de template.
+   Arquivos gerados compilam sem erros.
+```
+
+**Erros corrigidos automaticamente:**
+```
+## Build Verification
+
+✅ Build passou na tentativa 2 — todos os erros foram corrigidos automaticamente.
+
+   Correções aplicadas:
+   - titulos-list.component.ts: propriedade 'isLoading' adicionada à interface
+   - titulos-edit.component.ts: import 'PoNotificationService' corrigido
+```
+
+**Erros que precisam de atenção manual (após 3 tentativas):**
+```
+## Build Verification
+
+❌ 1 erro restante após 3 tentativas — requer atenção manual:
+
+   src/app/financeiro/titulos/titulos-edit.component.ts:42:3
+   Argument of type 'string' is not assignable to parameter of type 'number'.
+   → Campo 'valor' está mapeado como string mas o modelo espera number.
+```
+
+---
+
+## Auditoria de Qualidade
+
+Use `/poui-specialist:quality` para verificar se os componentes gerados estão seguindo os critérios de qualidade do plugin.
+
+```
+/poui-specialist:quality
+```
+
+O plugin varre todos os `*.component.ts` com `@generated poui-specialist` e aplica 4 regras por componente via regex, mais uma verificação de rotas:
+
+| # | Critério | O que verifica | Severidade |
+|---|---|---|---|
+| 1 | **OnPush** | `ChangeDetectionStrategy.OnPush` presente no decorator | Crítico |
+| 2 | **Loading state** | `finalize()` presente (evita spinner travado) | Atenção |
+| 3 | **Error handling** | `notification.error()` ou `catchError()` presente | Atenção |
+| 4 | **Cleanup observables** | `takeUntilDestroyed()` presente (evita memory leak) | Atenção |
+| 5 | **Lazy loading** | Rotas em `app.routes.ts` usam `loadComponent:` (auditado separadamente) | Atenção |
+
+### Exemplo de relatório
+
+```
+## Relatório de Qualidade PO-UI
+Auditado em: 2026-06-20 | Componentes: 3 | Rotas auditadas: 2
+
+### ✅ Aprovados (2)
+- src/app/financeiro/cad-taxa/cad-taxa.component.ts — 4/4 critérios
+- src/app/financeiro/titulos/titulos.component.ts — 4/4 critérios
+
+### ⚠️ Atenção necessária (1)
+src/app/faturamento/nf-pedido/nf-pedido.component.ts — 2/4 critérios
+
+| Critério              | Status | Ação sugerida                                              |
+|-----------------------|--------|------------------------------------------------------------|
+| OnPush                | ✅     | —                                                          |
+| Loading state         | ❌     | Adicionar finalize(() => this.loading.set(false))          |
+| Error handling        | ✅     | —                                                          |
+| Cleanup observables   | ❌     | Adicionar .pipe(takeUntilDestroyed()) nos observables      |
+
+### Rotas auditadas (app.routes.ts)
+| Rota                        | Lazy loading        |
+|-----------------------------|---------------------|
+| financeiro/cad-taxa         | ✅ loadComponent    |
+| faturamento/nf-pedido       | ❌ component direto |
+
+---
+Resumo: 2 aprovados · 1 com atenção · 0 críticos
+Nenhuma alteração foi feita automaticamente.
+```
+
+A auditoria é somente leitura — nenhum arquivo é modificado.
