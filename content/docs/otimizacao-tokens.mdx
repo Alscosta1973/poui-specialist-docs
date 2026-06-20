@@ -17,6 +17,58 @@ Ao usar o `/poui-specialist:generate` em uma sessão com múltiplos componentes,
 
 Com o `/poui-specialist:generate-batch`, cada componente é gerado em um subagente com contexto isolado e descartável. O custo por componente é fixo, independentemente de quantos você gerar na mesma sessão.
 
+## Auto-Discovery de Campos
+
+Antes de escrever o manifesto manualmente, use o `/poui-specialist:discover` para inspecionar o endpoint e gerar o manifesto automaticamente.
+
+```
+/poui-specialist:discover /api/custom/v1/titulos
+```
+
+O plugin:
+1. Lê o `proxy.conf.json` do projeto Angular para obter a URL do AppServer
+2. Chama `GET <appserver>/rest/api/custom/v1/titulos?pageSize=1`
+3. Inspeciona os campos do primeiro registro — tipos, nomes, padrão de chave composta
+4. Gera o manifesto pré-preenchido com a tripla `page-list + page-edit + service`
+5. Pergunta se deseja gerar os componentes — se sim, despacha o `generate-batch` direto
+
+### O que é inferido automaticamente
+
+| Campo | Inferência |
+|---|---|
+| Nome começa com `Cd`, `Cod`, `Num` | Marcado como `(req)` no page-edit |
+| Nome contém `Dt`, `Dat`, `Data` | REGRA: `usar po-datepicker` |
+| Nome contém `Vl`, `Vlr`, `Val`, `Valor` | REGRA: `formatar como moeda BRL` |
+| Response tem `codigo` + `loja` | Chave composta: endpoint `/{codigo}/{loja}` |
+
+### Exemplo de saída
+
+```
+Manifesto gerado a partir de GET http://192.168.1.100:8084/rest/api/custom/v1/titulos?pageSize=1
+
+MODULO: <modulo>
+API_BASE: /rest/api/custom/v1
+PASTA_DESTINO: src/app/<modulo>
+
+COMPONENTES:
+| tipo      | classe               | endpoint        | campos                                         |
+|-----------|----------------------|-----------------|------------------------------------------------|
+| page-list | TitulosListComponent | /titulos        | codTit, nomCli, vlrTit, dtVenc, status         |
+| page-edit | TitulosEditComponent | /titulos/{id}   | codTit(req), nomCli(req), vlrTit, dtVenc, obs  |
+| service   | TitulosService       | /titulos        | -                                              |
+
+REGRAS:
+- vlrTit: formatar como moeda BRL
+- dtVenc: usar po-datepicker
+
+Ajuste MODULO e PASTA_DESTINO conforme necessário, então confirme.
+Deseja gerar os componentes agora? [S/n]
+```
+
+Ajuste `MODULO` e `PASTA_DESTINO` antes de confirmar (ex: `financeiro/titulos`). Os demais campos são preenchidos automaticamente.
+
+---
+
 ## Prompt Manifesto
 
 O manifesto é um formato estruturado que descreve todos os componentes a gerar em um único prompt. Você preenche uma vez — o plugin gera tudo em sequência.
