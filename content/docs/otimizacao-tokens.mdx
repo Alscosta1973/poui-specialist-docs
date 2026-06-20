@@ -118,6 +118,53 @@ O contexto não persiste entre sessões — re-execute `/context` a cada nova se
 
 ---
 
+## Auditoria de Qualidade
+
+Use `/poui-specialist:quality` para verificar se os componentes gerados estão seguindo os 5 critérios de qualidade do plugin.
+
+```
+/poui-specialist:quality
+```
+
+O plugin varre todos os `*.component.ts` com `@generated poui-specialist` e aplica 5 regras via regex:
+
+| # | Critério | O que verifica | Severidade |
+|---|---|---|---|
+| 1 | **OnPush** | `ChangeDetectionStrategy.OnPush` presente no decorator | Crítico |
+| 2 | **Loading state** | `finalize()` presente (evita spinner travado) | Atenção |
+| 3 | **Error handling** | `notification.error()` ou `catchError()` presente | Atenção |
+| 4 | **Cleanup observables** | `takeUntilDestroyed()` presente (evita memory leak) | Atenção |
+| 5 | **Lazy loading** | Rotas em `app.routes.ts` usam `loadComponent:` | Atenção |
+
+### Exemplo de relatório
+
+```
+## Relatório de Qualidade PO-UI
+Auditado em: 2026-06-20 | Componentes: 3
+
+### ✅ Aprovados (2)
+- src/app/financeiro/cad-taxa/cad-taxa.component.ts — 4/4 critérios
+- src/app/financeiro/titulos/titulos.component.ts — 4/4 critérios
+
+### ⚠️ Atenção necessária (1)
+src/app/faturamento/nf-pedido/nf-pedido.component.ts — 2/4 critérios
+
+| Critério              | Status | Ação sugerida                                              |
+|-----------------------|--------|------------------------------------------------------------|
+| OnPush                | ✅     | —                                                          |
+| Loading state         | ❌     | Adicionar finalize(() => this.loading.set(false))          |
+| Error handling        | ✅     | —                                                          |
+| Cleanup observables   | ❌     | Adicionar .pipe(takeUntilDestroyed()) nos observables      |
+
+---
+Resumo: 2 aprovados · 1 com atenção · 0 críticos
+Nenhuma alteração foi feita automaticamente.
+```
+
+A auditoria é somente leitura — nenhum arquivo é modificado.
+
+---
+
 ## Verificação de Build Automática
 
 Após gerar os componentes, o plugin compila o projeto Angular automaticamente e corrige erros TypeScript/template sem intervenção do usuário.
