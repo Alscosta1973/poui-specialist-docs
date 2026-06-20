@@ -69,6 +69,55 @@ Ajuste `MODULO` e `PASTA_DESTINO` antes de confirmar (ex: `financeiro/titulos`).
 
 ---
 
+## Geração Codebase-Aware
+
+Antes de gerar componentes, use `/poui-specialist:context` para escanear o projeto e evitar duplicatas.
+
+```
+/poui-specialist:context
+```
+
+O plugin:
+1. Localiza `angular.json` subindo até 3 níveis
+2. Lê `app.routes.ts` e extrai todas as rotas registradas
+3. Lista os serviços gerados pelo plugin (`@generated poui-specialist`) com seus endpoints
+4. Exibe o snapshot e pergunta se deseja ativá-lo para as próximas gerações
+
+### O que o contexto faz na geração
+
+| Situação detectada | Ação |
+|---|---|
+| Rota já registrada | Avisa e não duplica no `app.routes.ts` |
+| Serviço com mesmo endpoint já existe | Reutiliza o serviço em vez de criar novo arquivo |
+| `API_BASE` não informado no manifesto | Sugere o valor inferido dos serviços existentes |
+
+### Como usar com `/generate-batch`
+
+Após ativar o contexto, o plugin exibe um bloco `CONTEXTO_PROJETO:` para colar no manifesto:
+
+```
+/poui-specialist:generate-batch
+
+MODULO: financeiro/titulos
+API_BASE: /api/financeiro
+PASTA_DESTINO: src/app/financeiro/titulos
+
+CONTEXTO_PROJETO:
+  rotas: [faturamento/gerar-nf-pedido, financeiro/divergencias-cartao]
+  servicos: [CadTaxaService → /api/financeiro/cad-taxa]
+  padrao: src/app/<módulo>/<entidade>/
+
+COMPONENTES:
+| tipo      | classe               | endpoint  | campos                  |
+|-----------|----------------------|-----------|-------------------------|
+| page-list | TitulosListComponent | /titulos  | codTit, nomCli, vlrTit  |
+| service   | TitulosService       | /titulos  | -                       |
+```
+
+O contexto não persiste entre sessões — re-execute `/context` a cada nova sessão Claude.
+
+---
+
 ## Verificação de Build Automática
 
 Após gerar os componentes, o plugin compila o projeto Angular automaticamente e corrige erros TypeScript/template sem intervenção do usuário.
