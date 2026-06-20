@@ -68,7 +68,9 @@ refactor             # Converte .prw/.tlpp para PO-UI
 
 1. **Planejamento** — o agente apresenta a lista de arquivos que serão criados e pede confirmação
 2. **Geração** — escreve os arquivos com código funcional e atribuição `@generated poui-specialist`
-3. **Pós-verificação** — verifica entradas do tema PO-UI no `angular.json` e reporta ajustes necessários
+3. **Confirmação** — lista os arquivos criados com seus caminhos absolutos e rota sugerida
+4. **Verificação de build** — compila automaticamente com `ng build` e corrige erros TypeScript/template sem intervenção ([`/poui-specialist:build-fix`](/docs/otimizacao-tokens#verificacao-de-build-automatica))
+5. **Preview no browser** — pergunta se deseja visualizar o componente gerado (opcional)
 
 ## Convenções de nomenclatura
 

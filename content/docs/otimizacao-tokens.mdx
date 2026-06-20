@@ -69,6 +69,73 @@ Ajuste `MODULO` e `PASTA_DESTINO` antes de confirmar (ex: `financeiro/titulos`).
 
 ---
 
+## Verificação de Build Automática
+
+Após gerar os componentes, o plugin compila o projeto Angular automaticamente e corrige erros TypeScript/template sem intervenção do usuário.
+
+```
+/poui-specialist:build-fix
+```
+
+> Esta skill é invocada automaticamente pelo `/generate` e `/generate-batch` — não é necessário chamá-la manualmente.
+
+### Como funciona
+
+1. Localiza o `angular.json` subindo até 3 níveis a partir do diretório atual
+2. Executa `ng build --configuration development` com timeout de 120 segundos
+3. Se o build passou: exibe confirmação e encerra
+4. Se houver erros: lê cada arquivo com erro e aplica correção automática
+5. Repete até o build passar ou esgotar 3 tentativas
+
+### Filtro de segurança
+
+O plugin **só modifica arquivos que ele mesmo gerou** — identificados pelo header `@generated  poui-specialist`. Arquivos pré-existentes do projeto aparecem no relatório final mas não são tocados.
+
+### Tipos de erro corrigidos automaticamente
+
+| Erro TypeScript | Correção aplicada |
+|---|---|
+| `Property 'x' does not exist on type 'Y'` | Adiciona propriedade à interface ou corrige referência |
+| `Cannot find module '...'` | Corrige path do import ou adiciona import ausente |
+| `Type 'string' is not assignable to type 'number'` | Ajusta casting ou tipo na interface |
+| `Expected N arguments, but got M` | Ajusta chamada do método |
+| `Property 'p-xxx' does not exist` em template HTML | Verifica nome correto do input PO-UI |
+| `Object is possibly 'undefined'` | Adiciona optional chaining `?.` |
+
+### Relatório de resultado
+
+**Build passou na primeira tentativa:**
+```
+## Build Verification
+
+✅ Build passou na tentativa 1 — nenhum erro TypeScript ou de template.
+   Arquivos gerados compilam sem erros.
+```
+
+**Erros corrigidos automaticamente:**
+```
+## Build Verification
+
+✅ Build passou na tentativa 2 — todos os erros foram corrigidos automaticamente.
+
+   Correções aplicadas:
+   - titulos-list.component.ts: propriedade 'isLoading' adicionada à interface
+   - titulos-edit.component.ts: import 'PoNotificationService' corrigido
+```
+
+**Erros que precisam de atenção manual (após 3 tentativas):**
+```
+## Build Verification
+
+❌ 1 erro restante após 3 tentativas — requer atenção manual:
+
+   src/app/financeiro/titulos/titulos-edit.component.ts:42:3
+   Argument of type 'string' is not assignable to parameter of type 'number'.
+   → Campo 'valor' está mapeado como string mas o modelo espera number.
+```
+
+---
+
 ## Prompt Manifesto
 
 O manifesto é um formato estruturado que descreve todos os componentes a gerar em um único prompt. Você preenche uma vez — o plugin gera tudo em sequência.
