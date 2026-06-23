@@ -1,0 +1,75 @@
+---
+title: /test
+description: Gera unit tests Karma + Jasmine para componentes e services PO-UI Angular
+---
+
+# /poui-specialist:test
+
+Gera `*.component.spec.ts` ou `*.service.spec.ts` completo (Karma + Jasmine) para componentes e services criados pelo plugin, cobrindo: smoke test, estados de loading/empty/error, chamadas HTTP via `HttpTestingController`, navegação via `Router`, e interações específicas por tipo de componente.
+
+## Sintaxe
+
+```bash
+/poui-specialist:test <ComponentClass> --module <modulo>
+```
+
+## Exemplos
+
+```bash
+# Spec para componente de lista
+/poui-specialist:test ParceirosComponent --module faturamento/parceiros
+
+# Spec para componente de lista com ação (action-list)
+/poui-specialist:test TitulosListComponent --module financeiro
+
+# Spec para service HTTP
+/poui-specialist:test TitulosService --module financeiro
+```
+
+## Famílias de componente e cobertura
+
+O gerador detecta automaticamente o tipo do componente e aplica o template de cobertura correspondente:
+
+| Família | Detectado por | Specs gerados |
+|---------|---------------|---------------|
+| `list` | `items` + `loading` + `hasNext`, `PoDisclaimerGroup`, `PoPageDynamicTableComponent` | Smoke, carregamento, estado vazio, paginação, filtros |
+| `form` | `PoStepperModule`, `PoDynamicFormModule`, `ActivatedRoute` | Smoke, validação, submit, navegação entre steps |
+| `detail` | `ActivatedRoute` sem form | Smoke, carregamento via rota, exibição de campos |
+| `complex` | `actions: ActionConfig[]`, `selectedLeft/Right`, `activeBrowse`, `detailColumns` | Smoke, ações de toolbar, dois painéis, browse aninhado |
+| `other` | `@Injectable`, `PoChartModule`, `PoWidgetModule` | Smoke, chamadas HTTP, mapeamento de resposta, erros |
+
+## Fluxo de geração
+
+1. **Parse de argumentos** — deriva `kebab-name`, detecta se é service, calcula caminhos de componente e spec
+2. **Leitura e análise** — lê o arquivo, identifica família, extrai `ServiceClass`, `apiPath` e `ModelInterface`
+3. **Seleção de template** — carrega `templates-test-base.md` + `templates-test-<família>.md`
+4. **Geração do spec** — substitui placeholders, preenche dados mock realistas a partir das `PoTableColumn[]`
+5. **Execução e relatório** — roda `ng test --watch=false` e exibe resultado
+
+## Padrões de teste gerados
+
+```typescript
+// Setup padrão com HttpTestingController e RouterTestingModule
+TestBed.configureTestingModule({
+  imports: [ComponentName, HttpClientTestingModule, RouterTestingModule],
+  schemas: [NO_ERRORS_SCHEMA]
+});
+
+// Padrão async com waitForAsync/whenStable
+it('deve carregar itens ao inicializar', waitForAsync(() => {
+  const req = httpMock.expectOne(env => env.url.includes('/api/endpoint'));
+  req.flush({ items: [mockItem], hasNext: false });
+  return fixture.whenStable().then(() => {
+    expect(component.items().length).toBe(1);
+  });
+}));
+```
+
+## Saída esperada
+
+```
+✅ Spec gerado: src/app/financeiro/titulos-list/titulos-list.component.spec.ts
+✅ TitulosListComponent — 10 spec(s), 0 failures
+```
+
+Se o `ng test` falhar, o spec é mantido no disco e pode ser ajustado manualmente com base nos erros exibidos.
