@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { baseOptions } from '@/lib/layout.shared';
 
-const PLUGIN_VERSION = 'v1.3.0';
+const PLUGIN_VERSION = 'v1.4.0';
 
 export default function Home() {
   return (
@@ -63,7 +63,7 @@ export default function Home() {
           </span>
         </div>
         <div className="flex flex-col items-center text-center rounded-xl border bg-fd-card p-6 gap-2">
-          <span className="text-3xl font-bold">3</span>
+          <span className="text-3xl font-bold">4</span>
           <span className="text-sm font-medium">Comandos</span>
           <span className="text-xs text-fd-muted-foreground">
             Invocáveis diretamente no Claude Code
@@ -86,6 +86,7 @@ export default function Home() {
             <ul className="text-sm text-fd-muted-foreground space-y-2">
               <li>Geração de components PO-UI completos (standalone + OnPush)</li>
               <li>Templates page-list, page-edit, modal-crud, stepper, dashboard</li>
+              <li>Testes unitários Karma + Jasmine com cobertura por família de componente</li>
               <li>Integração com REST Protheus — contrato e service prontos</li>
               <li>Review de código com regras de boas práticas, performance e acessibilidade</li>
             </ul>
