@@ -16,14 +16,73 @@ Consulta a documentação de componentes PO-UI a partir da skill de referência 
 ## Exemplos
 
 ```bash
-/poui-specialist:docs po-table
-/poui-specialist:docs po-lookup
+# Páginas
+/poui-specialist:docs po-page-list
 /poui-specialist:docs po-page-edit
+/poui-specialist:docs po-page-detail
+/poui-specialist:docs po-page-default
+
+# Tabela
+/poui-specialist:docs po-table
+
+# Campos de formulário
 /poui-specialist:docs po-input
 /poui-specialist:docs po-select
+/poui-specialist:docs po-combo
+/poui-specialist:docs po-lookup
+/poui-specialist:docs po-datepicker
+/poui-specialist:docs po-decimal
+/poui-specialist:docs po-switch
+/poui-specialist:docs po-upload
+/poui-specialist:docs po-multiselect
+/poui-specialist:docs po-password
+/poui-specialist:docs po-time
+
+# Modal e diálogos
 /poui-specialist:docs po-modal
-/poui-specialist:docs po-dynamic-form
+/poui-specialist:docs po-dynamic-view
+
+# Navegação
+/poui-specialist:docs po-menu
+/poui-specialist:docs po-toolbar
+/poui-specialist:docs po-tabs
+/poui-specialist:docs po-dropdown
+
+# Layout
+/poui-specialist:docs po-container
+/poui-specialist:docs po-accordion
+/poui-specialist:docs po-list-view
+
+# Feedback e status
+/poui-specialist:docs po-tag
+/poui-specialist:docs po-progress
+/poui-specialist:docs po-info
+
+# Utilitários
+/poui-specialist:docs po-loading-overlay
+/poui-specialist:docs po-widget
+/poui-specialist:docs po-avatar
+/poui-specialist:docs po-badge
+/poui-specialist:docs po-skeleton
+
+# UI / Visualização
 /poui-specialist:docs po-chart
+/poui-specialist:docs po-statistic
+/poui-specialist:docs po-rich-text
+/poui-specialist:docs po-calendar
+/poui-specialist:docs po-code-editor
+/poui-specialist:docs po-popover
+/poui-specialist:docs po-context-menu
+
+# Páginas dinâmicas (@po-ui/ng-templates)
+/poui-specialist:docs po-page-dynamic-table
+/poui-specialist:docs po-page-dynamic-edit
+/poui-specialist:docs po-page-dynamic-detail
+/poui-specialist:docs po-page-dynamic-search
+
+# Formulários e views dinâmicos
+/poui-specialist:docs po-dynamic-form
+/poui-specialist:docs po-dynamic-view
 ```
 
 ## O que retorna
@@ -40,11 +99,14 @@ Para cada componente, o comando retorna:
 
 O comando cobre todos os componentes PO-UI documentados na skill `poui-components`:
 
-- Campos de formulário (`po-input`, `po-select`, `po-combo`, `po-lookup`, `po-datepicker`, etc.)
-- Tabelas (`po-table`, `po-dynamic-table`)
-- Páginas (`po-page-list`, `po-page-edit`, `po-page-default`, `po-page-detail`)
-- Modais e overlays (`po-modal`, `po-dialog`, `po-popover`)
-- Navegação (`po-menu`, `po-breadcrumb`, `po-tabs`, `po-stepper`)
-- Feedback (`po-notification`, `po-loading`, `po-progress`)
-- Formulários dinâmicos (`po-dynamic-form`, `po-dynamic-view`)
-- Utilitários (`po-divider`, `po-widget`, `po-chart`, `po-tag`)
+- **Páginas** — `po-page-list`, `po-page-edit`, `po-page-detail`, `po-page-default`
+- **Tabelas** — `po-table`, `PoTableColumn`, `PoTableAction`, templates de célula/coluna/linha
+- **Campos de formulário** — `po-input`, `po-select`, `po-combo`, `po-lookup`, `po-datepicker`, `po-switch`, `po-checkbox-group`, `po-radio-group`, `po-multiselect`, `po-textarea`, `po-upload`, `po-number`, `po-decimal`, `po-password`, `po-time`
+- **Modal e diálogos** — `po-modal`, `PoDialogService`, `po-dynamic-view`
+- **Navegação** — `po-menu`, `po-toolbar`, `PoBreadcrumb`, `po-tabs`, `po-button-group`, `po-dropdown`, `po-divider`
+- **Layout** — `po-container`, `po-accordion`, `po-list-view`
+- **Feedback e status** — `po-tag`, `po-info`, `[p-tooltip]`, `po-progress`
+- **Utilitários** — `po-loading-overlay`, `po-widget`, `po-avatar`, `po-badge`, `po-skeleton`
+- **UI / Visualização** — `po-chart`, `po-statistic`, `po-rich-text`, `po-calendar`, `po-code-editor`, `po-popover`, `po-key-value`, `po-context-menu`
+- **Formulários dinâmicos** — `PoDynamicFormField`, `PoDynamicViewField`, `po-dynamic-form`
+- **Páginas dinâmicas** (`@po-ui/ng-templates`) — `po-page-dynamic-table`, `po-page-dynamic-search`, `po-page-dynamic-edit`, `po-page-dynamic-detail`
