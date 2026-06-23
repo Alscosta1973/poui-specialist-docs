@@ -30,13 +30,13 @@ Gera `*.component.spec.ts` ou `*.service.spec.ts` completo (Karma + Jasmine) par
 
 O gerador detecta automaticamente o tipo do componente e aplica o template de cobertura correspondente:
 
-| Família | Detectado por | Specs gerados |
-|---------|---------------|---------------|
-| `list` | `items` + `loading` + `hasNext`, `PoDisclaimerGroup`, `PoPageDynamicTableComponent` | Smoke, carregamento, estado vazio, paginação, filtros |
-| `form` | `PoStepperModule`, `PoDynamicFormModule`, `ActivatedRoute` | Smoke, validação, submit, navegação entre steps |
-| `detail` | `ActivatedRoute` sem form | Smoke, carregamento via rota, exibição de campos |
-| `complex` | `actions: ActionConfig[]`, `selectedLeft/Right`, `activeBrowse`, `detailColumns` | Smoke, ações de toolbar, dois painéis, browse aninhado |
-| `other` | `@Injectable`, `PoChartModule`, `PoWidgetModule` | Smoke, chamadas HTTP, mapeamento de resposta, erros |
+| Família | Detectado por | Specs gerados | Validado em |
+|---------|---------------|---------------|-------------|
+| `list` | `items` + `loading` + `hasNext`, `PoDisclaimerGroup`, `PoPageDynamicTableComponent` | Smoke, carregamento, estado vazio, paginação, filtros | `ParceirosComponent`, `TitulosListComponent` |
+| `form` | `PoStepperModule`, `PoDynamicFormModule`, `ActivatedRoute` | Smoke, validação, submit, navegação entre steps | `PedidoCompraEditComponent` — 12 specs |
+| `detail` | `ActivatedRoute` sem form | Smoke, carregamento via rota, exibição de campos, fallback demo | `PedidoCompraDetailComponent` — 9 specs |
+| `complex` | `actions: ActionConfig[]`, `selectedLeft/Right`, `activeBrowse`, `detailColumns` | Smoke, browse master/detail, seleção, ações de toolbar | `PedidoCompraStackedComponent` — 14 specs |
+| `other` | `@Injectable`, `PoChartModule`, `PoWidgetModule` | Smoke, chamadas HTTP, mapeamento de resposta, erros | `TitulosService` |
 
 ## Fluxo de geração
 
