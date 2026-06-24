@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <rect width="800" height="480" fill="#1a1a1a"/>
+  <!-- Toolbar -->
+  <rect width="800" height="52" fill="#2c6fad"/>
+  <text x="20" y="33" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="600">Pedido de Compra</text>
+
+  <!-- Body -->
+  <rect x="0" y="52" width="800" height="428" fill="#1e1e1e"/>
+
+  <!-- Page actions bar -->
+  <rect x="0" y="52" width="800" height="52" fill="#242424" stroke="#353535" stroke-width="1"/>
+  <text x="20" y="82" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600">PC-2026-0042</text>
+
+  <!-- Primary button -->
+  <rect x="484" y="63" width="90" height="32" rx="4" fill="#2c6fad"/>
+  <text x="529" y="83" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-anchor="middle" font-weight="600">Salvar</text>
+  <!-- label -->
+  <text x="529" y="110" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="9" text-anchor="middle" font-style="italic">primary</text>
+
+  <!-- Secondary button -->
+  <rect x="582" y="63" width="90" height="32" rx="4" fill="transparent" stroke="#2c6fad" stroke-width="1.5"/>
+  <text x="627" y="83" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-anchor="middle">Cancelar</text>
+  <text x="627" y="110" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="9" text-anchor="middle" font-style="italic">secondary</text>
+
+  <!-- Danger button -->
+  <rect x="680" y="63" width="104" height="32" rx="4" fill="transparent" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="732" y="83" fill="#c0392b" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-anchor="middle">Excluir</text>
+  <text x="732" y="110" fill="#c0392b" font-family="Segoe UI,Arial,sans-serif" font-size="9" text-anchor="middle" font-style="italic">secondary + p-danger</text>
+
+  <!-- Divider -->
+  <line x1="16" y1="118" x2="784" y2="118" stroke="#353535" stroke-width="1"/>
+
+  <!-- Form content -->
+  <rect x="16" y="126" width="768" height="260" rx="6" fill="#242424" stroke="#353535" stroke-width="1"/>
+
+  <!-- Form rows -->
+  <text x="36" y="156" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11">Fornecedor</text>
+  <rect x="36" y="162" width="340" height="30" rx="4" fill="#1e1e1e" stroke="#353535" stroke-width="1"/>
+  <text x="50" y="181" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">Fornecedor Alpha Ltda</text>
+
+  <text x="400" y="156" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11">Data de Emissão</text>
+  <rect x="400" y="162" width="160" height="30" rx="4" fill="#1e1e1e" stroke="#353535" stroke-width="1"/>
+  <text x="414" y="181" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">24/06/2026</text>
+
+  <!-- Loading button example -->
+  <text x="36" y="242" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11">Ação em andamento (p-loading)</text>
+  <rect x="36" y="250" width="120" height="32" rx="4" fill="#2c6fad" opacity="0.7"/>
+  <text x="96" y="270" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="12" text-anchor="middle">Salvando…</text>
+  <!-- Spinner dots -->
+  <circle cx="56" cy="266" r="3" fill="white" opacity="0.9"/>
+  <circle cx="66" cy="266" r="3" fill="white" opacity="0.6"/>
+  <circle cx="76" cy="266" r="3" fill="white" opacity="0.3"/>
+
+  <!-- Tertiary and link button examples -->
+  <text x="36" y="320" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11">Outros estilos</text>
+  <rect x="36" y="328" width="100" height="32" rx="4" fill="#353535"/>
+  <text x="86" y="348" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12" text-anchor="middle">Opções</text>
+  <text x="86" y="368" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="9" text-anchor="middle" font-style="italic">tertiary</text>
+
+  <text x="150" y="348" fill="#2c6fad" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-decoration="underline">Ver histórico</text>
+  <text x="150" y="368" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="9" font-style="italic">link</text>
+
+  <!-- Icon button -->
+  <rect x="280" y="328" width="38" height="32" rx="4" fill="transparent" stroke="#2c6fad" stroke-width="1.5"/>
+  <text x="299" y="348" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="16" text-anchor="middle">+</text>
+  <text x="299" y="368" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="9" text-anchor="middle" font-style="italic">p-icon only</text>
+</svg>

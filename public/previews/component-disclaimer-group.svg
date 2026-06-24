@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <rect width="800" height="480" fill="#1a1a1a"/>
+  <!-- Toolbar -->
+  <rect width="800" height="52" fill="#2c6fad"/>
+  <text x="20" y="33" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="600">Lista de Pedidos</text>
+
+  <!-- Body -->
+  <rect x="0" y="52" width="800" height="428" fill="#1e1e1e"/>
+
+  <!-- Filter bar -->
+  <rect x="0" y="52" width="800" height="48" fill="#242424" stroke="#353535" stroke-width="1"/>
+
+  <!-- po-disclaimer-group chip row -->
+  <text x="20" y="72" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="10">Filtros ativos:</text>
+
+  <!-- Chip 1 -->
+  <rect x="20" y="78" width="108" height="22" rx="11" fill="#1e2a3a" stroke="#2c6fad" stroke-width="1"/>
+  <text x="64" y="93" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="middle">Status: Aberto  ✕</text>
+
+  <!-- Chip 2 -->
+  <rect x="136" y="78" width="138" height="22" rx="11" fill="#1e2a3a" stroke="#2c6fad" stroke-width="1"/>
+  <text x="205" y="93" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="middle">Fornecedor: Alpha  ✕</text>
+
+  <!-- Chip 3 -->
+  <rect x="282" y="78" width="152" height="22" rx="11" fill="#1e2a3a" stroke="#2c6fad" stroke-width="1"/>
+  <text x="358" y="93" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="middle">Período: Jan-Jun/26  ✕</text>
+
+  <!-- Remove all -->
+  <text x="446" y="93" fill="#c0392b" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-decoration="underline">Remover todos</text>
+
+  <!-- Table -->
+  <rect x="16" y="110" width="768" height="260" rx="6" fill="#242424" stroke="#353535" stroke-width="1"/>
+  <!-- Table header -->
+  <rect x="16" y="110" width="768" height="36" rx="6" fill="#2a2a2a"/>
+  <rect x="16" y="128" width="768" height="18" fill="#2a2a2a"/>
+  <text x="36" y="133" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="600">Código</text>
+  <text x="140" y="133" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="600">Fornecedor</text>
+  <text x="360" y="133" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="600">Data</text>
+  <text x="480" y="133" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="600">Valor</text>
+  <text x="620" y="133" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="600">Status</text>
+  <line x1="16" y1="146" x2="784" y2="146" stroke="#353535" stroke-width="1"/>
+
+  <!-- Rows -->
+  <text x="36" y="166" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">PC-0041</text>
+  <text x="140" y="166" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">Alpha Ltda</text>
+  <text x="360" y="166" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">10/01/2026</text>
+  <text x="480" y="166" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">R$ 4.800,00</text>
+  <rect x="618" y="155" width="54" height="20" rx="10" fill="#1e2a1e"/>
+  <text x="645" y="169" fill="#37a337" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="middle">Aberto</text>
+  <line x1="16" y1="178" x2="784" y2="178" stroke="#2a2a2a" stroke-width="1"/>
+
+  <text x="36" y="198" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">PC-0042</text>
+  <text x="140" y="198" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">Alpha Ltda</text>
+  <text x="360" y="198" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">23/03/2026</text>
+  <text x="480" y="198" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">R$ 12.300,00</text>
+  <rect x="618" y="187" width="54" height="20" rx="10" fill="#1e2a1e"/>
+  <text x="645" y="201" fill="#37a337" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="middle">Aberto</text>
+
+  <!-- Hint -->
+  <rect x="16" y="388" width="768" height="52" rx="4" fill="#1e1e2a" stroke="#353555" stroke-width="1"/>
+  <text x="36" y="408" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-style="italic">po-disclaimer-group — chips de filtros ativos com remoção individual ou em massa</text>
+  <text x="36" y="428" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-style="italic">(p-change) / (p-remove) / (p-remove-all) → atualiza a busca automaticamente</text>
+</svg>
