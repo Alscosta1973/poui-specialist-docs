@@ -209,3 +209,73 @@ get progressStatus(): 'default' | 'success' | 'error' {
 import { PoProgressModule } from '@po-ui/ng-components';
 // em imports do @Component: [PoProgressModule]
 ```
+
+---
+
+## PoNotificationService — toast completo
+
+Serviço para exibir mensagens toast no canto superior direito da tela — 4 tipos visuais distintos.
+Não requer componente no template: injete o serviço e chame o método desejado.
+
+### Métodos
+
+| Método | Cor | Quando usar |
+|--------|-----|-------------|
+| `.success(msg)` | Verde | Operação concluída com êxito |
+| `.error(msg)` | Vermelho | Falha irrecuperável ou erro de servidor |
+| `.warning(msg)` | Amarelo | Ação concluída com ressalvas |
+| `.information(msg)` | Azul | Mensagem neutra ou lembrete |
+
+### Assinatura com action
+
+```typescript
+// Três argumentos: mensagem, label do botão, callback
+notification.information(
+  '3 pedidos aguardam aprovação.',
+  'Ver lista',
+  () => this.abrirLista()
+);
+```
+
+### PoNotification — interface completa
+
+```typescript
+interface PoNotification \{
+  message:      string;
+  actionLabel?: string;     // texto do botão de ação
+  action?:      () => void; // callback ao clicar no botão
+  duration?:    number;     // ms antes de fechar (default 3500)
+\}
+```
+
+### Exemplos
+
+```typescript
+import \{ PoNotificationService \} from '@po-ui/ng-components';
+
+private readonly notification = inject(PoNotificationService);
+
+// Forma direta (mais comum)
+this.notification.success('Pedido aprovado com sucesso.');
+this.notification.error('Falha ao comunicar com o servidor.');
+this.notification.warning('Estoque abaixo do mínimo para o item.');
+this.notification.information('3 pedidos aguardam aprovação.');
+
+// Com ação — notificação com botão de ação
+this.notification.information(
+  'Registro salvo. Deseja revisar antes de enviar?',
+  'Revisar',
+  () => this.openRevisaoModal()
+);
+
+// Via objeto PoNotification — controle fino de duração
+this.notification.success(\{
+  message:  'Importação concluída — 1.248 registros processados.',
+  duration: 6000,
+\});
+```
+
+> **Sem declaração no template:** `PoNotificationService` é `providedIn: 'root'`.
+> Injete com `inject()` direto — não precisa de `<po-toaster>` ou declaração em providers.
+
+<PreviewModal src="/poui-specialist-docs/previews/component-notification.svg" label="Veja como fica a tela" />
