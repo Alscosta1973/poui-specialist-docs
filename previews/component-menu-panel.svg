@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <rect width="800" height="480" fill="#1a1a1a"/>
+  <!-- Toolbar -->
+  <rect width="800" height="52" fill="#2c6fad"/>
+  <text x="20" y="33" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="600">po-menu-panel — expandido vs recolhido</text>
+
+  <!-- Body -->
+  <rect x="0" y="52" width="800" height="428" fill="#1e1e1e"/>
+
+  <!-- === Estado RECOLHIDO (esquerda) === -->
+  <rect x="16" y="70" width="56" height="390" rx="6" fill="#242424" stroke="#353535" stroke-width="1"/>
+  <!-- Logo icon -->
+  <rect x="26" y="82" width="36" height="36" rx="4" fill="#2c6fad" opacity="0.3"/>
+  <text x="44" y="106" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="16" text-anchor="middle">⬡</text>
+
+  <!-- Menu items (icons only) -->
+  <text x="44" y="152" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="18" text-anchor="middle">🏠</text>
+  <rect x="20" y="138" width="48" height="32" rx="4" fill="#1e2a3a"/>
+  <text x="44" y="159" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="16" text-anchor="middle">🏠</text>
+
+  <text x="44" y="198" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="16" text-anchor="middle">📄</text>
+  <text x="44" y="238" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="16" text-anchor="middle">👤</text>
+  <text x="44" y="278" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="16" text-anchor="middle">📊</text>
+  <text x="44" y="318" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="16" text-anchor="middle">⚙️</text>
+
+  <!-- Expand button -->
+  <text x="44" y="440" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="18" text-anchor="middle">▶</text>
+
+  <!-- Label "recolhido" -->
+  <text x="44" y="474" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="10" text-anchor="middle">recolhido</text>
+
+  <!-- Arrow between states -->
+  <text x="108" y="270" fill="#353535" font-family="Segoe UI,Arial,sans-serif" font-size="28">⟷</text>
+
+  <!-- === Estado EXPANDIDO (direita) === -->
+  <rect x="140" y="70" width="200" height="390" rx="6" fill="#242424" stroke="#353535" stroke-width="1"/>
+
+  <!-- Logo expanded -->
+  <rect x="152" y="82" width="176" height="36" rx="4" fill="#2c6fad" opacity="0.2"/>
+  <text x="165" y="106" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600">⬡ MeuApp</text>
+
+  <!-- Menu items (icon + label) -->
+  <!-- Active item -->
+  <rect x="144" y="130" width="192" height="32" rx="4" fill="#1e2a3a"/>
+  <text x="162" y="151" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="15">🏠</text>
+  <text x="186" y="151" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="600">Dashboard</text>
+
+  <text x="162" y="192" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="15">📄</text>
+  <text x="186" y="192" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="13">Pedidos</text>
+
+  <text x="162" y="232" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="15">👤</text>
+  <text x="186" y="232" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="13">Fornecedores</text>
+
+  <text x="162" y="272" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="15">📊</text>
+  <text x="186" y="272" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="13">Relatórios</text>
+
+  <text x="162" y="312" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="15">⚙️</text>
+  <text x="186" y="312" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="13">Configurações</text>
+
+  <!-- Collapse button -->
+  <text x="310" y="440" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="18" text-anchor="middle">◀</text>
+  <text x="240" y="474" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="10" text-anchor="middle">expandido</text>
+
+  <!-- Right: main content area -->
+  <rect x="360" y="70" width="424" height="390" rx="6" fill="#1e1e1e" stroke="#2a2a2a" stroke-width="1"/>
+  <text x="380" y="104" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="14" font-weight="600">Dashboard</text>
+  <line x1="360" y1="112" x2="784" y2="112" stroke="#2a2a2a" stroke-width="1"/>
+  <text x="380" y="160" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="12">Conteúdo principal da página</text>
+  <text x="380" y="200" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="12">po-menu-panel ocupa apenas</text>
+  <text x="380" y="216" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="12">espaço lateral — não bloqueia</text>
+  <text x="380" y="232" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="12">o conteúdo como po-modal</text>
+
+  <!-- hint -->
+  <rect x="360" y="400" width="424" height="44" rx="4" fill="#1e1e2a"/>
+  <text x="376" y="418" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="10" font-style="italic">po-menu-panel — compacto, ícone-based · alternativa ao po-menu completo</text>
+  <text x="376" y="434" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="10" font-style="italic">ideal para apps com poucos itens de navegação</text>
+</svg>
