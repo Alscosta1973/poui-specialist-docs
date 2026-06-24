@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <rect width="800" height="480" fill="#1a1a1a"/>
+  <rect width="800" height="52" fill="#2c6fad"/>
+  <text x="20" y="33" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="600">po-breadcrumb — navegação hierárquica</text>
+  <rect x="0" y="52" width="800" height="428" fill="#1e1e1e"/>
+
+  <!-- Breadcrumb standalone -->
+  <rect x="16" y="70" width="768" height="56" rx="6" fill="#242424" stroke="#353535" stroke-width="1"/>
+  <text x="36" y="92" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="10">Standalone — &lt;po-breadcrumb&gt;</text>
+  <text x="36" y="112" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-decoration="underline">Financeiro</text>
+  <text x="108" y="112" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="13"> / </text>
+  <text x="120" y="112" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-decoration="underline">Pedidos</text>
+  <text x="178" y="112" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="13"> / </text>
+  <text x="190" y="112" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="13">Editar Pedido</text>
+
+  <!-- Breadcrumb via p-breadcrumb on po-page-edit -->
+  <rect x="16" y="140" width="768" height="300" rx="6" fill="#242424" stroke="#353535" stroke-width="1"/>
+  <!-- Page header -->
+  <rect x="16" y="140" width="768" height="48" rx="6" fill="#2a2a2a"/>
+  <rect x="16" y="168" width="768" height="20" fill="#2a2a2a"/>
+  <text x="36" y="158" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="10">Gerado automaticamente via p-breadcrumb em po-page-edit</text>
+  <!-- Breadcrumb inside page -->
+  <text x="36" y="178" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="12" text-decoration="underline">Financeiro</text>
+  <text x="96" y="178" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="12"> / </text>
+  <text x="108" y="178" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="12" text-decoration="underline">Pedidos</text>
+  <text x="158" y="178" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="12"> / </text>
+  <text x="170" y="178" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="12">Editar Pedido</text>
+
+  <!-- Page title + actions -->
+  <text x="36" y="210" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="600">Editar Pedido — PC-0042</text>
+  <rect x="596" y="196" width="76" height="28" rx="4" fill="#2c6fad"/>
+  <text x="634" y="214" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="12" text-anchor="middle">Salvar</text>
+  <rect x="680" y="196" width="86" height="28" rx="4" fill="transparent" stroke="#2c6fad" stroke-width="1.5"/>
+  <text x="723" y="214" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="12" text-anchor="middle">Cancelar</text>
+
+  <!-- Form content -->
+  <text x="36" y="260" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11">Fornecedor</text>
+  <rect x="36" y="266" width="340" height="30" rx="4" fill="#1e1e1e" stroke="#353535" stroke-width="1"/>
+  <text x="50" y="285" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">Fornecedor Alpha Ltda</text>
+  <text x="400" y="260" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11">Data de Emissão</text>
+  <rect x="400" y="266" width="160" height="30" rx="4" fill="#1e1e1e" stroke="#353535" stroke-width="1"/>
+  <text x="414" y="285" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">24/06/2026</text>
+
+  <!-- Code hint -->
+  <rect x="36" y="390" width="720" height="36" rx="4" fill="#1e1e2a"/>
+  <text x="50" y="406" fill="#888" font-family="monospace,Consolas" font-size="10">readonly breadcrumb = \{ items: [\{ label: 'Financeiro', link: '/fin' \}, \{ label: 'Pedidos', link: '/fin/pedidos' \}, \{ label: 'Editar' \}] \};</text>
+  <text x="50" y="420" fill="#555" font-family="monospace,Consolas" font-size="10">&lt;po-breadcrumb [p-items]="breadcrumb.items"&gt;&lt;/po-breadcrumb&gt;  ou  [p-breadcrumb]="breadcrumb" no po-page-edit</text>
+</svg>
