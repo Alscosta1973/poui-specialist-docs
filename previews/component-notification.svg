@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <!-- Background -->
+  <rect width="800" height="480" fill="#1a1a1a"/>
+  <!-- Toolbar -->
+  <rect width="800" height="52" fill="#2c6fad"/>
+  <text x="20" y="33" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="600">Pedidos de Compra</text>
+  <!-- Body -->
+  <rect x="0" y="52" width="800" height="428" fill="#1e1e1e"/>
+
+  <!-- Page content (dimmed) -->
+  <rect x="16" y="70" width="768" height="280" rx="4" fill="#1e1e1e" stroke="#2a2a2a" stroke-width="1" opacity="0.6"/>
+  <text x="36" y="100" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="12">Código</text>
+  <text x="200" y="100" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="12">Fornecedor</text>
+  <text x="500" y="100" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="12">Valor</text>
+  <text x="680" y="100" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="12">Status</text>
+  <line x1="16" y1="108" x2="784" y2="108" stroke="#2a2a2a" stroke-width="1"/>
+  <text x="36" y="128" fill="#333" font-family="Segoe UI,Arial,sans-serif" font-size="12">PC-0001</text>
+  <text x="200" y="128" fill="#333" font-family="Segoe UI,Arial,sans-serif" font-size="12">Fornecedor A</text>
+  <text x="36" y="152" fill="#333" font-family="Segoe UI,Arial,sans-serif" font-size="12">PC-0002</text>
+  <text x="200" y="152" fill="#333" font-family="Segoe UI,Arial,sans-serif" font-size="12">Fornecedor B</text>
+
+  <!-- === Toast notifications (top-right stack) === -->
+
+  <!-- Toast 1: success -->
+  <rect x="500" y="70" width="284" height="64" rx="6" fill="#1a2e1a" stroke="#37a337" stroke-width="1.5"/>
+  <rect x="500" y="70" width="6" height="64" rx="3" fill="#37a337"/>
+  <text x="516" y="91" fill="#37a337" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="600">✓  Sucesso</text>
+  <text x="516" y="111" fill="#aaa" font-family="Segoe UI,Arial,sans-serif" font-size="12">Pedido PC-0042 aprovado com sucesso.</text>
+  <text x="768" y="88" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="14" text-anchor="end">✕</text>
+
+  <!-- Toast 2: error -->
+  <rect x="500" y="144" width="284" height="64" rx="6" fill="#2e1a1a" stroke="#c0392b" stroke-width="1.5"/>
+  <rect x="500" y="144" width="6" height="64" rx="3" fill="#c0392b"/>
+  <text x="516" y="165" fill="#c0392b" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="600">✕  Erro</text>
+  <text x="516" y="185" fill="#aaa" font-family="Segoe UI,Arial,sans-serif" font-size="12">Falha ao comunicar com o servidor.</text>
+  <text x="768" y="162" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="14" text-anchor="end">✕</text>
+
+  <!-- Toast 3: warning -->
+  <rect x="500" y="218" width="284" height="64" rx="6" fill="#2e2a1a" stroke="#e6a800" stroke-width="1.5"/>
+  <rect x="500" y="218" width="6" height="64" rx="3" fill="#e6a800"/>
+  <text x="516" y="239" fill="#e6a800" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="600">⚠  Atenção</text>
+  <text x="516" y="259" fill="#aaa" font-family="Segoe UI,Arial,sans-serif" font-size="12">Saldo insuficiente para o pedido.</text>
+  <text x="768" y="236" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="14" text-anchor="end">✕</text>
+
+  <!-- Toast 4: information -->
+  <rect x="500" y="292" width="284" height="64" rx="6" fill="#1a1e2e" stroke="#2c6fad" stroke-width="1.5"/>
+  <rect x="500" y="292" width="6" height="64" rx="3" fill="#2c6fad"/>
+  <text x="516" y="313" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="13" font-weight="600">ℹ  Informação</text>
+  <text x="516" y="333" fill="#aaa" font-family="Segoe UI,Arial,sans-serif" font-size="12">3 pedidos aguardam aprovação.</text>
+  <!-- action button -->
+  <text x="700" y="333" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="11" font-weight="600">Ver lista</text>
+  <text x="768" y="310" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="14" text-anchor="end">✕</text>
+
+  <!-- Code hint -->
+  <rect x="16" y="362" width="476" height="84" rx="4" fill="#1e1e2a" stroke="#353555" stroke-width="1"/>
+  <text x="30" y="384" fill="#888" font-family="monospace,Consolas" font-size="11">notification.success('Pedido aprovado.');</text>
+  <text x="30" y="404" fill="#888" font-family="monospace,Consolas" font-size="11">notification.error('Falha no servidor.');</text>
+  <text x="30" y="424" fill="#888" font-family="monospace,Consolas" font-size="11">notification.warning('Saldo insuficiente.');</text>
+  <text x="30" y="444" fill="#888" font-family="monospace,Consolas" font-size="11">notification.information('3 pendentes.', 'Ver lista', () =&gt; ...);</text>
+</svg>
