@@ -1,91 +1,86 @@
 ---
 title: "Refactor TLPP → PO-UI"
-description: "Use when the user provides an existing .prw or .tlpp file and wants an Angular/PO-UI equivalent."
----
-
----
-name: refactor-from-tlpp
-description: Analyze an existing ADVPL/TLPP source (.prw/.tlpp) and produce an assertive PO-UI generation prompt — no open-ended brainstorming, one confirmation before code generation
+description: "Use quando o usuário fornece um arquivo .prw ou .tlpp existente e quer o equivalente em Angular/PO-UI."
 ---
 
 # Refactor TLPP → PO-UI
 
-Use when the user provides an existing `.prw` or `.tlpp` file and wants an Angular/PO-UI equivalent.
+Use quando o usuário fornece um arquivo `.prw` ou `.tlpp` existente e quer o equivalente em Angular/PO-UI.
 
-**Goal:** read the source once, extract everything, confirm once, generate.
-
----
-
-## Step 1 — Read the source
-
-Read every file provided (`.prw`, `.tlpp`, or both). Do not ask questions yet.
-
-Extract the following into a structured analysis (internal only — never dump raw extraction at the user):
-
-### 1.1 Domain
-- Routine name (e.g. `MYRTN001`)
-- Main table(s) accessed (e.g. `ZXX`, `ZXY`)
-- Business description (1 sentence from `/*/\{Protheus.doc\}` or inferred)
-
-### 1.2 Browse columns
-Look for: `aCampos` array, `FWFormStruct`, `BeginSQL … SELECT`, `FWBrwColumn`, `GetSX3Cache` calls.
-
-For each column record: `\{ field, type, label, align, width \}`.
-Computed/temp fields (prefix `TT_`) are columns too — note them.
-
-### 1.3 Actions
-Look for: `MenuDef` / `ADD OPTION`, toolbar buttons, `FWDialogModal:AddButton`, public methods of the main class.
-
-For each action record: `\{ label, trigger, description \}`.
-
-### 1.4 Status / color coding
-Look for: `#Define` constants with status values, `AddLegend`, `TBitmap` color arrays, `ZXX_STATUS`-style fields.
-
-Map each status code → `\{ value, label, color \}`.
-
-### 1.5 Summary / totals panels
-Look for: `_InicRdp`, `aRodapes`, `montaVendas`, `montaMarcados`, footer `FwLayer` with `AddWindow`.
-
-For each panel record: `\{ panel, label, fields[] \}`.
-Note if totals are per-status and if there is a "selected/marked" accumulator.
-
-### 1.6 Business rules
-Look for: mandatory observations before marking, confirmation dialogs, lock sequences, validation parameters (`GetMV`), cascade logic (parcelas/NSU).
-
-List each rule in one line.
-
-### 1.7 Interactions
-Look for: `FWMarkBrowse` / `AddMarkColumns` (mark/unmark), `bLDblClick`, `bHeaderClick`, modal dialogs, drawer-like panels, F-key bindings.
+**Objetivo:** ler o fonte uma vez, extrair tudo, confirmar uma vez, gerar.
 
 ---
 
-## Step 2 — Choose the PO-UI pattern
+## Passo 1 — Ler o fonte
 
-Map the source to exactly one primary pattern:
+Leia todos os arquivos fornecidos (`.prw`, `.tlpp` ou ambos). Não faça perguntas ainda.
 
-| Source characteristic | PO-UI pattern |
-|-----------------------|---------------|
-| Browse + mark/unmark + status legend | `page-list` + checkboxes + drawer |
-| Simple browse + inline add/edit (≤10 fields) | `modal-crud` |
-| Complex form navigated via route | `page-edit` |
-| Aggregation only, no row editing | `dashboard` |
-| Browse + advanced filter (SX1 perguntas) | `page-dynamic-search` |
+Extraia as informações abaixo em uma análise estruturada (somente interna — nunca despeje a extração bruta para o usuário):
 
-If summary panels exist → add summary cards strip below the table (not a separate page).
-If mark/unmark exists → drawer for details + observation, not inline.
+### 1.1 Domínio
+- Nome da rotina (ex: `MYRTN001`)
+- Tabela(s) principal(is) acessada(s) (ex: `ZXX`, `ZXY`)
+- Descrição do negócio (1 frase do `/*/\{Protheus.doc\}` ou inferida)
+
+### 1.2 Colunas do browse
+Procure por: array `aCampos`, `FWFormStruct`, `BeginSQL … SELECT`, `FWBrwColumn`, chamadas `GetSX3Cache`.
+
+Para cada coluna registre: `\{ field, type, label, align, width \}`.
+Campos computados/temporários (prefixo `TT_`) também são colunas — anote-os.
+
+### 1.3 Ações
+Procure por: `MenuDef` / `ADD OPTION`, botões da toolbar, `FWDialogModal:AddButton`, métodos públicos da classe principal.
+
+Para cada ação registre: `\{ label, trigger, description \}`.
+
+### 1.4 Status / codificação de cores
+Procure por: constantes `#Define` com valores de status, `AddLegend`, arrays de cores `TBitmap`, campos no estilo `ZXX_STATUS`.
+
+Mapeie cada código de status → `\{ value, label, color \}`.
+
+### 1.5 Painéis de totais / rodapé
+Procure por: `_InicRdp`, `aRodapes`, `montaVendas`, `montaMarcados`, rodapé `FwLayer` com `AddWindow`.
+
+Para cada painel registre: `\{ panel, label, fields[] \}`.
+Anote se os totais são por status e se há acumulador de "selecionados/marcados".
+
+### 1.6 Regras de negócio
+Procure por: observações obrigatórias antes de marcar, diálogos de confirmação, sequências de lock, parâmetros de validação (`GetMV`), lógica em cascata (parcelas/NSU).
+
+Liste cada regra em uma linha.
+
+### 1.7 Interações
+Procure por: `FWMarkBrowse` / `AddMarkColumns` (marcar/desmarcar), `bLDblClick`, `bHeaderClick`, diálogos modais, painéis estilo drawer, atalhos de teclas de função.
 
 ---
 
-## Step 3 — Present the plan (one message)
+## Passo 2 — Escolher o padrão PO-UI
 
-Format:
+Mapeie o fonte para exatamente um padrão primário:
+
+| Característica do fonte | Padrão PO-UI |
+|-------------------------|--------------|
+| Browse + marcar/desmarcar + legenda de status | `page-list` + checkboxes + drawer |
+| Browse simples + add/edit inline (≤10 campos) | `modal-crud` |
+| Formulário complexo navegado via rota | `page-edit` |
+| Apenas agregação, sem edição de linha | `dashboard` |
+| Browse + filtro avançado (perguntas SX1) | `page-dynamic-search` |
+
+Se painéis de totais existirem → adicione faixa de cards de resumo abaixo da tabela (não uma página separada).
+Se marcar/desmarcar existir → drawer para detalhes + observação, não inline.
+
+---
+
+## Passo 3 — Apresentar o plano (uma mensagem)
+
+Formato:
 
 ```
-## Análise: <RoutineName> → PO-UI
+## Análise: <NomeDaRotina> → PO-UI
 
-**Domínio:** <description>
-**Tabela principal:** <TABLE>
-**Padrão escolhido:** <pattern> — <reason in one sentence>
+**Domínio:** <descrição>
+**Tabela principal:** <TABELA>
+**Padrão escolhido:** <padrão> — <motivo em uma frase>
 
 ### Colunas (<n>)
 | Campo | Tipo | Label | Alinhamento |
@@ -93,7 +88,7 @@ Format:
 | ...   |      |       |             |
 
 ### Ações
-- **<Label>** — <description>
+- **<Label>** — <descrição>
 
 ### Status
 | Valor | Label | Cor |
@@ -101,13 +96,13 @@ Format:
 | ...   |       |     |
 
 ### Cards de totais
-- <panel>: <fields>
+- <painel>: <campos>
 
 ### Regras de negócio
-- <rule>
+- <regra>
 
 ### Arquivos que serão gerados
-src/app/<module>/<kebab>/
+src/app/<modulo>/<kebab>/
 ├── <kebab>.component.ts
 ├── <kebab>.component.html
 ├── <kebab>.component.scss
@@ -117,49 +112,49 @@ src/app/<module>/<kebab>/
 Confirmar geração? (s/n)
 ```
 
-Wait for a single yes/no. Do not ask follow-up questions unless a critical piece is ambiguous (e.g. the module folder name).
+Aguarde um simples sim/não. Não faça perguntas adicionais a menos que algo crítico seja ambíguo (ex: o nome da pasta do módulo).
 
 ---
 
-## Step 4 — Generate
+## Passo 4 — Gerar
 
-On confirmation, invoke the `poui-code-generation` skill (load SKILL.md + relevant template) and apply the extracted values as substitutions.
+Na confirmação, invoque a skill `poui-code-generation` (carregue SKILL.md + template relevante) e aplique os valores extraídos como substituições.
 
-**Key substitution additions** beyond the standard placeholders:
+**Substituições adicionais** além dos placeholders padrão:
 
-| Placeholder | Source |
+| Placeholder | Origem |
 |-------------|--------|
-| `\{\{columns\}\}` | Extracted column array → `po-table-column[]` |
-| `\{\{actions\}\}` | Extracted actions → `po-page-action[]` |
-| `\{\{statusOptions\}\}` | Status map → chip filter + legend |
-| `\{\{summaryCards\}\}` | Totals panels → summary strip component |
-| `\{\{drawerFields\}\}` | Browse fields → drawer detail block |
-| `\{\{businessRules\}\}` | Rules → comments + validation code |
+| `\{\{columns\}\}` | Array de colunas extraído → `po-table-column[]` |
+| `\{\{actions\}\}` | Ações extraídas → `po-page-action[]` |
+| `\{\{statusOptions\}\}` | Mapa de status → filtro por chip + legenda |
+| `\{\{summaryCards\}\}` | Painéis de totais → componente de faixa de resumo |
+| `\{\{drawerFields\}\}` | Campos do browse → bloco de detalhe no drawer |
+| `\{\{businessRules\}\}` | Regras → comentários + código de validação |
 
-**No mock data files.** Never create `*.mock.ts`, `*.data.ts`, or separate mock files.
-If the app needs demo data for local development (no backend), add a `const DEMO_*: Model[] = [...]` at the top of the component file and load it only in the `error` handler of `carregar()`. This keeps the component self-contained and production-clean.
+**Sem arquivos de mock.** Nunca crie `*.mock.ts`, `*.data.ts` ou arquivos de mock separados.
+Se o app precisar de dados demo para desenvolvimento local (sem backend), adicione um `const DEMO_*: Model[] = [...]` no topo do arquivo do componente e carregue-o apenas no handler `error` de `carregar()`. Isso mantém o componente autocontido e limpo para produção.
 
 ---
 
-## Step 5 — Verify angular.json
+## Passo 5 — Verificar angular.json
 
-After generating all component files, read `angular.json` (search upward from the component directory to the workspace root).
+Após gerar todos os arquivos do componente, leia o `angular.json` (busque de forma ascendente a partir do diretório do componente até a raiz do workspace).
 
-Check that `architect.build.options.styles` contains the 3 PO-UI theme files:
+Verifique se `architect.build.options.styles` contém os 3 arquivos de tema PO-UI:
 ```json
 "node_modules/@totvs/po-theme/css/po-theme-default-variables.min.css"
 "node_modules/@totvs/po-theme/css/po-theme-default.min.css"
 "node_modules/@po-ui/style/css/po-theme-core.min.css"
 ```
 
-If any are missing, add them **before** `src/styles.scss`. Report the fix to the user.
-Without these 3 files, all PO-UI components render with no styling (no colors, no layout, no typography).
+Se algum estiver faltando, adicione-os **antes** de `src/styles.scss`. Reporte a correção ao usuário.
+Sem esses 3 arquivos, todos os componentes PO-UI renderizam sem estilo (sem cores, sem layout, sem tipografia).
 
 ---
 
-## Token discipline
+## Disciplina de tokens
 
-- Never show the raw extraction to the user — only the formatted plan.
-- Never run visual companion (browser/screenshots) during this flow. Reserve for post-generation validation only if the user asks.
-- One `Read` per file — do not re-read files already in context.
-- If two files are provided (`.prw` + `.tlpp`), read both in parallel.
+- Nunca mostre a extração bruta ao usuário — apenas o plano formatado.
+- Nunca execute o companion visual (browser/screenshots) durante este fluxo. Reserve para validação pós-geração somente se o usuário pedir.
+- Um `Read` por arquivo — não releia arquivos já no contexto.
+- Se dois arquivos forem fornecidos (`.prw` + `.tlpp`), leia ambos em paralelo.
