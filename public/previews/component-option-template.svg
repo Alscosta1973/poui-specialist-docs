@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <rect width="800" height="480" fill="#1a1a1a"/>
+  <rect width="800" height="52" fill="#2c6fad"/>
+  <text x="20" y="33" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="600">Templates de Opção — po-combo e po-multiselect</text>
+  <rect x="0" y="52" width="800" height="428" fill="#1e1e1e"/>
+
+  <!-- LEFT: po-combo with custom option template -->
+  <rect x="16" y="70" width="368" height="392" rx="6" fill="#242424" stroke="#353535" stroke-width="1"/>
+  <text x="36" y="96" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11">Responsável  [p-combo-option-template]</text>
+  <rect x="36" y="102" width="328" height="32" rx="4" fill="#1e1e1e" stroke="#2c6fad" stroke-width="1.5"/>
+  <text x="52" y="122" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">Ana Souza</text>
+  <text x="347" y="122" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="12">▼</text>
+
+  <!-- Dropdown panel -->
+  <rect x="36" y="135" width="328" height="300" rx="4" fill="#2a2a2a" stroke="#2c6fad" stroke-width="1"/>
+
+  <!-- Item 1 - selected/highlighted -->
+  <rect x="36" y="135" width="328" height="52" rx="4" fill="#1e2a3a"/>
+  <!-- Avatar circle -->
+  <circle cx="64" cy="161" r="14" fill="#2c6fad"/>
+  <text x="64" y="166" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="middle" font-weight="700">AS</text>
+  <!-- Name + dept -->
+  <text x="86" y="154" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12" font-weight="600">Ana Souza</text>
+  <text x="86" y="170" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="10">Compras</text>
+  <!-- Status tag -->
+  <rect x="290" y="151" width="58" height="18" rx="9" fill="#1a2e1a"/>
+  <text x="319" y="163" fill="#37a337" font-family="Segoe UI,Arial,sans-serif" font-size="10" text-anchor="middle">● Ativo</text>
+  <line x1="50" y1="187" x2="350" y2="187" stroke="#353535" stroke-width="1"/>
+
+  <!-- Item 2 -->
+  <circle cx="64" cy="210" r="14" fill="#6a3c8a"/>
+  <text x="64" y="215" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="middle" font-weight="700">RC</text>
+  <text x="86" y="203" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="12">Rafael Costa</text>
+  <text x="86" y="219" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="10">TI</text>
+  <rect x="290" y="200" width="58" height="18" rx="9" fill="#1a2e1a"/>
+  <text x="319" y="212" fill="#37a337" font-family="Segoe UI,Arial,sans-serif" font-size="10" text-anchor="middle">● Ativo</text>
+  <line x1="50" y1="230" x2="350" y2="230" stroke="#353535" stroke-width="1"/>
+
+  <!-- Item 3 -->
+  <circle cx="64" cy="253" r="14" fill="#8a6a1a"/>
+  <text x="64" y="258" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="middle" font-weight="700">MF</text>
+  <text x="86" y="246" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="12">Marina Freitas</text>
+  <text x="86" y="262" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="10">RH</text>
+  <rect x="284" y="243" width="70" height="18" rx="9" fill="#2e1a1a"/>
+  <text x="319" y="255" fill="#c0392b" font-family="Segoe UI,Arial,sans-serif" font-size="10" text-anchor="middle">○ Inativo</text>
+
+  <text x="36" y="452" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="10" font-style="italic">let-option expõe obj completo → avatarUrl, departamento, status</text>
+
+  <!-- RIGHT: po-multiselect with custom option template -->
+  <rect x="416" y="70" width="368" height="392" rx="6" fill="#242424" stroke="#353535" stroke-width="1"/>
+  <text x="436" y="96" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11">Categorias  [p-multiselect-option-template]</text>
+  <rect x="436" y="102" width="328" height="32" rx="4" fill="#1e1e1e" stroke="#353535" stroke-width="1"/>
+  <text x="452" y="122" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="12">2 selecionados</text>
+  <text x="747" y="122" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="12">▼</text>
+
+  <!-- Multiselect dropdown -->
+  <rect x="436" y="135" width="328" height="300" rx="4" fill="#2a2a2a" stroke="#353535" stroke-width="1"/>
+
+  <!-- Search inside multiselect -->
+  <rect x="446" y="142" width="308" height="26" rx="4" fill="#1e1e1e" stroke="#2c2c2c" stroke-width="1"/>
+  <text x="460" y="159" fill="#555" font-family="Segoe UI,Arial,sans-serif" font-size="11">🔍  Filtrar...</text>
+  <line x1="436" y1="170" x2="764" y2="170" stroke="#353535" stroke-width="1"/>
+
+  <!-- Item 1 checked -->
+  <rect x="446" y="175" width="16" height="16" rx="2" fill="#2c6fad"/>
+  <text x="454" y="187" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="middle">✓</text>
+  <circle cx="483" cy="183" r="6" fill="#e74c3c"/>
+  <text x="500" y="187" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">Eletrônicos</text>
+  <text x="720" y="187" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="end">234 itens</text>
+  <line x1="450" y1="198" x2="756" y2="198" stroke="#2a2a2a" stroke-width="1"/>
+
+  <!-- Item 2 checked -->
+  <rect x="446" y="203" width="16" height="16" rx="2" fill="#2c6fad"/>
+  <text x="454" y="215" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="middle">✓</text>
+  <circle cx="483" cy="211" r="6" fill="#27ae60"/>
+  <text x="500" y="215" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="12">Informática</text>
+  <text x="720" y="215" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="end">87 itens</text>
+  <line x1="450" y1="226" x2="756" y2="226" stroke="#2a2a2a" stroke-width="1"/>
+
+  <!-- Item 3 unchecked -->
+  <rect x="446" y="231" width="16" height="16" rx="2" fill="transparent" stroke="#555" stroke-width="1"/>
+  <circle cx="483" cy="239" r="6" fill="#f39c12"/>
+  <text x="500" y="243" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="12">Vestuário</text>
+  <text x="720" y="243" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="end">156 itens</text>
+
+  <text x="436" y="452" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="10" font-style="italic">let-option expõe obj completo → cor, total, qualquer prop extra</text>
+</svg>
