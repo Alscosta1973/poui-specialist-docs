@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <!-- Background -->
+  <rect width="800" height="480" fill="#1a1a1a"/>
+
+  <!-- Toolbar -->
+  <rect width="800" height="52" fill="#2c6fad"/>
+  <text x="20" y="33" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="600">Parâmetros de Relatório</text>
+
+  <!-- Page body -->
+  <rect x="0" y="52" width="800" height="428" fill="#1e1e1e"/>
+  <text x="20" y="84" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="16" font-weight="600">Filtros do Relatório</text>
+
+  <!-- Form card -->
+  <rect x="16" y="96" width="768" height="360" rx="6" fill="#242424" stroke="#353535" stroke-width="1"/>
+
+  <!-- === po-datepicker-range === -->
+  <text x="36" y="126" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11">Período de Emissão *</text>
+  <!-- Range input -->
+  <rect x="36" y="132" width="350" height="32" rx="4" fill="#1e1e1e" stroke="#2c6fad" stroke-width="1.5"/>
+  <!-- Start date -->
+  <text x="50"  y="153" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="13">01/01/2026</text>
+  <!-- Separator arrow -->
+  <text x="148" y="153" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="13">→</text>
+  <!-- End date -->
+  <text x="172" y="153" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="13">30/06/2026</text>
+  <!-- Calendar icon -->
+  <text x="370" y="153" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="14">📅</text>
+  <!-- Label hint -->
+  <text x="36" y="175" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="10" font-style="italic">po-datepicker-range — retorna PoDatepickerRange \{ start, end \}</text>
+
+  <!-- === po-datetimepicker === -->
+  <text x="420" y="126" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11">Data e Hora do Agendamento</text>
+  <rect x="420" y="132" width="330" height="32" rx="4" fill="#1e1e1e" stroke="#353535" stroke-width="1"/>
+  <text x="434" y="153" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="13">14/06/2026 09:30:00</text>
+  <text x="730" y="153" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="14">📅</text>
+  <text x="420" y="175" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="10" font-style="italic">po-datetimepicker — data + hora em um campo</text>
+
+  <!-- Divider -->
+  <line x1="36" y1="190" x2="764" y2="190" stroke="#2a2a2a" stroke-width="1"/>
+
+  <!-- === po-timepicker === -->
+  <text x="36" y="214" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11">Hora de Início</text>
+  <rect x="36" y="220" width="200" height="32" rx="4" fill="#1e1e1e" stroke="#353535" stroke-width="1"/>
+  <text x="50" y="241" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="13">09:30</text>
+  <text x="218" y="241" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="14">🕐</text>
+  <text x="36" y="262" fill="#5b9bd5" font-family="Segoe UI,Arial,sans-serif" font-size="10" font-style="italic">po-timepicker — painel flutuante (nova API vs po-time)</text>
+
+  <!-- Timepicker floating panel -->
+  <rect x="36" y="270" width="200" height="160" rx="6" fill="#2a2a2a" stroke="#2c6fad" stroke-width="1"/>
+  <!-- Panel header -->
+  <rect x="36" y="270" width="200" height="36" rx="6" fill="#333"/>
+  <rect x="36" y="288" width="200" height="18" fill="#333"/>
+  <text x="136" y="293" fill="#e0e0e0" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-anchor="middle" font-weight="600">09 : 30</text>
+  <!-- Hour column -->
+  <text x="75" y="322" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="middle">Hora</text>
+  <text x="75" y="342" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-anchor="middle">08</text>
+  <rect x="56" y="348" width="38" height="26" rx="4" fill="#2c6fad"/>
+  <text x="75" y="365" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-anchor="middle">09</text>
+  <text x="75" y="385" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-anchor="middle">10</text>
+  <text x="75" y="405" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-anchor="middle">11</text>
+  <!-- Separator -->
+  <line x1="112" y1="315" x2="112" y2="418" stroke="#353535" stroke-width="1"/>
+  <!-- Minute column -->
+  <text x="158" y="322" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="11" text-anchor="middle">Min</text>
+  <text x="158" y="342" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-anchor="middle">15</text>
+  <rect x="139" y="348" width="38" height="26" rx="4" fill="#2c6fad"/>
+  <text x="158" y="365" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-anchor="middle">30</text>
+  <text x="158" y="385" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-anchor="middle">45</text>
+  <text x="158" y="405" fill="#888" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-anchor="middle">00</text>
+
+  <!-- Action buttons row -->
+  <rect x="36" y="408" width="768" height="1" fill="#353535"/>
+  <rect x="630" y="418" width="80" height="30" rx="4" fill="transparent" stroke="#353535" stroke-width="1"/>
+  <text x="670" y="438" fill="#aaa" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-anchor="middle">Cancelar</text>
+  <rect x="720" y="418" width="80" height="30" rx="4" fill="#2c6fad"/>
+  <text x="760" y="438" fill="white" font-family="Segoe UI,Arial,sans-serif" font-size="13" text-anchor="middle">Gerar</text>
+</svg>
