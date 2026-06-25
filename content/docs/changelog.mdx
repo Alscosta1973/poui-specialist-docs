@@ -5,6 +5,20 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.5.1] — 2026-06-25
+
+### Corrigido
+
+- **Tela em branco ao navegar pelo menu (OnPush + po-page-\*)** — Todos os 12 templates de componente agora incluem `ngAfterViewInit() { setTimeout(() => this.cdr.detectChanges()); }`. Sem esse padrão, navegar pelo menu deixava a tela em branco até o usuário clicar. `markForCheck()` em `ngOnInit` era insuficiente pois não dispara um ciclo de CD automaticamente quando nenhum zone-event ocorre após o init. Afeta: `page-list`, `page-dynamic-search`, `page-edit`, `page-detail`, `modal-crud`, `master-detail`, `stacked-browse`, `two-panel-browse`, `stepper-form`, `dashboard`, `action-list`, `page-dynamic`.
+
+- **`escape()`/`unescape()` deprecated em `parseProtheusError`** — Substituído por `TextDecoder('iso-8859-1')` em 8 templates para decodificação correta de strings Latin-1 do Protheus sem funções removidas do padrão ECMAScript. Afeta: `page-list`, `page-dynamic-search`, `page-edit`, `page-detail`, `modal-crud`, `master-detail`, `stepper-form`, `action-list`.
+
+- **`po-ui-quirks.md` — Quirk #1 atualizado** — Corrigido `markForCheck()` → `detectChanges()` com root cause ampliado: não é só o `contentOpacity` do `PoPageContentComponent` — o problema é mais amplo e afeta todo `ng-content` projetado em `po-page-*` com OnPush.
+
+### Adicionado
+
+- **Quirk #14 — PO-UI `@Input()` não faz auto-unwrap de signals Angular** — Componentes PO-UI leem seus `@Input()` de forma imperativa nos lifecycle hooks, recebendo o objeto `Signal` em vez do valor quando `()` é omitido. Sempre usar `[p-breadcrumb]="breadcrumb()"` em vez de `[p-breadcrumb]="breadcrumb"`.
+
 ## [1.5.0] — 2026-06-24
 
 ### Adicionado — Expansão de referência de componentes (Waves 4–10)
