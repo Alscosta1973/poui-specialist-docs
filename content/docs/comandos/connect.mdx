@@ -1,0 +1,167 @@
+---
+title: /connect
+description: Conecta um componente Angular ao Protheus real — substitui mocks, configura proxy e gera contrato TLPP quando necessário
+---
+
+# /poui-specialist:connect
+
+Conecta um componente Angular gerado pelo plugin aos dados reais do Protheus REST, substituindo mocks por chamadas HTTP reais, configurando o `proxy.conf.json` e gerando o contrato TLPP quando o endpoint ainda não existe no backend.
+
+## Sintaxe
+
+```bash
+/poui-specialist:connect <ComponentClass> --module <modulo>
+```
+
+## Exemplos
+
+```bash
+# Conectar tela de divergências ao Protheus
+/poui-specialist:connect DivergenciasCartaoComponent --module financeiro/divergencias-cartao
+
+# Conectar lista de títulos
+/poui-specialist:connect TitulosListComponent --module financeiro/titulos-list
+
+# Conectar cadastro de parceiros
+/poui-specialist:connect ParceirosComponent --module faturamento/parceiros
+```
+
+## O que o comando faz
+
+O comando executa 9 passos automáticos:
+
+| Passo | O que faz |
+|-------|-----------|
+| 1 | Lê o service e component, identifica padrões mock (`of(MOCK_*)`, `delay()`, interceptors) |
+| 2 | Exibe relatório de diagnóstico e coleta dados de conexão que faltam |
+| 3 | Cria ou atualiza `proxy.conf.json` com o target do Protheus |
+| 4 | Substitui o service: `of(MOCK)` → `this.http.get(...)` / `this.http.post(...)` |
+| 5 | Desativa interceptors de mock (com opção de manter para rollback) |
+| 6 | Gera contrato TLPP se o endpoint não existir no Protheus |
+| 7 | Atualiza o spec: troca mocks fixos por `HttpTestingController` |
+| 8 | Roda `ng build` + `ng test` e exibe relatório final |
+
+## Como preparar o pedido
+
+Para o comando funcionar sem precisar fazer perguntas interativas, forneça as informações de conexão no próprio pedido:
+
+```
+/poui-specialist:connect DivergenciasCartaoComponent --module financeiro/divergencias-cartao
+
+PROTHEUS: http://192.168.1.10:8086
+ENDPOINT: GET /rest/api/custom/v1/financeiro/divergencias  (já existe)
+AUTH: Basic — usuário/senha no proxy
+MOCK A REMOVER: src/app/core/interceptors/mock-divergencias.interceptor.ts
+AÇÕES NOVAS:
+  POST /financeiro/divergencias/confirmar  payload: { ids: string[] }
+```
+
+Para o formato completo com todos os campos, consulte o [Guia de Integração Protheus](/docs/padroes/protheus-connect).
+
+## Campos disponíveis no pedido
+
+### PROTHEUS
+
+URL base do servidor REST do Protheus:
+
+```
+PROTHEUS: http://192.168.1.10:8086
+PREFIXO:  /rest/api/custom/v1
+```
+
+O plugin configura o `proxy.conf.json` automaticamente para redirecionar `/rest` → Protheus.
+
+### ENDPOINT
+
+**Já existe no Protheus:**
+
+```
+ENDPOINT: GET /rest/api/custom/v1/financeiro/divergencias
+PARAMS: filial, dataInicio, dataFim, status
+RESPONSE:
+  {
+    "items": [{ "E1_NUM": "000001", "E1_VALOR": 1500.00 }],
+    "hasNext": false
+  }
+```
+
+**Não existe (gerar TLPP):**
+
+```
+ENDPOINT: não existe ainda
+TABELAS: SE1 campos E1_NUM, E1_VALOR, E1_VENCTO / SA1 campos A1_NOME
+REGRA: retorna títulos com saldo != 0 e status = "A", filtrado por filial e data
+```
+
+### AUTH
+
+| Tipo | Como informar |
+|------|--------------|
+| Sem autenticação | `AUTH: sem auth` |
+| Basic Auth | `AUTH: Basic — usuário admin / senha fixa no proxy` |
+| Bearer Token | `AUTH: Bearer — token vem do localStorage['token']` |
+| Cookie de sessão | `AUTH: Cookie — Protheus mantém sessão após login` |
+
+### MOCK A REMOVER
+
+```
+MOCK A REMOVER: src/app/core/interceptors/mock-divergencias.interceptor.ts
+```
+
+Se não souber onde está, escreva "localizar automaticamente" e o plugin encontra.
+
+### AÇÕES NOVAS
+
+Para cada operação além do GET de lista:
+
+```
+AÇÕES NOVAS:
+  POST /financeiro/divergencias/confirmar  payload: { ids: string[] }
+  POST /financeiro/divergencias/rejeitar   payload: { id: string, motivo: string }
+  DELETE /financeiro/divergencias/:id
+```
+
+## Relatório gerado
+
+Ao concluir, o comando exibe:
+
+```
+✅ Conexão concluída — DivergenciasCartaoComponent
+
+Arquivos atualizados:
+  - divergencias-cartao.service.ts: of(MOCK) → http.get()
+  - proxy.conf.json: target http://192.168.1.10:8086 configurado
+  - mock-divergencias.interceptor.ts: desativado
+  - divergencias-cartao.component.spec.ts: convertido para HttpTestingController
+
+Build: ✅ sem erros
+Specs:  ✅ 12/12 passando
+
+Próximos passos:
+  1. Iniciar o Protheus REST no ambiente de desenvolvimento
+  2. Rodar: ng serve --proxy-config proxy.conf.json
+  3. Navegar para /financeiro/divergencias-cartao e verificar os dados reais
+```
+
+## Quando o endpoint TLPP não existe
+
+Se o endpoint ainda não foi implementado no Protheus, o comando gera um skeleton `.tlpp` e orienta os próximos passos:
+
+```
+📄 Contrato TLPP gerado: divergencias-cartao.tlpp
+
+Próximos passos no Protheus:
+  1. Copiar o arquivo para o RPO source do ambiente
+  2. Implementar a lógica de negócio nos métodos gerados
+  3. Compilar com IDE Protheus (F9) e testar no Smart Client
+  4. Verificar: curl http://192.168.1.10:8086/rest/api/custom/v1/financeiro/divergencias
+```
+
+Use `/advpl-specialist:generate rest` para implementar o corpo dos métodos no TLPP gerado.
+
+## Relacionado
+
+- [Guia completo de integração Protheus](/docs/padroes/protheus-connect) — template de pedido com todos os campos explicados
+- [Padrões REST Protheus](/docs/padroes/protheus-rest) — contratos de request/response esperados
+- [Deploy Protheus](/docs/padroes/deploy-protheus) — como compilar e publicar o TLPP no RPO
+- [`/poui-specialist:generate tlpp-contract`](/docs/templates/templates-tlpp-contract) — gera apenas o contrato TLPP sem o fluxo completo

@@ -1,4 +1,4 @@
 {
   "title": "Comandos",
-  "pages": ["generate", "test", "docs", "review"]
+  "pages": ["generate", "test", "docs", "review", "connect"]
 }
