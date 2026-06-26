@@ -1,53 +1,60 @@
 ---
-title: "PO-UI Known Quirks and Fixes"
-description: "Documented behavior differences, internal implementation details, and CSS overrides"
+title: "Quirks e Correções do PO-UI"
+description: "Comportamentos não óbvios, detalhes de implementação interna e overrides de CSS descobertos em uso de produção do PO-UI com Protheus"
 ---
 
-# PO-UI Known Quirks and Fixes
+# Quirks e Correções do PO-UI
 
-Documented behavior differences, internal implementation details, and CSS overrides
-discovered through production use of PO-UI with Protheus. Apply these fixes proactively
-when generating or reviewing code.
+Comportamentos não óbvios, detalhes de implementação interna e overrides de CSS
+descobertos em uso de produção do PO-UI com Protheus. Aplique estas correções proativamente
+ao gerar ou revisar código.
 
-## Quick Reference — 13 Known Quirks
+## Referência Rápida — 20 Quirks Conhecidos
 
-| # | Component / API | Symptom | Fix |
+| # | Componente / API | Sintoma | Correção |
 |---|---|---|---|
-| 1 | po-page-content | **Content invisible on load in OnPush + sync data** | `ngAfterViewInit() \{ setTimeout(() => this.cdr.markForCheck()); \}` |
-| 2 | po-input | Buttons 8px below field edge | `margin-bottom: 8px` on the button container |
-| 3 | po-table | Horizontal scroll in side-by-side panels | Override checkbox col to 41px via `::ng-deep`; recalculate `p-width` sum |
-| 4 | po-input | `NG8002` on `p-max-length` | Use `p-maxlength` (no hyphen between `max` and `length`) |
-| 5 | po-table | Page-level scrollbar appears | `tableHeight = computed(() => _winH() - OFFSET)` signal |
-| 6 | po-table | Selection never accumulates | `p-selected-rows` does not exist — use `(p-selected)` / `(p-unselected)` events |
-| 7 | po-table | Checkbox col freezes all columns | Expected PO-UI behavior; set `[p-selectable-entire-line]="false"` for browse screens |
-| 8 | po-table | Synchronous `$selected: false` ignored | Defer items array replacement to `setTimeout(0)` |
-| 9 | po-table | No built-in keyboard row navigation | 3-part pattern: `cursorIndex` signal + `@HostListener` + `_scrollRowIntoView` |
-| 10 | po-table (dual) | Two stacked tables, independent arrow-key nav | `activeBrowse` signal + `Tab` handler routes arrow keys to correct browse |
-| 11 | PoTableDetail | TS2353: `width` not in type | Remove `width` from detail columns — only `property`, `label`, `type`, `format` valid |
-| 12 | po-table | **Invisible on first load in OnPush component** | Always set `[p-height]` — without it, opacity is set via async `setTimeout` and OnPush never re-renders |
-| 13 | po-dynamic-form | **`(p-value-change)` silently does nothing** | Output doesn't exist — use `(p-form)="fn($event)"` + subscribe `form.valueChanges` |
+| 1 | po-page-content | **Conteúdo invisível no carregamento com OnPush + dados síncronos** | `ngAfterViewInit() \{ setTimeout(() => this.cdr.markForCheck()); \}` |
+| 2 | po-input | Botões 8px abaixo da borda do campo | `margin-bottom: 8px` no container do botão |
+| 3 | po-table | Scroll horizontal em painéis lado a lado | Override da coluna checkbox para 41px via `::ng-deep`; recalcular soma dos `p-width` |
+| 4 | po-input | `NG8002` em `p-max-length` | Usar `p-maxlength` (sem hífen entre `max` e `length`) |
+| 5 | po-table | Barra de scroll da página aparece | Signal `tableHeight = computed(() => _winH() - OFFSET)` |
+| 6 | po-table | Seleção nunca acumula | `p-selected-rows` não existe — usar eventos `(p-selected)` / `(p-unselected)` |
+| 7 | po-table | Coluna checkbox congela todas as colunas | Comportamento esperado do PO-UI; usar `[p-selectable-entire-line]="false"` em telas browse |
+| 8 | po-table | `$selected: false` síncrono é ignorado | Diferir a substituição do array de itens com `setTimeout(0)` |
+| 9 | po-table | Sem navegação por teclado entre linhas | Padrão de 3 partes: signal `cursorIndex` + `@HostListener` + `_scrollRowIntoView` |
+| 10 | po-table (duplo) | Dois browses empilhados com navegação independente por teclas | Signal `activeBrowse` + handler `Tab` redireciona setas para o browse correto |
+| 11 | PoTableDetail | TS2353: `width` não existe no tipo | Remover `width` das colunas de detalhe — apenas `property`, `label`, `type`, `format` são válidos |
+| 12 | po-table | **Invisível no primeiro carregamento em componente OnPush** | Sempre definir `[p-height]` — sem ele, a opacidade é definida via `setTimeout` assíncrono e o OnPush nunca re-renderiza |
+| 13 | po-dynamic-form | **`(p-value-change)` silenciosamente não faz nada** | Output não existe — usar `(p-form)="fn($event)"` + assinar `form.valueChanges` |
+| 14 | Signals PO-UI | Signal não desempacota automaticamente em `@Input` do PO-UI | Passar `signal()` explícito como expressão — nunca `[p-prop]="mySignal"` sem `()` |
+| 15 | po-dynamic-form | `[(p-value)]` two-way binding falha silenciosamente | Não existe output `p-value-change` — usar `[p-value]` (one-way) + atualizar manualmente dentro de `onFormInit` |
+| 16 | po-stepper | `[p-current-active-step]` não é `@Input` do po-stepper | API correta: `[p-step]` + `(p-change-step)`; sem `@ViewChild` |
+| 17 | po-dynamic-form | `dateFormat` não existe em `PoDynamicFormField` | Usar `format` (sem prefixo `date`) |
+| 18 | po-table | `(p-selected)` emite em cada ciclo de CD em browse empilhado | Spy em `(component as any).service.getItens` retornando `of([])` nos testes — evita loop HTTP infinito |
+| 19 | TestBed PO-UI | `NullInjectorError: No provider for HttpClient!` mesmo sem HTTP no service | `provideHttpClient()` obrigatório em todos os TestBed — módulos PO-UI injetam HttpClient internamente |
+| 20 | po-chart | `PoChartSerie.data` é `number \| number[]` | Cast explícito necessário nos specs: `(serie.data as number[]).length` |
 
 ---
 
-## 1. po-page-content blank on load (opacity timing) — UPDATED
+## 1. po-page-content em branco no carregamento (timing de opacidade)
 
-**Symptom:** Page renders the title/header but ALL content below it is invisible on first
-load (filter bar, tables, buttons — everything inside `ng-content`).
+**Sintoma:** A página renderiza o título/cabeçalho mas TODO o conteúdo abaixo fica invisível no
+primeiro carregamento (barra de filtros, tabelas, botões — tudo dentro de `ng-content`).
 
-**Root cause (confirmed by PO-UI source):**
-`PoPageContentComponent` sets `contentOpacity = 0` on creation and calls
-`recalculateHeaderSize()` in `ngAfterViewInit`, which uses `setTimeout` to set
-`contentOpacity = 1`. In **OnPush** components without an async data load (e.g., using
-synchronous demo data), the component is already "clean" when that `setTimeout` fires —
-Angular skips the entire subtree during CD and `contentOpacity = 1` is never reflected
-in the DOM. Components that make HTTP requests are "accidentally" safe because the HTTP
-response triggers a `markForCheck()` after the `setTimeout` has already run.
+**Causa raiz (confirmada pelo código-fonte do PO-UI):**
+`PoPageContentComponent` define `contentOpacity = 0` na criação e chama
+`recalculateHeaderSize()` em `ngAfterViewInit`, que usa `setTimeout` para definir
+`contentOpacity = 1`. Em componentes **OnPush** sem carga assíncrona de dados (ex: dados
+de demo síncronos), o componente já está "limpo" quando esse `setTimeout` dispara —
+o Angular pula toda a subárvore durante o CD e `contentOpacity = 1` nunca é refletido
+no DOM. Componentes que fazem requisições HTTP são "acidentalmente" seguros porque a
+resposta HTTP dispara um `markForCheck()` após o `setTimeout` já ter rodado.
 
-**Affects:** Every OnPush component that uses `po-page-default`, `po-page-list`,
-`po-page-edit`, or `po-page-detail` AND loads data synchronously (demo constants, signals
-initialized at declaration, etc.).
+**Afeta:** Todo componente OnPush que usa `po-page-default`, `po-page-list`,
+`po-page-edit` ou `po-page-detail` E carrega dados de forma síncrona (constantes demo,
+signals inicializados na declaração, etc.).
 
-**Fix — mandatory for every OnPush component using `po-page-*`:**
+**Correção — obrigatória em todo componente OnPush que usa `po-page-*`:**
 
 ```typescript
 import { AfterViewInit, ChangeDetectorRef, inject } from '@angular/core';
@@ -56,57 +63,56 @@ export class MyComponent implements OnInit, AfterViewInit {
   private readonly cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
-    // synchronous data load is fine
+    // carga síncrona de dados é permitida
     this.items.set(DEMO_DATA);
   }
 
-  // po-page-content fires its setTimeout in its own ngAfterViewInit (child first).
-  // Our setTimeout is queued after, so by the time it runs contentOpacity is already 1.
-  // markForCheck() forces Angular to re-check this component and render the content.
+  // po-page-content dispara seu setTimeout em seu próprio ngAfterViewInit (filho primeiro).
+  // Nosso setTimeout é enfileirado depois, então quando executa contentOpacity já é 1.
+  // markForCheck() força o Angular a re-verificar este componente e renderizar o conteúdo.
   ngAfterViewInit(): void {
     setTimeout(() => this.cdr.markForCheck());
   }
 }
 ```
 
-**Alternative (when HTTP is used):** the HTTP response auto-triggers `markForCheck()` via
-signal update, so no explicit `ngAfterViewInit` is needed. But adding it anyway is safe
-and makes the component resilient to future refactors.
+**Alternativa (quando HTTP é usado):** a resposta HTTP dispara `markForCheck()` automaticamente
+via atualização de signal, então `ngAfterViewInit` explícito não é necessário. Mas adicioná-lo
+mesmo assim é seguro e torna o componente resiliente a refatorações futuras.
 
 ```typescript
-// ✗ Pattern that breaks (sync data, no ngAfterViewInit fix)
+// ✗ Padrão que quebra (dados síncronos, sem correção ngAfterViewInit)
 ngOnInit(): void {
-  this.items.set(DEMO_DATA); // synchronous — component never re-checks after setTimeout
+  this.items.set(DEMO_DATA); // síncrono — componente nunca re-verifica após setTimeout
 }
 
-// ✓ Pattern that works (sync data WITH ngAfterViewInit fix)
+// ✓ Padrão que funciona (dados síncronos COM correção ngAfterViewInit)
 ngAfterViewInit(): void {
-  setTimeout(() => this.cdr.markForCheck()); // queued after po-page-content's setTimeout
+  setTimeout(() => this.cdr.markForCheck()); // enfileirado após o setTimeout do po-page-content
 }
 ```
 
 ---
 
-## 2. po-input bottom padding misaligns buttons (8px offset)
+## 2. po-input — desalinhamento de 8px com botões
 
-**Symptom:** Buttons placed in the same flex row as `po-input` fields appear 8px lower
-than the visible input field edge, even with `align-items: flex-end` on the container.
+**Sintoma:** Botões colocados na mesma linha flex que campos `po-input` aparecem 8px abaixo
+da borda visível do campo, mesmo com `align-items: flex-end` no container.
 
-**Root cause:** `po-input` renders a wrapper that includes an invisible 8px space below
-the visible input field, reserved for validation error messages. `flex-end` aligns to the
-bottom of this wrapper (including the invisible 8px), not to the bottom of the visible field.
+**Causa raiz:** `po-input` renderiza um wrapper que inclui um espaço invisível de 8px abaixo
+do campo visível, reservado para mensagens de erro de validação. O `flex-end` alinha em relação
+à parte inferior desse wrapper (incluindo os 8px invisíveis), não à borda inferior do campo visível.
 
-**Fix:** Add `margin-bottom: 8px` to the button element or its container to push it up
-by the same 8px, aligning it with the visible input bottom edge.
+**Correção:** Adicionar `margin-bottom: 8px` ao elemento do botão ou ao seu container.
 
 ```scss
-// ✓ Correct
+// ✓ Correto
 .header-botoes {
   display: flex;
   align-items: center;
   gap: 6px;
   margin-left: auto;
-  margin-bottom: 8px;   // ← cancels po-input's internal 8px error-space
+  margin-bottom: 8px;   // ← cancela os 8px internos do po-input reservados para erros
 }
 
 .header-filtros {
@@ -114,34 +120,24 @@ by the same 8px, aligning it with the visible input bottom edge.
   align-items: flex-end;
   gap: 8px;
 
-  po-button { margin-bottom: 8px; }  // ← same fix for buttons inside the filtros row
+  po-button { margin-bottom: 8px; }  // ← mesma correção para botões dentro da linha de filtros
 }
-```
-
-**Measurement verification (Playwright):**
-```javascript
-// All three values must be equal
-const input  = document.querySelector('.header-filtros input').getBoundingClientRect();
-const btnCar = document.querySelector('.header-filtros po-button button').getBoundingClientRect();
-const btnAct = document.querySelector('.header-botoes button').getBoundingClientRect();
-// input.top === btnCar.top === btnAct.top  →  diff must be 0
 ```
 
 ---
 
-## 3. po-table horizontal scroll in side-by-side panels
+## 3. po-table — scroll horizontal em painéis lado a lado
 
-**Symptom:** When two `po-table` components are placed side by side (flex:1 each),
-each table generates a horizontal scrollbar even though the specified `p-width` values
-seem reasonable.
+**Sintoma:** Quando dois `po-table` são colocados lado a lado (flex:1 cada),
+cada tabela gera uma barra de scroll horizontal mesmo com valores de `p-width` aparentemente razoáveis.
 
-**Root cause:** po-table adds an internal selectable-column (`po-table-column-selectable`)
-of **56px** that is NOT represented in `PoTableColumn[]`. This hidden 56px is added on
-top of the sum of all `p-width` values, pushing the table wider than its container.
+**Causa raiz:** po-table adiciona internamente uma coluna selecionável (`po-table-column-selectable`)
+de **56px** que NÃO é representada em `PoTableColumn[]`. Esses 56px invisíveis são somados
+aos valores de `p-width`, empurrando a tabela além dos limites do container.
 
-**Fix (two steps):**
+**Correção (dois passos):**
 
-**Step 1 — Reduce the internal checkbox column via `::ng-deep`:**
+**Passo 1 — Reduzir a coluna checkbox interna via `::ng-deep`:**
 ```scss
 .browse-panel {
   ::ng-deep .po-table-column-selectable {
@@ -152,70 +148,70 @@ top of the sum of all `p-width` values, pushing the table wider than its contain
 }
 ```
 
-**Step 2 — Calculate `p-width` values so that their sum + checkbox = panel width:**
+**Passo 2 — Calcular os valores de `p-width` de forma que soma + checkbox = largura do painel:**
 ```
-panel_width = (viewport - sidebar - page_padding - inter_panel_gap) / 2
-data_budget = panel_width - 41px (checkbox after override)
+largura_painel = (viewport - sidebar - padding_pagina - gap_entre_paineis) / 2
+orçamento_dados = largura_painel - 41px (checkbox após override)
 
-Typical at 1366px viewport:
-  (1366 - 280 - 32 - 4) / 2 = ~520px per panel
-  data_budget = 520 - 41 = 479px
+Típico em viewport de 1366px:
+  (1366 - 280 - 32 - 4) / 2 = ~520px por painel
+  orçamento_dados = 520 - 41 = 479px
 ```
 
-**Step 3 — Use gap: 4px (not 8px) between panels** to maximize panel width:
+**Passo 3 — Usar gap: 4px (não 8px) entre painéis** para maximizar a largura:
 ```scss
 .div-browses {
   display: flex;
-  gap: 4px;   // not 8px — each px saved goes to column space
+  gap: 4px;   // não 8px — cada px economizado vai para o espaço de colunas
 }
 ```
 
-**Column width reference at 11px font (8px cell padding per side):**
-| Content | Example | Minimum width |
+**Referência de largura de coluna em fonte 11px (8px de padding de célula por lado):**
+| Conteúdo | Exemplo | Largura mínima |
 |---|---|---|
-| Date | "10/01/2025" | 84px |
-| Currency | "3.200,00" | 68px |
-| Short code 5 chars | "NF001" | 50px |
-| Medium code 6 chars | "PED001" | 58px |
-| Status dot | ● | 28px |
-| 3-digit number | "001" | 36px |
+| Data | "10/01/2025" | 84px |
+| Moeda | "3.200,00" | 68px |
+| Código curto 5 chars | "NF001" | 50px |
+| Código médio 6 chars | "PED001" | 58px |
+| Ponto de status | ● | 28px |
+| Número 3 dígitos | "001" | 36px |
 
 ---
 
-## 4. po-table `p-maxlength` binding name
+## 4. po-input — nome do binding `p-maxlength`
 
-**Symptom:** Angular compilation error: `NG8002: Can't bind to 'p-max-length' since it isn't a known property of 'po-input'`.
+**Sintoma:** Erro de compilação Angular: `NG8002: Can't bind to 'p-max-length' since it isn't a known property of 'po-input'`.
 
-**Root cause:** The correct Angular input alias is `p-maxlength` (no hyphen between `max` and `length`).
+**Causa raiz:** O alias Angular correto é `p-maxlength` (sem hífen entre `max` e `length`).
 
 ```html
-<!-- ✓ Correct -->
+<!-- ✓ Correto -->
 <po-input [p-maxlength]="3" ...></po-input>
 
-<!-- ✗ Wrong — causes NG8002 -->
+<!-- ✗ Errado — causa NG8002 -->
 <po-input [p-max-length]="3" ...></po-input>
 ```
 
 ---
 
-## 5. Dynamic table height (no page scroll)
+## 5. Altura dinâmica da tabela (sem scroll de página)
 
-**Pattern:** Use a `computed` signal that reacts to window resize to keep the `po-table`
-height filling the viewport without a page-level scrollbar.
+**Padrão:** Use um signal `computed` que reage ao redimensionamento da janela para manter
+a altura do `po-table` preenchendo o viewport sem barra de scroll de página.
 
 ```typescript
 import { AfterViewInit, HostListener, computed, signal } from '@angular/core';
 
-// In component class:
+// Na classe do componente:
 private readonly _winH = signal(window.innerHeight);
 
-// OFFSET = sum of all fixed-height elements outside the table:
-//   PO shell (toolbar + page title + content padding): ~232px
-//   Component-specific header (filters, buttons): ~80px
-//   Browse title bar: ~30px
-//   Legend bar: ~32px
-//   Totals footer: ~50px
-//   Total example: ~424px
+// OFFSET = soma de todos os elementos de altura fixa fora da tabela:
+//   Shell PO (toolbar + título de página + padding de conteúdo): ~232px
+//   Cabeçalho específico do componente (filtros, botões): ~80px
+//   Barra de título do browse: ~30px
+//   Barra de legenda: ~32px
+//   Rodapé de totais: ~50px
+//   Total de exemplo: ~424px
 readonly tableHeight = computed(() => Math.max(200, this._winH() - 424));
 
 ngAfterViewInit(): void {
@@ -232,32 +228,25 @@ onResize(): void {
 <po-table [p-height]="tableHeight()" ...></po-table>
 ```
 
-**For two-panel browses with a conditional contextual bar:**
+**Para browses de dois painéis com barra contextual condicional:**
 ```typescript
-// Increase offset by contextual bar height (~36px) when it's visible
+// Aumentar o offset pela altura da barra contextual (~36px) quando visível
 readonly browseHeight = computed(() =>
   Math.max(180, this._winH() - (this.selectedRow() ? 460 : 424))
 );
 ```
 
-**Calibration:** After implementing, verify with Playwright:
-```javascript
-const scrollH = await page.evaluate(() => document.documentElement.scrollHeight);
-const innerH  = 768; // your test viewport height
-// scrollH must equal innerH (no page scroll)
-```
-
 ---
 
-## 6. po-table selection: no `p-selected-rows` output
+## 6. po-table — seleção: output `p-selected-rows` não existe
 
-**Symptom:** No TypeScript error but the selection never fires / rows never accumulate.
+**Sintoma:** Sem erro TypeScript mas a seleção nunca dispara / linhas nunca acumulam.
 
-**Root cause:** `p-selected-rows` is not an output of `po-table`. The correct outputs for
-row selection are individual-row events, not a batch-selection array.
+**Causa raiz:** `p-selected-rows` não é um output de `po-table`. Os outputs corretos para
+seleção de linha são eventos individuais de linha, não um array de seleção em lote.
 
 ```html
-<!-- ✓ Correct -->
+<!-- ✓ Correto -->
 <po-table
   [p-selectable]="true"
   (p-selected)="onSelect($event)"
@@ -266,18 +255,18 @@ row selection are individual-row events, not a batch-selection array.
   (p-all-unselected)="selectedRows.set([])">
 </po-table>
 
-<!-- ✗ Wrong — p-selected-rows does not exist -->
+<!-- ✗ Errado — p-selected-rows não existe -->
 <po-table [p-selected-rows]="selectedRows" ...></po-table>
 ```
 
 ---
 
-## 7. po-table frozen columns and `[p-selectable-entire-line]`
+## 7. po-table — colunas congeladas e `[p-selectable-entire-line]`
 
-When `[p-selectable]="true"` is used, po-table adds a checkbox column that makes every
-column frozen (`po-frozen-column` class on all `<th>` elements). This is expected behavior.
+Quando `[p-selectable]="true"` é usado, po-table adiciona uma coluna checkbox que congela
+todas as colunas (classe `po-frozen-column` em todos os `<th>`). Este é o comportamento esperado.
 
-To restrict selection to the checkbox only (not clicking anywhere on the row):
+Para restringir a seleção apenas ao checkbox (não ao clicar em qualquer parte da linha):
 ```html
 <po-table
   [p-selectable]="true"
@@ -286,35 +275,31 @@ To restrict selection to the checkbox only (not clicking anywhere on the row):
 </po-table>
 ```
 
-This is essential for two-panel browse screens where accidental row selection
-while reading data would be disruptive.
+Essencial para telas de browse de dois painéis, onde a seleção acidental de linha
+ao ler dados seria prejudicial.
 
 ---
 
-## 8. po-table: programmatic `$selected: false` does not cancel a just-committed selection
+## 8. po-table — `$selected: false` programático não cancela seleção recém-confirmada
 
-**Symptom:** When `(p-selected)` fires and you want to reject the selection (e.g., guard
-validation failed), setting `$selected: false` on the item synchronously has no effect.
-The row stays visually selected, and clicking it again fires `(p-selected)` instead of
-`(p-unselected)`, so the warning message fires a second time.
+**Sintoma:** Quando `(p-selected)` dispara e você quer rejeitar a seleção (ex: validação de
+guarda falhou), definir `$selected: false` no item de forma síncrona não tem efeito.
+A linha fica visualmente selecionada, e ao clicar novamente dispara `(p-selected)` em vez de
+`(p-unselected)`, fazendo a mensagem de aviso disparar uma segunda vez.
 
-**Root cause:** po-table adds the row to its internal `selectedRows` array **before**
-dispatching the `(p-selected)` event. Any synchronous `$selected: false` change on the
-items signal is processed in the same change-detection cycle — but po-table's internal
-state already has the row, so the visual state stays selected even though the data says
-`$selected: false`. This desync causes a second `(p-selected)` on the next click instead
-of `(p-unselected)`.
+**Causa raiz:** po-table adiciona a linha ao seu array interno `selectedRows` **antes**
+de despachar o evento `(p-selected)`. Qualquer alteração síncrona de `$selected: false` no
+signal de itens é processada no mesmo ciclo de change detection — mas o estado interno do
+po-table já tem a linha, então o estado visual permanece selecionado mesmo que o dado diga
+`$selected: false`. Este dessinc causa um segundo `(p-selected)` no próximo clique em vez de `(p-unselected)`.
 
-**Fix:** Defer the items array replacement to `setTimeout(0)`. This lets the current
-event cycle complete, then replaces the items array in the next microtask. po-table's
-`ngOnChanges` receives the new array and reinitializes its selection from `$selected`,
-correctly showing the row as unselected.
+**Correção:** Diferir a substituição do array de itens com `setTimeout(0)`.
 
 ```typescript
-// ✗ Wrong — $selected: false is ignored; po-table already committed the selection
+// ✗ Errado — $selected: false é ignorado; po-table já confirmou a seleção
 onSelectRec(item: SomeModel): void {
   if (!this.isValidSelection(item)) {
-    this.notification.warning('Cannot select this row.');
+    this.notification.warning('Não é possível selecionar esta linha.');
     this.items.update(rows => rows.map(r =>
       r.id === item.id ? { ...r, $selected: false } : r
     ));
@@ -323,10 +308,9 @@ onSelectRec(item: SomeModel): void {
   }
 }
 
-// ✓ Correct — deferred replacement forces po-table to reinitialize selection
+// ✓ Correto — substituição diferida força po-table a reinicializar a seleção
 private rejectSelection(itemId: string): void {
   setTimeout(() => {
-    // Rebuild the array restoring only the previously confirmed selection
     this.items.update(rows => rows.map(r => ({
       ...r,
       $selected: r.id === this.confirmedItem()?.id,
@@ -337,37 +321,35 @@ private rejectSelection(itemId: string): void {
 
 onSelectRec(item: SomeModel): void {
   if (!this.isValidSelection(item)) {
-    this.notification.warning('Cannot select this row.');
+    this.notification.warning('Não é possível selecionar esta linha.');
     this.rejectSelection(item.id);
     return;
   }
 }
 ```
 
-**Note:** The `setTimeout(0)` causes a ~1-frame visual flash where the row appears
-selected before reverting. This is imperceptible in practice but unavoidable with the
-current PO-UI `(p-selected)` API.
+> O `setTimeout(0)` causa um flash visual de ~1 frame onde a linha aparece selecionada antes
+> de reverter. Imperceptível na prática, mas inevitável com a API `(p-selected)` atual do PO-UI.
 
 ---
 
-## 9. po-table: keyboard row navigation (ArrowUp / ArrowDown)
+## 9. po-table — navegação por teclado entre linhas (ArrowUp / ArrowDown)
 
-**Context:** po-table has no built-in keyboard navigation. Protheus users expect arrow-key
-navigation between rows (like the native Protheus grid). When a browse acts as a master
-that loads detail data on row change, this is especially important.
+**Contexto:** po-table não tem navegação por teclado embutida. Usuários Protheus esperam
+navegação com teclas de seta entre linhas (como o grid nativo do Protheus).
 
-**Pattern — three-part implementation:**
+**Padrão — implementação em três partes:**
 
-### Part 1 — State
+### Parte 1 — Estado
 ```typescript
 readonly cursorIndex = signal<number>(0);
 ```
 
-### Part 2 — Keyboard listener + cursor movement
+### Parte 2 — Listener de teclado + movimento do cursor
 ```typescript
 @HostListener('window:keydown', ['$event'])
 onKeyDown(event: KeyboardEvent): void {
-  // Do not capture arrows while user is typing in inputs
+  // Não capturar setas enquanto o usuário digita em inputs
   const tag = (event.target as HTMLElement)?.tagName?.toLowerCase();
   if (tag === 'input' || tag === 'textarea') return;
 
@@ -375,26 +357,26 @@ onKeyDown(event: KeyboardEvent): void {
   else if (event.key === 'ArrowUp')   { event.preventDefault(); this._moverCursor(-1); }
   else return;
 
-  // Re-apply highlight after PO-UI may reset the DOM
+  // Re-aplicar highlight após o PO-UI possivelmente resetar o DOM
   setTimeout(() => this._highlightActiveRow(), 0);
 }
 
 private _moverCursor(delta: number): void {
-  const items   = this.items();           // replace with your items signal
+  const items   = this.items();
   if (!items.length) return;
   const current = this.cursorIndex();
   const next    = current < 0 ? 0 : Math.max(0, Math.min(items.length - 1, current + delta));
   if (next === current && current >= 0) return;
   this.cursorIndex.set(next);
-  this._onRowActivated(items[next]);      // replace with your row-activation method
+  this._onRowActivated(items[next]);
 }
 ```
 
-### Part 3 — DOM highlight + scroll (manual, because CSS `:focus` does not reach table rows)
+### Parte 3 — Highlight no DOM + scroll
 
-> **⚠️ Never use `row.scrollIntoView(\{ block: 'nearest' \})`** — it does not account for the
-> sticky `thead`. When navigating to row 0 (or any row near the top), the row becomes hidden
-> behind the fixed header. Use the manual scroll calculation below instead.
+> **⚠️ Nunca use `row.scrollIntoView(\{ block: 'nearest' \})`** — não leva em conta o
+> `thead` fixo. Ao navegar para a linha 0 (ou qualquer linha próxima ao topo), a linha fica
+> escondida atrás do cabeçalho fixo. Use o cálculo manual abaixo.
 
 ```typescript
 private _highlightActiveRow(): void {
@@ -410,17 +392,16 @@ private _highlightActiveRow(): void {
   this._scrollRowIntoView(row);
 }
 
-// Walks up the DOM from the active row to find the real scrollable ancestor.
-// Does NOT depend on any PO-UI internal class name — works across all versions.
+// Sobe pelo DOM a partir da linha ativa para encontrar o ancestral real com scroll.
+// Não depende de nenhum nome de classe interno do PO-UI — funciona em todas as versões.
 //
-// Two critical rules:
-// 1. Use setTimeout(..., 50) — NOT 0ms. At 0ms the DOM is not yet updated
-//    by PO-UI's change detection, so getBoundingClientRect() returns stale values
-//    and the scroll calculation is wrong.
-// 2. Never use scrollIntoView({ block: 'nearest' }): it does not discount the
-//    sticky thead, so row 0 ends up hidden behind the fixed header.
+// Duas regras críticas:
+// 1. Use setTimeout(..., 50) — NÃO 0ms. Em 0ms o DOM ainda não foi atualizado
+//    pelo change detection do PO-UI, então getBoundingClientRect() retorna valores
+//    obsoletos e o cálculo de scroll fica errado.
+// 2. Nunca use scrollIntoView({ block: 'nearest' }): não desconta o thead fixo,
+//    então a linha 0 fica escondida atrás do cabeçalho.
 private _scrollRowIntoView(row: HTMLElement): void {
-  // Walk up from the row to find the first truly scrollable ancestor
   let container: HTMLElement | null = row.parentElement;
   while (container && container !== document.documentElement) {
     const style = window.getComputedStyle(container);
@@ -451,9 +432,9 @@ private _scrollRowIntoView(row: HTMLElement): void {
 }
 ```
 
-### Part 4 — SCSS
+### Parte 4 — SCSS
 ```scss
-/* Wrapper around the po-table (e.g. <div class="my-browse-container">) */
+/* Wrapper ao redor do po-table (ex: <div class="my-browse-container">) */
 .my-browse-container ::ng-deep tbody tr.row-ativa td {
   background-color: var(--color-brand-01-lighter, #cce5ff) !important;
 }
@@ -463,9 +444,9 @@ private _scrollRowIntoView(row: HTMLElement): void {
 }
 ```
 
-### Part 5 — Wiring click + init
+### Parte 5 — Conexão com clique e inicialização
 ```typescript
-// In the (p-selected) handler:
+// No handler (p-selected):
 onRowSelected(row: MyModel): void {
   const idx = this.items().findIndex(i => i.id === row.id);
   this.cursorIndex.set(idx);
@@ -473,43 +454,30 @@ onRowSelected(row: MyModel): void {
   setTimeout(() => this._highlightActiveRow(), 0);
 }
 
-// In ngOnInit — auto-select first row:
+// Em ngOnInit — auto-selecionar primeira linha:
 ngOnInit(): void {
-  this.loadData();   // sets items signal
+  this.loadData();
   this.cursorIndex.set(0);
   if (this.items().length) this._onRowActivated(this.items()[0]);
   setTimeout(() => this._highlightActiveRow(), 0);
 }
 ```
 
-**Important notes:**
-- Use `setTimeout(..., 50)` — NOT `0ms`. At 0ms, PO-UI's change detection has not completed and `getBoundingClientRect()` returns stale values. 50ms matches the pattern used in production Divergências screens.
-- The `input/textarea` guard prevents arrow keys from triggering navigation while the user types in filter fields.
-- Works for standard `po-table` (all rows are `<tr>` inside a single `<tbody>`). For tables with `p-detail` (expandable rows), each item renders as its own `<tbody>` — use `querySelectorAll(':scope > tbody')` on the `<table>` element instead.
-- To hide PO-UI's checkbox column when using `p-selectable` purely for click events:
-```scss
-.my-browse-container ::ng-deep thead th:first-child,
-.my-browse-container ::ng-deep tbody td:first-child {
-  display: none !important;
-  width: 0 !important;
-  padding: 0 !important;
-}
-```
-
 ---
 
-## 10. Dual-browse keyboard navigation (master → detail)
+## 10. Navegação por teclado em browse duplo (master → detail)
 
-When a screen has **two stacked po-table components** where the top one (master) drives the bottom one (detail), both need independent keyboard navigation. Use `activeBrowse` to route arrow keys, **Tab** to switch between browses.
+Quando uma tela tem **dois po-table empilhados** onde o superior (master) direciona o inferior
+(detail), ambos precisam de navegação independente. Use `activeBrowse` para rotear setas e **Tab** para alternar entre browses.
 
-### State
+### Estado
 ```typescript
-readonly cursorMaster  = signal<number>(0);
-readonly cursorDetail  = signal<number>(-1);
-readonly activeBrowse  = signal<'master' | 'detail'>('master');
+readonly cursorMaster = signal<number>(0);
+readonly cursorDetail = signal<number>(-1);
+readonly activeBrowse = signal<'master' | 'detail'>('master');
 ```
 
-### Keyboard handler
+### Handler de teclado
 ```typescript
 @HostListener('window:keydown', ['$event'])
 onKeyDown(event: KeyboardEvent): void {
@@ -540,7 +508,7 @@ onKeyDown(event: KeyboardEvent): void {
 }
 ```
 
-### Click handlers — switching browse focus
+### Handlers de clique — alternância do foco do browse
 ```typescript
 onMasterClick(): void { this.activeBrowse.set('master'); }
 
@@ -553,21 +521,21 @@ onDetailClick(): void {
 }
 ```
 
-### Reset detail cursor when master changes row
+### Resetar cursor do detail quando o master muda de linha
 ```typescript
 onMasterRowSelected(row: MasterModel): void {
   const idx = this.masterItems().findIndex(i => i.id === row.id);
   this.cursorMaster.set(idx);
-  this.cursorDetail.set(-1);       // ← reset detail on every master change
+  this.cursorDetail.set(-1);       // ← resetar detail a cada mudança no master
   this.activeBrowse.set('master');
   this.loadDetailItems(row.id);
   setTimeout(() => this._highlightMasterRow(), 50);
 }
 ```
 
-### Template — wrappers with click and active-browse indicator
+### Template — wrappers com clique e indicador de browse ativo
 ```html
-<!-- MASTER browse -->
+<!-- browse MASTER -->
 <div class="master-browse" [class.browse-ativo]="activeBrowse() === 'master'" (click)="onMasterClick()">
   <po-table [p-columns]="masterCols" [p-items]="masterItems()" [p-selectable]="true"
     [p-selectable-entire-line]="true" [p-hide-columns-manager]="true" [p-height]="masterHeight()"
@@ -575,7 +543,7 @@ onMasterRowSelected(row: MasterModel): void {
   </po-table>
 </div>
 
-<!-- DETAIL browse -->
+<!-- browse DETAIL -->
 <div class="detail-browse" [class.browse-ativo]="activeBrowse() === 'detail'" (click)="onDetailClick()">
   <po-table [p-columns]="detailCols" [p-items]="detailItems()" [p-selectable]="true"
     [p-hide-columns-manager]="true" [p-height]="detailHeight()"
@@ -584,49 +552,50 @@ onMasterRowSelected(row: MasterModel): void {
 </div>
 ```
 
-### SCSS — compact rows + active-browse outline + row highlight (same for both)
+### SCSS — linhas compactas + contorno do browse ativo + highlight de linha
 ```scss
 :host { display: block; font-size: 12px; }
 
 .master-browse, .detail-browse {
-  ::ng-deep tbody td             { padding-top: 4px !important; padding-bottom: 4px !important; }
+  ::ng-deep tbody td                  { padding-top: 4px !important; padding-bottom: 4px !important; }
   ::ng-deep .po-table-body-ellipsis   { font-size: 11px; }
   ::ng-deep .po-table-header-ellipsis { font-size: 11px; }
-  ::ng-deep .row-ativa td        { background-color: #dbeafe !important; }
-  ::ng-deep tbody tr td          { cursor: pointer; }
+  ::ng-deep .row-ativa td             { background-color: #dbeafe !important; }
+  ::ng-deep tbody tr td               { cursor: pointer; }
 }
 
-/* Blue outline shows which browse receives keyboard input */
+/* Contorno azul indica qual browse recebe input do teclado */
 .browse-ativo ::ng-deep .po-table-container {
   outline: 2px solid var(--color-action-default, #0079c3);
   outline-offset: -2px;
 }
 
-/* Master: hide PO-UI checkbox when using p-selectable for click-only */
+/* Master: esconder checkbox do PO-UI quando p-selectable é usado apenas para clique */
 .master-browse {
   ::ng-deep thead th:first-child,
   ::ng-deep tbody td:first-child { display: none !important; width: 0 !important; padding: 0 !important; }
 }
 ```
 
-### Hint in the browse header
-Show a hint so the user knows how to switch and navigate:
+### Dica no cabeçalho do browse
 ```html
 <span class="browse-count">Tab para alternar browse &nbsp;·&nbsp; ↑↓ para navegar</span>
 ```
 
 ---
 
-## 11. PoTableDetail — `width` property not supported (TS2353)
+## 11. PoTableDetail — propriedade `width` não suportada (TS2353)
 
-**Symptom:** TypeScript compiler throws `TS2353: Object literal may only specify known properties, and 'width' does not exist in type 'PoTableDetailColumn'` when defining columns inside `buildDetailConfig()`.
+**Sintoma:** O compilador TypeScript lança `TS2353: Object literal may only specify known properties, and 'width' does not exist in type 'PoTableDetailColumn'`.
 
-**Root cause:** `PoTableDetail.columns` uses the internal type `PoTableDetailColumn`, which is a subset of `PoTableColumn` and does **not** include `width`. The `width` property is only valid on master columns (`PoTableColumn[]`), not on detail columns.
+**Causa raiz:** `PoTableDetail.columns` usa o tipo interno `PoTableDetailColumn`, que é um
+subconjunto de `PoTableColumn` e **não** inclui `width`. A propriedade `width` é válida apenas
+em colunas master (`PoTableColumn[]`), não em colunas de detalhe.
 
-**Fix:** Remove all `width` properties from detail columns. Only `property`, `label`, `type`, and `format` are supported.
+**Correção:** Remover todas as propriedades `width` das colunas de detalhe. Apenas `property`, `label`, `type` e `format` são suportados.
 
 ```typescript
-// WRONG — causes TS2353
+// ERRADO — causa TS2353
 private buildDetailConfig(): PoTableDetail {
   return {
     columns: [
@@ -635,7 +604,7 @@ private buildDetailConfig(): PoTableDetail {
   };
 }
 
-// RIGHT — no width on detail columns
+// CORRETO — sem width nas colunas de detalhe
 private buildDetailConfig(): PoTableDetail {
   return {
     columns: [
@@ -647,63 +616,52 @@ private buildDetailConfig(): PoTableDetail {
 
 ---
 
-## 12. po-table invisible on first load in OnPush components (MANDATORY `[p-height]`)
+## 12. po-table invisível no primeiro carregamento em OnPush (`[p-height]` obrigatório)
 
-**Symptom:** `po-table` renders correctly in the DOM but is invisible when the page is first
-navigated to. It only becomes visible after the user moves the mouse or triggers any event.
-The bug is most noticeable when the table is inside an `@if` block.
+**Sintoma:** `po-table` renderiza corretamente no DOM mas fica invisível quando a página é
+navegada pela primeira vez. Só fica visível após o usuário mover o mouse ou disparar qualquer evento.
 
-**Root cause (verified against PO-UI source):**
+**Causa raiz:** `po-table` inicializa `tableOpacity = 0`. Há dois caminhos para `setTableOpacity(1)`:
 
-`po-table` initialises `tableOpacity = 0`. There are two paths to `setTableOpacity(1)`:
-
-| Path | Triggered by | Timing |
+| Caminho | Disparado por | Timing |
 |---|---|---|
-| `verifyCalculateHeightTableContainer()` → `calculateHeightTableContainer()` → `setTableOpacity(1)` | `[p-height]` is set | **Synchronous** — runs inside `ngDoCheck`, same CD cycle |
-| `debounceResize()` → `setTimeout(() => setTableOpacity(1))` | `offsetWidth > 0` detected in `ngDoCheck` without `[p-height]` | **Asynchronous** — `setTimeout` fires after current CD cycle |
+| `verifyCalculateHeightTableContainer()` → `calculateHeightTableContainer()` → `setTableOpacity(1)` | `[p-height]` está definido | **Síncrono** — roda dentro de `ngDoCheck`, mesmo ciclo de CD |
+| `debounceResize()` → `setTimeout(() => setTableOpacity(1))` | `offsetWidth > 0` detectado em `ngDoCheck` sem `[p-height]` | **Assíncrono** — `setTimeout` dispara após o ciclo de CD atual |
 
-With `ChangeDetectionStrategy.OnPush`, the host component is already marked "clean" after the
-first CD cycle. When the async `setTimeout` fires and calls `setTableOpacity(1)`, Angular does
-not re-check the OnPush component, so the table stays invisible until a future event (mouse
-move, click) triggers the next CD cycle.
+Com `ChangeDetectionStrategy.OnPush`, o componente host já está marcado como "limpo" após o
+primeiro ciclo de CD. Quando o `setTimeout` assíncrono dispara e chama `setTableOpacity(1)`, o
+Angular não re-verifica o componente OnPush, então a tabela fica invisível até o próximo evento.
 
-**Fix: always set `[p-height]` on every `po-table` in OnPush components.**
+**Correção: sempre definir `[p-height]` em todo `po-table` em componentes OnPush.**
 
 ```html
-<!-- ✗ Wrong — invisible on first load in OnPush; opacity set asynchronously -->
+<!-- ✗ Errado — invisível no primeiro carregamento em OnPush -->
 <po-table [p-columns]="cols" [p-items]="items()"></po-table>
 
-<!-- ✓ Correct — opacity set synchronously in ngDoCheck via verifyCalculateHeightTableContainer -->
+<!-- ✓ Correto — opacidade definida sincronamente via verifyCalculateHeightTableContainer -->
 <po-table [p-columns]="cols" [p-items]="items()" [p-height]="340"></po-table>
 ```
 
-For dynamic height (fills viewport), use a `computed` signal (see Quirk 5):
+Para altura dinâmica (preenche o viewport), use um signal `computed` (veja Quirk 5):
 ```html
 <po-table [p-columns]="cols" [p-items]="items()" [p-height]="tableHeight()"></po-table>
 ```
 
-**Rule:** Every `po-table` generated in a `ChangeDetectionStrategy.OnPush` component MUST
-have `[p-height]` set. No exceptions. A table inside an `@if` block is especially vulnerable.
-
 ---
 
-## 13. po-dynamic-form: `(p-value-change)` does not exist
+## 13. po-dynamic-form — `(p-value-change)` não existe
 
-**Symptom:** Binding `(p-value-change)="myHandler($event)"` on `po-dynamic-form` compiles
-without errors but the handler is never called, regardless of what the user types.
+**Sintoma:** Vincular `(p-value-change)="myHandler($event)"` em `po-dynamic-form` compila
+sem erros mas o handler nunca é chamado.
 
-**Root cause (verified against PO-UI source):**
-
-`PoDynamicFormBaseComponent` declares only one `@Output`:
+**Causa raiz:** `PoDynamicFormBaseComponent` declara apenas um `@Output`:
 ```typescript
 outputs: { formOutput: "p-form" }
 ```
+Não existe output `p-value-change`. O Angular ignora silenciosamente bindings de evento
+desconhecidos em elementos customizados — sem erro de compilação, sem aviso em runtime.
 
-There is no `p-value-change` output. Angular silently ignores unknown event bindings on
-custom elements, so there is no compilation error and no runtime warning — the handler
-simply never fires.
-
-**Fix: use `(p-form)` to receive the `NgForm` instance, then subscribe to `form.valueChanges`.**
+**Correção: usar `(p-form)` para receber a instância do `NgForm` e assinar `form.valueChanges`.**
 
 ```typescript
 import { OnDestroy } from '@angular/core';
@@ -713,18 +671,18 @@ export class MyComponent implements OnDestroy {
   headerValues: Record<string, unknown> = { adm: '46', band: 'VISA', txFixa: 1.5 };
 
   private formSub: Subscription | null = null;
-  private _lastTx = 1.5;   // track last value to avoid recalculating on every other-field change
+  private _lastTx = 1.5;
 
-  // (p-form) fires once after NgForm is initialised (inside a setTimeout in PO-UI source)
+  // (p-form) dispara uma vez após NgForm ser inicializado (dentro de setTimeout no fonte do PO-UI)
   onFormInit(form: any): void {
     if (!form?.valueChanges) return;
     this.formSub?.unsubscribe();
     this.formSub = form.valueChanges.subscribe((val: Record<string, unknown>) => {
-      this.headerValues = { ...val };            // keep all fields in sync
+      this.headerValues = { ...val };
       const tx = Number(val['myNumberField'] ?? 0);
       if (tx > 0 && tx !== this._lastTx) {
         this._lastTx = tx;
-        this.doSomethingWhenFieldChanges(tx);    // e.g. recalculate a derived signal
+        this.doSomethingWhenFieldChanges(tx);
       }
     });
   }
@@ -736,21 +694,161 @@ export class MyComponent implements OnDestroy {
 ```
 
 ```html
-<!-- ✗ Wrong — (p-value-change) does not exist; handler is never called -->
+<!-- ✗ Errado — (p-value-change) não existe; handler nunca é chamado -->
 <po-dynamic-form [p-fields]="fields" [p-value]="vals" (p-value-change)="onChange($event)">
 </po-dynamic-form>
 
-<!-- ✓ Correct — (p-form) is the only reactive output; subscribe to form.valueChanges -->
+<!-- ✓ Correto — (p-form) é o único output reativo; assinar form.valueChanges -->
 <po-dynamic-form [p-fields]="fields" [p-value]="headerValues" (p-form)="onFormInit($event)">
 </po-dynamic-form>
 ```
 
-**Notes:**
-- `form.valueChanges` fires on **every keystroke** for `po-decimal` / `po-number` fields
-  (via `ControlValueAccessor.onChange` in `onInput`), and on **blur** for text fields.
-- `[(p-value)]` two-way binding silently fails for the same reason — there is no
-  `p-value-change` output for Angular to wire the write-back. Use `[p-value]` (one-way)
-  for initialisation and update `headerValues` manually inside `onFormInit`.
-- The `NgForm` instance is emitted inside a `setTimeout` in PO-UI's source, so `onFormInit`
-  will always be called asynchronously, after the first CD cycle completes.
+> `form.valueChanges` dispara a **cada tecla** em campos `po-decimal` / `po-number` e no **blur** para campos de texto.
+
+---
+
+## 14. Signals PO-UI — não desempacotam automaticamente em `@Input`
+
+**Sintoma:** `[p-title]="mySignal"` exibe `[object Object]` ou `Signal(valor)` em vez do valor real.
+
+**Causa raiz:** Inputs do PO-UI não são `input()` do Angular — são `@Input()` decorators clássicos.
+O Angular não desempacota signals automaticamente nesses casos.
+
+**Correção:** Sempre invocar o signal com `()`:
+
+```html
+<!-- ✗ Errado -->
+<po-page-list [p-title]="titleSignal"></po-page-list>
+
+<!-- ✓ Correto -->
+<po-page-list [p-title]="titleSignal()"></po-page-list>
+```
+
+---
+
+## 15. po-dynamic-form — `[(p-value)]` two-way binding falha silenciosamente
+
+**Sintoma:** Alterações no formulário não atualizam a variável vinculada; o valor sempre permanece o inicial.
+
+**Causa raiz:** Não existe output `p-value-change` no PO-UI (veja Quirk 13). Sem o output,
+o Angular não consegue completar o two-way binding.
+
+**Correção:** Usar `[p-value]` (one-way) para inicialização e atualizar o objeto manualmente
+dentro de `onFormInit`:
+
+```html
+<!-- ✗ Errado — two-way binding falha silenciosamente -->
+<po-dynamic-form [(p-value)]="formValues" [p-fields]="fields"></po-dynamic-form>
+
+<!-- ✓ Correto — one-way + atualização manual via form.valueChanges -->
+<po-dynamic-form [p-value]="formValues" [p-fields]="fields" (p-form)="onFormInit($event)">
+</po-dynamic-form>
+```
+
+---
+
+## 16. po-stepper — API de step incorreta
+
+**Sintoma:** `[p-current-active-step]` não funciona; erro de binding ou step não muda.
+
+**Causa raiz:** `[p-current-active-step]` não é um `@Input` do `po-stepper`. A API correta usa `[p-step]` + `(p-change-step)`.
+
+**Correção:** Usar signal `currentStep` + bindings corretos, sem `@ViewChild`:
+
+```typescript
+readonly currentStep = signal(1);
+
+onChangeStep(step: number): void {
+  this.currentStep.set(step);
+}
+```
+
+```html
+<!-- ✗ Errado -->
+<po-stepper [p-current-active-step]="currentStep" ...></po-stepper>
+
+<!-- ✓ Correto -->
+<po-stepper [p-step]="currentStep()" (p-change-step)="onChangeStep($event)" ...></po-stepper>
+```
+
+---
+
+## 17. po-dynamic-form — `dateFormat` não existe em `PoDynamicFormField`
+
+**Sintoma:** Erro de compilação TypeScript: `Object literal may only specify known properties, and 'dateFormat' does not exist`.
+
+**Causa raiz:** A propriedade correta é `format`, sem o prefixo `date`.
+
+```typescript
+// ✗ Errado
+{ property: 'dataNasc', label: 'Nascimento', type: 'date', dateFormat: 'dd/MM/yyyy' }
+
+// ✓ Correto
+{ property: 'dataNasc', label: 'Nascimento', type: 'date', format: 'dd/MM/yyyy' }
+```
+
+---
+
+## 18. po-table — `(p-selected)` emite em cada ciclo de CD (browse empilhado)
+
+**Sintoma (em testes):** `httpMock.verify()` falha com uma requisição GET `/detail` pendente após
+cada flush de HTTP no spec de browse empilhado, criando um loop infinito de requisições.
+
+**Causa raiz:** Com `[p-selectable]="true"`, o `po-table` emite `(p-selected)` em cada ciclo
+de change detection — não apenas nas interações do usuário. Em browses empilhados onde a
+seleção do master dispara um GET de detail, cada flush HTTP força um `markForCheck()` → novo
+ciclo de CD → nova emissão de `(p-selected)` → novo GET.
+
+**Correção nos testes:** Fazer spy no método `getDetail` do service para retornar `of([])`,
+impedindo que qualquer requisição HTTP seja criada mesmo durante os ciclos automáticos do po-table:
+
+```typescript
+beforeEach(() => {
+  // Impede o loop: po-table emite (p-selected) em cada CD,
+  // mas agora não gera requisição HTTP
+  spyOn((component as any).service, 'getItens').and.returnValue(of([]));
+});
+```
+
+---
+
+## 19. TestBed — `provideHttpClient()` obrigatório mesmo sem HTTP no service
+
+**Sintoma:** `NullInjectorError: No provider for HttpClient!` em testes de componentes cujos
+services não fazem nenhuma chamada HTTP.
+
+**Causa raiz:** Os módulos PO-UI (`PoPageModule`, `PoTableModule`, etc.) injetam `HttpClient`
+internamente para carregar ícones e recursos — independentemente de o service do componente
+usar HTTP ou não.
+
+**Correção:** Sempre incluir ambos em todos os TestBed de componentes PO-UI:
+
+```typescript
+TestBed.configureTestingModule({
+  imports: [MeuComponente],
+  providers: [
+    provideHttpClient(),          // ← obrigatório sempre
+    provideHttpClientTesting(),   // ← permite httpMock.verify() sem erros
+    provideRouter([]),
+  ],
+});
+```
+
+---
+
+## 20. po-chart — `PoChartSerie.data` é `number | number[]`
+
+**Sintoma (em testes):** Erro TypeScript `TS2339: Property 'length' does not exist on type 'number | number[]'` ao acessar `.length` em `serie.data`.
+
+**Causa raiz:** O tipo `PoChartSerie` declara `data` como `number | number[]`, então o
+TypeScript não permite acessar `.length` diretamente.
+
+**Correção:** Usar cast explícito nos specs:
+
+```typescript
+// ✗ Errado — erro TS2339
+expect(component.barSeries()[0].data.length).toBeGreaterThan(0);
+
+// ✓ Correto — cast para number[]
+expect((component.barSeries()[0].data as number[]).length).toBeGreaterThan(0);
 ```

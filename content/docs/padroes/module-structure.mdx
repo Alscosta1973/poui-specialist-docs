@@ -1,31 +1,32 @@
 ---
-title: "Angular 17+ Module Structure for PO-UI / Protheus Projects"
+title: "Estrutura de Módulos Angular 17+ para Projetos PO-UI / Protheus"
+description: "Estrutura de pastas recomendada, configuração de providers, shell do app e padrões de roteamento para projetos Angular com PO-UI integrado ao Protheus"
 ---
 
-# Angular 17+ Module Structure for PO-UI / Protheus Projects
+# Estrutura de Módulos Angular 17+ para Projetos PO-UI / Protheus
 
-## Recommended Folder Structure
+## Estrutura de Pastas Recomendada
 
 ```
 src/
 ├── app/
-│   ├── app.component.ts        ← root shell: po-toolbar + po-menu + router-outlet
+│   ├── app.component.ts        ← shell raiz: po-toolbar + po-menu + router-outlet
 │   ├── app.component.html
 │   ├── app.component.scss
 │   ├── app.config.ts           ← providers: router, httpClient, protheus-lib-core
-│   ├── app.routes.ts           ← top-level lazy routes
-│   └── <feature>/              ← one folder per domain (e.g. financeiro, compras)
-│       ├── <entity>-list/
-│       │   ├── <entity>-list.component.ts
-│       │   ├── <entity>-list.component.html
-│       │   └── <entity>-list.component.scss
-│       ├── <entity>-edit/
-│       │   ├── <entity>-edit.component.ts
-│       │   ├── <entity>-edit.component.html
-│       │   └── <entity>-edit.component.scss
-│       ├── <entity>.service.ts
+│   ├── app.routes.ts           ← rotas lazy de nível superior
+│   └── <feature>/              ← uma pasta por domínio (ex: financeiro, compras)
+│       ├── <entidade>-list/
+│       │   ├── <entidade>-list.component.ts
+│       │   ├── <entidade>-list.component.html
+│       │   └── <entidade>-list.component.scss
+│       ├── <entidade>-edit/
+│       │   ├── <entidade>-edit.component.ts
+│       │   ├── <entidade>-edit.component.html
+│       │   └── <entidade>-edit.component.scss
+│       ├── <entidade>.service.ts
 │       └── models/
-│           └── <entity>.model.ts
+│           └── <entidade>.model.ts
 ├── environments/
 │   ├── environment.ts
 │   └── environment.prod.ts
@@ -59,7 +60,7 @@ export const appConfig: ApplicationConfig = {
 
 ---
 
-## app.component.ts (shell with Protheus integration)
+## app.component.ts (shell com integração Protheus)
 
 ```typescript
 import { Component, ChangeDetectionStrategy } from '@angular/core';
@@ -84,7 +85,7 @@ export class AppComponent {
 
   readonly menus: PoMenuItem[] = [
     { label: 'Pedidos', link: '/pedidos', shortLabel: 'Pedidos', icon: 'po-icon-user' },
-    { label: 'Sair',     shortLabel: 'Sair', icon: 'po-icon-exit', action: this.closeApp.bind(this) },
+    { label: 'Sair', shortLabel: 'Sair', icon: 'po-icon-exit', action: this.closeApp.bind(this) },
   ];
 
   private closeApp(): void {
@@ -111,7 +112,7 @@ export class AppComponent {
 
 ---
 
-## Escolha do padrão de componente
+## Escolha do Template de Componente
 
 | Necessidade | Template recomendado |
 |---|---|
@@ -143,8 +144,7 @@ Este plugin gera **Standalone Components** (padrão Angular 17+):
 })
 ```
 
-**O curso POUI usa `ng new --no-standalone`** (NgModules) por compatibilidade com
-versões de Angular anteriores ao 17. Ambos funcionam com PO-UI e Protheus.
+**O curso POUI usa `ng new --no-standalone`** (NgModules) por compatibilidade com versões de Angular anteriores ao 17. Ambos funcionam com PO-UI e Protheus.
 
 | | Standalone (este plugin) | NgModules (curso) |
 |---|---|---|
@@ -154,9 +154,7 @@ versões de Angular anteriores ao 17. Ambos funcionam com PO-UI e Protheus.
 | Bootstrap | `bootstrapApplication()` | `platformBrowserDynamic().bootstrapModule()` |
 | Providers | `app.config.ts` | `app.module.ts` |
 
-**Para projetos novos: use Standalone.** Para integrar em projetos NgModule
-existentes, envolva o componente em um `NgModule` wrapper e importe nos
-módulos que precisam dele.
+**Para projetos novos: use Standalone.** Para integrar em projetos NgModule existentes, envolva o componente em um `NgModule` wrapper e importe nos módulos que precisam dele.
 
 ---
 
@@ -204,7 +202,7 @@ bootstrapApplication(AppComponent, appConfig)
 
 ---
 
-## Standalone Component Pattern
+## Padrão de Componente Standalone
 
 ```typescript
 import {
@@ -234,12 +232,12 @@ import { Pedido } from '../models/pedido.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PedidosListComponent implements OnInit {
-  private readonly service = inject(PedidosService);
-  private readonly router = inject(Router);
+  private readonly service      = inject(PedidosService);
+  private readonly router       = inject(Router);
   private readonly notification = inject(PoNotificationService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly destroyRef   = inject(DestroyRef);
 
-  readonly items = signal<Pedido[]>([]);
+  readonly items   = signal<Pedido[]>([]);
   readonly loading = signal(false);
   readonly hasNext = signal(false);
 
@@ -268,26 +266,26 @@ export class PedidosListComponent implements OnInit {
 
 ---
 
-## Icon Reference
+## Referência de Ícones
 
-Always use `po-icon-*` names. Never use `an an-*`.
+Sempre use nomes `po-icon-*`. Nunca use `an an-*`.
 
-| Action | Icon |
-|--------|------|
-| New / Add | `po-icon-plus` |
-| Edit | `po-icon-edit` |
-| Delete | `po-icon-delete` |
+| Ação | Ícone |
+|------|-------|
+| Novo / Adicionar | `po-icon-plus` |
+| Editar | `po-icon-edit` |
+| Excluir | `po-icon-delete` |
 | Home | `po-icon-home` |
-| User | `po-icon-user` |
-| Exit / Close | `po-icon-exit` |
-| Search | `po-icon-search` |
-| Save | `po-icon-ok` |
+| Usuário | `po-icon-user` |
+| Sair / Fechar | `po-icon-exit` |
+| Pesquisar | `po-icon-search` |
+| Salvar | `po-icon-ok` |
 
 ---
 
-## angular.json — Required Styles
+## angular.json — Estilos Obrigatórios
 
-The `architect.build.options.styles` array must include the PO-UI theme files or components render without styling:
+O array `architect.build.options.styles` deve incluir os arquivos de tema do PO-UI, caso contrário os componentes renderizam sem estilo:
 
 ```json
 "styles": [
