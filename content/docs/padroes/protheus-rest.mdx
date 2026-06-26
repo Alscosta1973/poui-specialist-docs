@@ -1,11 +1,11 @@
 ---
-title: "Protheus REST Integration Patterns"
-description: "typescript"
+title: "Padrões de Integração REST Protheus"
+description: "Contratos de request/response, autenticação, tratamento de erros e configuração de proxy para integração Angular com o Protheus REST"
 ---
 
-# Protheus REST Integration Patterns
+# Padrões de Integração REST Protheus
 
-## Standard Response Contract
+## Contrato de Resposta Padrão
 
 ```typescript
 interface ProtheusListResponse<T> {
@@ -15,18 +15,18 @@ interface ProtheusListResponse<T> {
 }
 ```
 
-## Standard Query Parameters
+## Parâmetros de Query Padrão
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `page` | `number` | Page number (starts at 1) |
-| `pageSize` | `number` | Items per page (default: 10, max: 50) |
-| `q` | `string` | Quick search across all text fields |
-| `order` | `string` | Sort field, prefix with `-` for descending (e.g., `-nome`) |
+| Parâmetro | Tipo | Descrição |
+|-----------|------|-----------|
+| `page` | `number` | Número da página (começa em 1) |
+| `pageSize` | `number` | Itens por página (padrão: 10, máximo: 50) |
+| `q` | `string` | Busca rápida em todos os campos de texto |
+| `order` | `string` | Campo de ordenação; prefixar com `-` para descendente (ex: `-nome`) |
 
 ---
 
-## Generic Service Pattern
+## Padrão de Service Genérico
 
 ```typescript
 import { Injectable, inject } from '@angular/core';
@@ -48,7 +48,7 @@ export interface GetAllParams {
 
 @Injectable({ providedIn: 'root' })
 export class PedidosService {
-  private readonly http = inject(HttpClient);
+  private readonly http    = inject(HttpClient);
   private readonly baseUrl = '/rest/api/custom/v1/pedidos';
 
   getAll(params: GetAllParams = {}): Observable<ProtheusListResponse<Pedido>> {
@@ -84,12 +84,12 @@ export class PedidosService {
 
 ---
 
-## Composite Key Pattern (código + loja)
+## Chave Composta (código + loja)
 
-Most Protheus entities use a composite key: `codigo` (6 chars) + `loja` (2 chars).
+A maioria das entidades Protheus usa chave composta: `codigo` (6 chars) + `loja` (2 chars).
 
 ```typescript
-// Service — composite key in URL path
+// Service — chave composta no path da URL
 getByKey(codigo: string, loja: string): Observable<Parceiro> {
   return this.http.get<Parceiro>(`${this.baseUrl}/${codigo}/${loja}`);
 }
@@ -102,7 +102,7 @@ deleteByKey(codigo: string, loja: string): Observable<void> {
   return this.http.delete<void>(`${this.baseUrl}/${codigo}/${loja}`);
 }
 
-// List component — navigate to edit using separate route params
+// Componente de lista — navega para edição com dois parâmetros de rota
 tableActions: PoTableAction[] = [
   {
     label: 'Editar',
@@ -112,15 +112,15 @@ tableActions: PoTableAction[] = [
   },
 ];
 
-// Routes — edit receives both params
+// Rotas — edição recebe ambos os parâmetros
 { path: ':codigo/:loja', loadComponent: () => ... }
 
-// Edit component — read composite key from route
+// Componente de edição — lê chave composta da rota
 ngOnInit(): void {
   const { codigo, loja } = this.route.snapshot.params;
   if (codigo && loja) {
     this.codigo = codigo;
-    this.loja = loja;
+    this.loja   = loja;
     this.isEdit.set(true);
     this.loadRecord();
   }
@@ -129,9 +129,9 @@ ngOnInit(): void {
 
 ---
 
-## Protheus Error Handling
+## Tratamento de Erros do Protheus
 
-Protheus REST does **not** follow a simple `\{ message \}` error shape. Errors arrive as:
+O Protheus REST **não** retorna um `{ message }` simples. Os erros chegam assim:
 
 ```json
 {
@@ -139,24 +139,28 @@ Protheus REST does **not** follow a simple `\{ message \}` error shape. Errors a
 }
 ```
 
-The inner string is JSON and the text is URI-encoded. Always use this decoder:
+A string interna é JSON e o texto está codificado em URI. Use sempre este decodificador:
 
 ```typescript
-// In components that call create/update/delete
-private parseProtheusError(err: any): string {
+// Em componentes que chamam create / update / delete
+private parseProtheusError(err: unknown): string {
   try {
-    const errObj = JSON.parse(err.error?.errorMessage ?? '{}');
+    const e      = err as { error?: { errorMessage?: string; message?: string } };
+    const errObj = JSON.parse(e.error?.errorMessage ?? '{}') as {
+      code?: string; message?: string; detailedMessage?: string;
+    };
     const msg    = decodeURIComponent(escape(errObj.message ?? ''));
     const detail = errObj.detailedMessage
       ? ` — ${decodeURIComponent(escape(errObj.detailedMessage))}`
       : '';
     return `Erro ${errObj.code}: ${msg}${detail}`;
   } catch {
-    return err.error?.message ?? 'Erro ao processar a requisição.';
+    return (err as { error?: { message?: string } }).error?.message
+      ?? 'Erro ao processar a requisição.';
   }
 }
 
-// Usage
+// Uso
 save(): void {
   this.service.create(this.values)
     .pipe(
@@ -174,22 +178,22 @@ save(): void {
 
 ---
 
-## HTTP Status Code Handling
+## Códigos de Status HTTP
 
-| Status | Meaning | Suggested Action |
-|--------|---------|-----------------|
-| 400 | Bad request / validation | Show decoded Protheus error message |
-| 401 | Unauthorized | Redirect to login (handle in interceptor) |
-| 403 | Forbidden | Show "Sem permissão" message |
-| 404 | Not found | Show "Registro não encontrado" and navigate back |
-| 409 | Conflict / duplicate | Show specific conflict message |
-| 500 | Server error | Show generic "Erro interno" message |
+| Status | Significado | Ação sugerida |
+|--------|-------------|---------------|
+| 400 | Requisição inválida / validação | Exibir mensagem decodificada do erro Protheus |
+| 401 | Não autenticado | Redirecionar para login (tratar no interceptor) |
+| 403 | Sem permissão | Exibir mensagem "Sem permissão para esta operação" |
+| 404 | Não encontrado | Exibir "Registro não encontrado" e voltar à lista |
+| 409 | Conflito / duplicidade | Exibir mensagem específica do conflito |
+| 500 | Erro interno do servidor | Exibir mensagem genérica "Erro interno do servidor" |
 
 ---
 
-## Proxy Configuration (proxy.conf.json)
+## Configuração do Proxy (proxy.conf.json)
 
-For local development, proxy `/rest` to the Protheus AppServer so CORS is avoided:
+Em desenvolvimento local, faça o proxy de `/rest` para o AppServer do Protheus para evitar problemas de CORS:
 
 ```json
 {
@@ -202,14 +206,17 @@ For local development, proxy `/rest` to the Protheus AppServer so CORS is avoide
 }
 ```
 
-Add to `package.json` start script:
+Adicionar ao script `start` do `package.json`:
+
 ```json
 "start": "ng serve --proxy-config proxy.conf.json"
 ```
 
+> Para configurar proxy com autenticação Basic Auth, consulte o [Guia de Integração Protheus](/docs/padroes/protheus-connect).
+
 ---
 
-## Environment-Based Base URL
+## URL Base por Ambiente
 
 ```typescript
 // src/environments/environment.ts
@@ -224,6 +231,6 @@ export const environment = {
   apiBaseUrl: '/rest',
 };
 
-// In service — use environment to build URL
+// No service — usa environment para compor a URL
 private readonly baseUrl = `${environment.apiBaseUrl}/api/custom/v1/pedidos`;
 ```
