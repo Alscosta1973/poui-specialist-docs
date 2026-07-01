@@ -5,6 +5,66 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.6.0] — 2026-06-30
+
+### Adicionado
+
+**Novos comandos**
+
+- **`/poui-specialist:connect`** — integra o projeto Angular com um endpoint Protheus real: configura `proxy.conf.json`, interceptor HTTP, `angular.json` e `app.config.ts`. Adiciona `proxy.conf.json` ao `.gitignore` automaticamente. Fallback offline: quando o Protheus está inacessível, oferece entrada manual de campos para continuar a geração.
+- **`/poui-specialist:undo`** — reverte componentes gerados pelo plugin. Lista todos os arquivos marcados com `@generated poui-specialist`, confirma antes de remover e desfaz a rota correspondente em `app.routes.ts`.
+
+**Agentes especializados — split por família de tipo**
+
+O agente `code-generator` foi dividido em 3 agentes especializados. O comando `/generate` despacha automaticamente para o agente correto, reduzindo ~30% do contexto carregado por geração (cada agente carrega apenas as Critical Rules relevantes à sua família):
+
+- **`code-generator-list`** — tipos browse/lista: `page-list`, `page-dynamic-search`, `page-dynamic`, `stacked-browse`, `two-panel-browse`, `action-list`, `master-detail`. Inclui regras de `po-table`, seleção e PoTableColumn; omite regras de `po-stepper`, `po-dynamic-form` e `po-decimal`.
+- **`code-generator-forms`** — tipos de formulário: `page-edit`, `page-detail`, `modal-crud`, `stepper-form`. Inclui regras de `po-dynamic-form`, `PoDynamicFormField`, `po-stepper` e `po-decimal`; omite regras de `po-table`.
+- **`code-generator-infra`** — infraestrutura: `service`, `module`, `dashboard`, `models`, `tlpp-contract`, `refactor`. Inclui todas as regras por cobrir o tipo `refactor`, que pode gerar qualquer família.
+
+O agente `code-generator` original é mantido como fallback para invocações diretas.
+
+**Scripts de tooling**
+
+- **`scripts/bump-version.js`** — atualiza a versão atomicamente em `plugin.json`, `marketplace.json` e todos os 4 agentes `code-generator*.md`. Suporta `major`, `minor`, `patch` ou versão explícita (`X.Y.Z`). Exibe lembrete para executar `sync-docs.js` ao final.
+- **`scripts/audit-templates.js`** — audita os 21 arquivos de template com 5 regras: R1 (título ou frontmatter `name:`), R2 (ao menos um placeholder `{{}}`), R3 (`export class` exige `{{ComponentClass}}` ou `{{ServiceClass}}`), R4 (sem nomes hard-coded do projeto de teste), R5 (`{{kebab-name}}` em templates de componente). Modo `--strict` converte avisos em erros.
+- **`scripts/sync-docs.js`** — sincroniza versão (`PLUGIN_VERSION`), contagem de comandos, agentes públicos, templates e tipos entre o plugin e este site. Modos `--dry-run` (mostra diff sem escrever) e `--check` (retorna exit 1 se docs estiver desatualizado, útil em CI local).
+
+**CI/CD**
+
+- **`.github/workflows/plugin-lint.yml`** — pipeline de validação automática com 9 checks: J1–J3 (JSON válido + versões consistentes entre `plugin.json` e `marketplace.json`), L1–L2 (comandos referenciam `poui-license-check` centralizado; sem bloco inline legado), T1–T2 (audit-templates normal e `--strict`), V1–V2 (sintaxe de `bump-version.js` e `sync-docs.js`), A1 (os 4 agentes `code-generator*` contêm Phase 1/2/3), S1 (`SKILL.md` com frontmatter `name:` e `description:`).
+
+**Quirks documentados (6 novos)**
+
+`po-ui-quirks.md` refatorado em índice + 3 arquivos por família (`-onpush.md`, `-table.md`, `-forms.md`) com load condicional por tipo de componente gerado:
+
+| # | Componente | Sintoma | Família |
+|---|---|---|---|
+| 15 | `po-stepper` | `[p-current-active-step]` não existe (NG8002); `back()` não reseta 'done' | forms |
+| 16 | `po-table` | Colunas numéricas sem `type` alinhadas à esquerda | table |
+| 17 | `po-decimal` / `po-number` | Input numérico alinhado à esquerda em formulários | forms |
+| 18 | `po-table` | `$selected: false` síncrono ignorado pelo ChangeDetector | table |
+| 19 | `HttpClient` | `provideHttpClient()` obrigatório em `app.config.ts` para standalone + testes | onpush |
+| 20 | `PoChartSerie` | `.data` espera `number[]`, não array de objetos | onpush |
+
+**Segurança**
+
+- Template `tlpp-contract` — bloco obrigatório de segurança adicionado: `FWUserLogged()` (autenticação), `FWValidUserLog()` (autorização) e padrões anti-injection com `BeginSQL`/`EndSQL`.
+
+### Alterado
+
+- **`commands/generate.md`** — flags `--dry-run` (exibe plano sem escrever arquivos) e `--skip-build` (pula verificação de build, útil em geração em lote). Despacho automático para o agente especializado correto por família de tipo.
+- **`commands/connect.md`** — backup preventivo (`.bak`) criado antes de modificar service e interceptors; `proxy.conf.json` adicionado ao `.gitignore` automaticamente.
+- **`skills/poui-license-check`** — skill centralizada substituindo o bloco de 20 linhas duplicado nos 5 comandos. Inclui verificação remota via Gist com campo anti-spoofing `"plugin": "poui-specialist"`.
+- **`skills/poui-context`** — flag `--max-components N` para limitar o scan de services em projetos grandes.
+- **`skills/poui-discover`** — fallback offline: quando o Protheus está inacessível, oferece modo de entrada manual de campos para continuar a geração sem conexão.
+- **`skills/poui-build-fix`** — tabela com 6 padrões de erro PO-UI específicos (`p-maxlength`, `p-selected-rows`, `PoChartSerie`, `provideHttpClient`, `ChangeDetectorRef`, mutação de array em `po-table`). Guia de escalação após 3 tentativas falhadas (7 categorias: imports circulares, type mismatches, NG0XXX, `angular.json`, erros múltiplos, erros persistentes).
+- **`agents/code-generator`** — validação PascalCase automática com aviso, lazy loading obrigatório via `loadComponent` (nunca `component: ComponentClass`), validação de existência do diretório `src/app/<module>/` antes de gerar.
+
+### Corrigido
+
+- **`scripts/bump-version.js`** agora atualiza os 4 agentes `code-generator*.md` (antes apenas `code-generator.md` era atualizado, deixando os 3 especializados com a versão antiga no header `@generated`).
+
 ## [1.5.1] — 2026-06-25
 
 ### Corrigido
