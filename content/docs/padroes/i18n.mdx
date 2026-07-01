@@ -1,0 +1,96 @@
+---
+title: Internacionalização (i18n)
+description: Suporte multilíngue com PoI18nService — dicionários JSON, detecção do idioma Protheus e signals tipados
+---
+
+# Internacionalização (i18n)
+
+Guia para adicionar suporte multilíngue a projetos PO-UI + Protheus usando `PoI18nService`.
+
+## Quando usar
+
+| Cenário | Recomendação |
+|---------|-------------|
+| App usado apenas no Brasil | Labels PT-BR hardcoded são aceitáveis |
+| App exportado (ES/EN) | i18n obrigatório |
+| Clientes Protheus com idioma configurado | Detectar via `ProAppConfigService` |
+
+## Configuração em app.config.ts
+
+```typescript
+import { PoI18nConfig, providePoI18n } from '@po-ui/ng-components';
+
+const i18nConfig: PoI18nConfig = {
+  default: { language: 'pt', context: 'geral', cache: true },
+  contexts: {
+    geral: {
+      pt: () => import('../i18n/geral.pt.json'),
+      en: () => import('../i18n/geral.en.json'),
+      es: () => import('../i18n/geral.es.json'),
+    },
+  },
+};
+
+// providers: [..., providePoI18n(i18nConfig)]
+```
+
+## Detecção automática do idioma Protheus
+
+```typescript
+// AppComponent.ngOnInit()
+private detectProtheusLanguage(): void {
+  const proLang = this.proConfig.getLanguage?.() ?? '';
+  const langMap: Record<string, string> = { 'POR': 'pt', 'ENG': 'en', 'SPA': 'es' };
+  this.i18n.setLanguage(langMap[proLang.toUpperCase()] ?? 'pt');
+}
+```
+
+Protheus usa códigos `POR`, `ENG`, `SPA` — o mapeamento converte para os códigos `PoI18nService`.
+
+## Uso no componente
+
+```typescript
+readonly lit = signal<{ titulo: string; erroCarregar: string }>({
+  titulo: '', erroCarregar: '',
+});
+
+ngOnInit(): void {
+  this.i18n.getLiterals({ context: 'geral' })
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(l => this.lit.set(l as typeof this.lit()));
+}
+```
+
+```html
+<po-page-list [p-title]="lit().titulo"> ... </po-page-list>
+```
+
+## Armadilha: po-table com i18n
+
+`po-table` lê `label` na inicialização. Recriar o array `columns` **dentro** do `subscribe`:
+
+```typescript
+this.i18n.getLiterals({ context: 'pedidos' })
+  .subscribe(l => {
+    this.lit.set(l as typeof this.lit());
+    this.columns = [               // ← recriar aqui, não antes
+      { property: 'codigo',     label: l['colCodigo'] },
+      { property: 'fornecedor', label: l['colFornecedor'] },
+    ];
+  });
+```
+
+## Regras de review (I18N)
+
+O `/review` identifica:
+
+| ID | Problema |
+|----|---------|
+| **I18N-001** | String PT-BR hardcoded quando `providePoI18n` está configurado |
+| **I18N-002** | `PoNotificationService` com string literal em vez de `this.lit().chave` |
+| **I18N-003** | `getLiterals()` sem `takeUntilDestroyed` — memory leak |
+
+<Callout type="info">
+  Dicionários JSON completos (geral + pedidos em PT/EN/ES) e language switcher estão em
+  `skills/poui-patterns/po-ui-patterns-i18n.md` do plugin.
+</Callout>

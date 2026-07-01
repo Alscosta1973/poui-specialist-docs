@@ -1,3 +1,15 @@
 {
-  "title": "Padrões"
+  "title": "Padrões",
+  "pages": [
+    "index",
+    "module-structure",
+    "protheus-rest",
+    "protheus-connect",
+    "reactive-forms",
+    "po-ui-quirks",
+    "deploy-protheus",
+    "dark-mode",
+    "i18n",
+    "deployment"
+  ]
 }

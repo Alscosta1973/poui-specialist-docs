@@ -5,6 +5,91 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.8.0] — 2026-07-01
+
+### Adicionado
+
+**2 novos comandos**
+
+- **`/discover`** — auto-descobre o contrato de um endpoint REST Protheus ou arquivo `.prw`/`.tlpp`.
+  Detecta campos, tipos e ações; produz um manifesto de descoberta + comando `/generate` pronto para uso.
+  Flag `--suggest-batch` gera o manifesto completo (list + edit + service + models).
+  Se o endpoint estiver fora do ar, aceita JSON colado manualmente.
+
+- **`/scaffold`** — cria um projeto Angular 17+ completo com PO-UI do zero.
+  Configura automaticamente: `angular.json` (styles PO-UI), `tsconfig.json` (`strict: false`),
+  `app.config.ts`, `app.routes.ts`, shell com `po-menu + po-toolbar`, environments,
+  `proxy.conf.json` (adicionado ao `.gitignore`) e instalação de todos os pacotes TOTVS.
+  Flag `--demo` cria uma `HomeComponent` com 3 `po-widget` de boas-vindas.
+
+**3 novos tipos de geração**
+
+- **`upload`** — 3 variações prontas para uso com Protheus:
+  - **Template A** — single auto-upload (PDF/imagem) com `po-upload` + signal `uploadDone`
+  - **Template B** — múltiplos arquivos com tabela de resultados e contador de pendentes
+  - **Template C** — upload embutido em formulário (envio manual via `FormData`)
+  - Quirk documentado: `po-upload` usa XHR internamente — interceptors Angular não interceptam;
+    token deve ser fornecido via `[p-headers]`
+
+- **`infinite-scroll`** — lista com carregamento incremental via `IntersectionObserver`:
+  - `rootMargin: '150px'` para pré-carregar antes do sentinel chegar ao viewport
+  - Duplo guard: `if (loadingMore() || !hasNext()) return` evita chamadas duplicadas
+  - `ngOnDestroy()` desconecta o observer — sem memory leak
+  - Variante com cursor/keyset pagination
+  - Nota: `IntersectionObserver` roda fora da Zone.js — signals funcionam; `EventEmitter` precisa de `NgZone.run()`
+
+- **`po-tree`** — árvore hierárquica com dois templates:
+  - **Template A** — flat-to-tree: converte lista plana em `PoTreeViewItem[]` com `buildTree()` recursivo
+  - **Template B** — lazy loading: carrega filhos sob demanda via `(p-expanded)` + REST;
+    usa `Set<string>` para cache e prevenção de chamadas duplicadas
+  - Layout master-detail com painel de detalhes em 2 colunas
+  - Quirk: `subItems: []` = tem filhos (mostra ícone expand); `subItems: undefined` = folha
+
+**3 novos padrões**
+
+- **Dark Mode** (`po-ui-patterns-dark-mode.md`) — `ThemeService` singleton com:
+  - `signal<'light'|'dark'>` reativo para binding no template
+  - Persistência em `localStorage` com prioridade sobre `prefers-color-scheme`
+  - Detecção em tempo real de mudança de preferência do SO
+  - Tabela de variáveis CSS `var(--color-*)` que adaptam automaticamente
+  - Integração Protheus: sempre light dentro do iframe
+
+- **Internacionalização** (`po-ui-patterns-i18n.md`) — guia completo com `PoI18nService`:
+  - Setup `providePoI18n()` com lazy-load de dicionários JSON por contexto
+  - Detecção automática do idioma Protheus (`POR`→`pt`, `ENG`→`en`, `SPA`→`es`)
+  - Signal tipado `lit` para evitar typos em runtime
+  - Solução para `po-table.label` vazio quando `getLiterals()` resolve após init
+  - 3 regras de review: I18N-001, I18N-002, I18N-003
+
+- **Deploy para Produção** (`po-ui-patterns-deployment.md`) — guia de deploy com:
+  - `ng build --configuration production`, budgets e análise de bundle
+  - IIS (`web.config` URL Rewrite), nginx (`try_files`) e Protheus AppServer
+  - 3 estratégias CORS: mesma origem via proxy nginx, headers ADVPL, `MV_CORSORI`
+  - `HttpInterceptorFn` com `getTokenProtheus()`; nota crítica sobre `po-upload` + XHR
+  - `environment.ts` vs `environment.prod.ts` com `fileReplacements`
+  - Checklist de 13 itens + GitHub Actions CI/CD completo
+
+**code-reviewer — 3 novas regras A11Y**
+
+| ID | Severidade | Regra |
+|----|-----------|-------|
+| **A11Y-005** | INFO | `PoDynamicFormField` com nome crítico (`codigo`, `nome`, `cpf`, `cnpj`, `data*`, `valor*`) sem `required: true` |
+| **A11Y-006** | WARNING | `<input>`/`<textarea>` nativo sem `aria-label`, `aria-labelledby` ou `<label for>` |
+| **A11Y-007** | INFO | Estado de loading não comunicado via `aria-busy` |
+
+**protheus-rest.md — seção Paginação**
+
+- Tabela comparativa offset vs cursor/keyset com prós/contras
+- Interface TypeScript backward-compatible com `cursor?: string | null`
+- Padrão de serviço em modo duplo: com cursor exclui `page`; reset de `currentCursor` ao recarregar
+
+**templates-dashboard.md — 4 padrões avançados**
+
+- **Trend Card**: `computed()` para % delta, `po-color-11/07` (verde/vermelho), ícones de seta
+- **Period Filter**: `PoSelectOption[]` dia/semana/mês/trimestre/ano; `signal selectedPeriod` dispara reload
+- **Multi-Series Chart**: `PoChartType.Bar` com 2 séries (atual vs anterior), `(p-series-click)` conectado a drill-down
+- **Drill-Down**: `onKpiClick()` + `onChartClick()` → REST → `po-table` inline com `closeDrillDown()`
+
 ## [1.7.0] — 2026-07-01
 
 ### Adicionado

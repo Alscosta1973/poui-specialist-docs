@@ -1,0 +1,107 @@
+---
+title: /scaffold
+description: Cria um projeto Angular + PO-UI do zero com toda a configuração necessária para integração com Protheus
+---
+
+# /scaffold
+
+Configura um projeto Angular 17+ completo com PO-UI e a biblioteca Protheus em uma única execução.
+Elimina a configuração manual de `angular.json`, `tsconfig.json`, `app.config.ts`, proxy e estilos.
+
+## Uso
+
+```bash
+# Projeto padrão
+/poui-specialist:scaffold MeuApp
+
+# Com página de demonstração inicial
+/poui-specialist:scaffold MeuApp --demo
+
+# Especificar diretório de destino
+/poui-specialist:scaffold MeuApp --dir C:\totvs\projetos
+```
+
+## O que é criado
+
+```
+MeuApp/
+├── src/
+│   ├── app/
+│   │   ├── app.component.ts     ← shell com po-menu + po-toolbar
+│   │   ├── app.component.html
+│   │   ├── app.config.ts        ← provideRouter + provideHttpClient + ProtheusLibCoreModule
+│   │   └── app.routes.ts        ← rotas com lazy loading
+│   ├── environments/
+│   │   ├── environment.ts       ← dev (proxy local)
+│   │   └── environment.prod.ts  ← produção
+│   ├── styles.scss              ← imports PO-UI + reset
+│   └── index.html               ← charset UTF-8 + viewport
+├── angular.json                 ← styles PO-UI configurados
+├── tsconfig.json                ← strict:false + noPropertyAccessFromIndexSignature:false
+└── proxy.conf.json              ← proxy → AppServer (no .gitignore)
+```
+
+## Pacotes instalados
+
+| Pacote | Finalidade |
+|--------|-----------|
+| `@po-ui/ng-components@^17` | Componentes PO-UI |
+| `@po-ui/ng-templates@^17` | Templates avançados |
+| `@po-ui/style@^17` | CSS base |
+| `@totvs/po-theme@^17` | Tema visual TOTVS |
+| `@totvs/protheus-lib-core@^17` | `ProAppConfigService`, autenticação, fechar app |
+
+## Configurações aplicadas
+
+### angular.json — styles
+
+```json
+"styles": [
+  "node_modules/@totvs/po-theme/css/po-theme-default-variables.min.css",
+  "node_modules/@totvs/po-theme/css/po-theme-default.min.css",
+  "node_modules/@po-ui/style/css/po-theme-core.min.css",
+  "src/styles.scss"
+]
+```
+
+### tsconfig.json
+
+```json
+{
+  "compilerOptions": {
+    "strict": false,
+    "noPropertyAccessFromIndexSignature": false
+  }
+}
+```
+
+> `strict: false` é necessário para compatibilidade com `@totvs/protheus-lib-core`.
+
+### proxy.conf.json
+
+```json
+{
+  "/rest": {
+    "target": "http://localhost:8084",
+    "changeOrigin": true
+  }
+}
+```
+
+O arquivo é adicionado ao `.gitignore` automaticamente — nunca é commitado.
+
+## Flag --demo
+
+Cria uma `HomeComponent` com 3 cards `po-widget` mostrando os próximos passos:
+- Gerar primeiro componente com `/generate`
+- Configurar proxy para o AppServer
+- Executar testes com `/test`
+
+## Checklist pós-scaffold
+
+```
+□ Configurar target do proxy.conf.json com endereço do AppServer
+□ Executar npm start e verificar que o shell PO-UI carrega
+□ Gerar primeiro componente: /poui-specialist:generate page-list NomeDoMódulo
+□ npm test para confirmar que o projeto está verde
+```

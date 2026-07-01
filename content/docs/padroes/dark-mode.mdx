@@ -1,0 +1,101 @@
+---
+title: Dark Mode
+description: Suporte a tema claro/escuro com PoThemeService, persistência em localStorage e detecção de preferência do sistema
+---
+
+# Dark Mode
+
+Guia para adicionar tema claro/escuro a projetos PO-UI + Protheus.
+O PO-UI alterna temas via variáveis CSS — nenhum arquivo extra de CSS é necessário.
+
+## Como funciona
+
+`PoThemeService.changeCurrentTheme(PoThemeTypeEnum.dark)` aplica um atributo no `<body>`
+que aciona variáveis CSS internas do PO-UI. Todos os componentes adaptam automaticamente.
+
+```typescript
+// Importar sempre de @po-ui/ng-components
+import { PoThemeService, PoThemeTypeEnum } from '@po-ui/ng-components';
+```
+
+## ThemeService — singleton com persistência
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class ThemeService {
+  private readonly poTheme = inject(PoThemeService);
+  readonly mode = signal<'light' | 'dark'>('light');
+
+  constructor() { this.applyInitialTheme(); }
+
+  toggle(): void { this.apply(this.mode() === 'light' ? 'dark' : 'light'); }
+
+  private apply(mode: 'light' | 'dark'): void {
+    this.poTheme.changeCurrentTheme(
+      mode === 'dark' ? PoThemeTypeEnum.dark : PoThemeTypeEnum.light
+    );
+    this.mode.set(mode);
+    localStorage.setItem('app-theme', mode);
+  }
+
+  private applyInitialTheme(): void {
+    const saved = localStorage.getItem('app-theme') as 'light' | 'dark' | null;
+    if (saved) { this.apply(saved); return; }
+    this.apply(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  }
+}
+```
+
+**Prioridade:** `localStorage` (escolha do usuário) → `prefers-color-scheme` (SO) → `light`
+
+## Toggle no template
+
+```html
+<po-button
+  [p-icon]="themeService.mode() === 'dark' ? 'po-icon-light' : 'po-icon-moon'"
+  [p-label]="themeService.mode() === 'dark' ? 'Modo claro' : 'Modo escuro'"
+  p-kind="secondary"
+  (p-click)="themeService.toggle()">
+</po-button>
+```
+
+## SCSS dark-safe
+
+Use variáveis CSS do PO-UI em vez de cores hardcoded:
+
+```scss
+// ❌ Não adapta ao dark mode
+.card { background-color: #ffffff; color: #333333; }
+
+// ✅ Adapta automaticamente
+.card {
+  background-color: var(--color-neutral-light-00);
+  color:            var(--color-neutral-dark-90);
+  border:           1px solid var(--color-neutral-mid-40);
+}
+```
+
+## Integração com Protheus
+
+Dentro do Protheus (iframe), iniciar sempre em modo claro e não exibir o toggle:
+
+```typescript
+private applyInitialTheme(): void {
+  if (this.proConfig.insideProtheus?.()) { this.apply('light'); return; }
+  // ... lógica normal ...
+}
+```
+
+## Armadilhas comuns
+
+| Problema | Fix |
+|---------|-----|
+| Cores hardcoded `#hex` no SCSS | Substituir por `var(--color-*)` |
+| Logo branco some no dark | `body[theme="default-dark"] img.logo { filter: brightness(2); }` |
+| Tema perdido ao recarregar | Sempre persistir no `localStorage` |
+| `PoThemeTypeEnum` não encontrado | Importar de `@po-ui/ng-components`, não `@po-ui/ng-templates` |
+
+<Callout type="info">
+  O guia completo (tema customizado, detecção em tempo real, SSR guard) está no arquivo
+  `skills/poui-patterns/po-ui-patterns-dark-mode.md` do plugin.
+</Callout>

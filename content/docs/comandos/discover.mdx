@@ -1,0 +1,92 @@
+---
+title: /discover
+description: Auto-descobre o contrato de um endpoint Protheus REST ou arquivo fonte .prw/.tlpp e sugere o comando /generate correspondente
+---
+
+# /discover
+
+Analisa um endpoint REST do Protheus (ou um arquivo `.prw`/`.tlpp`) e produz automaticamente
+um manifesto de descoberta com todos os campos, tipos e ações detectados.
+O resultado pode ser passado diretamente para `/generate`.
+
+## Modos
+
+| Modo | Quando usar |
+|------|------------|
+| **Endpoint** | URL começa com `/` — chama o endpoint via `proxy.conf.json` e analisa a resposta JSON |
+| **Fonte** | Path termina em `.prw`, `.tlpp` ou `.prx` — analisa o arquivo ADVPL/TLPP localmente |
+
+## Uso básico
+
+```bash
+# Modo endpoint — chama o REST e mapeia a resposta
+/poui-specialist:discover /api/custom/v1/pedidos
+
+# Modo fonte — analisa o arquivo .prw
+/poui-specialist:discover src/FATA001.prw
+
+# Com sugestão de batch completo (list + edit + service + models)
+/poui-specialist:discover /api/custom/v1/pedidos --suggest-batch
+```
+
+## O que é detectado
+
+### Modo endpoint
+
+O `/discover` faz uma chamada `GET` ao endpoint usando o proxy local e inspeciona a resposta:
+
+| Valor na resposta | Tipo detectado |
+|-------------------|---------------|
+| `1500.00` | `currency` |
+| `"2026-01-15"` | `date` |
+| `true` / `false` | `boolean` |
+| `""` (string vazia ou curta) | `string` |
+| Número inteiro | `number` |
+
+Se o endpoint estiver fora do ar, o `/discover` aceita um JSON colado manualmente pelo usuário.
+
+### Modo fonte
+
+Extrai campos do arquivo ADVPL/TLPP a partir de:
+- `oJSON:Put("campo", ...)` — campos de saída REST
+- Prefixos de variável (`c`, `n`, `d`, `l`) para inferir tipo
+- `@path`, `@get`, `@post` — verbo e rota da API
+
+## Saída
+
+```
+📋 Manifesto de Descoberta — /api/custom/v1/pedidos
+
+Rota:   /api/custom/v1/pedidos
+Verbo:  GET
+Campos: 6 detectados
+
+| Campo      | Tipo     | Exemplo         |
+|------------|----------|-----------------|
+| codigo     | string   | "PED-0001"      |
+| fornecedor | string   | "TOTVS S.A."    |
+| valor      | currency | 1500.00         |
+| emissao    | date     | "2026-01-15"    |
+| status     | string   | "Aberto"        |
+| aprovado   | boolean  | false           |
+
+Sugestão de tipo: page-list
+
+Comando pronto:
+/poui-specialist:generate page-list Pedidos --module compras
+```
+
+## Flag --suggest-batch
+
+Gera um manifesto completo para criar list + edit + service + models de uma só vez:
+
+```bash
+/poui-specialist:discover /api/custom/v1/pedidos --suggest-batch
+```
+
+Saída inclui o comando `/generate-batch` com todos os tipos e o `--module` sugerido.
+
+## Segurança
+
+O manifesto de descoberta remove automaticamente campos que contenham:
+`token`, `senha`, `password`, `secret` — evitando exposição acidental no output.
