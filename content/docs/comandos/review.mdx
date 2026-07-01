@@ -1,11 +1,11 @@
 ---
 title: /review
-description: Revisa código PO-UI Angular para boas práticas, performance e acessibilidade
+description: Revisa código PO-UI Angular contra regras de boas práticas, performance, acessibilidade, segurança, quirks PO-UI e cobertura de testes
 ---
 
 # /poui-specialist:review
 
-Revisa código Angular com componentes PO-UI contra regras estabelecidas de boas práticas, performance e acessibilidade.
+Revisa componentes e serviços Angular / PO-UI contra um conjunto de regras categorizadas, gerando um relatório com severidade, código atual e sugestão de correção para cada achado.
 
 ## Sintaxe
 
@@ -17,33 +17,111 @@ Revisa código Angular com componentes PO-UI contra regras estabelecidas de boas
 
 | Flag | Regras aplicadas |
 |------|-----------------|
-| `boas-praticas` | OnPush, tipagem, signals, unsubscribe |
-| `performance` | trackBy, AsyncPipe, lazy loading |
-| `acessibilidade` | p-label, aria-label |
-| `all` | Todas as categorias (padrão) |
+| `boas-praticas` | OnPush, tipagem, signals, unsubscribe, `inject()`, `computed()` |
+| `performance` | `track`/`trackBy`, lazy loading, `computed()` vs método, mutação de array |
+| `acessibilidade` | `p-label`, `aria-label`, `p-help` em campos com restrições |
+| `seguranca` | `bypassSecurityTrust*`, URLs hardcoded, concatenação em parâmetros HTTP |
+| `poui` | `po-table` selection, loading state, tipos de coluna inválidos, `po-modal` sem dismiss |
+| `qualidade` | Componentes e serviços sem `*.spec.ts` correspondente |
+| `all` | Todas as categorias (padrão quando `--focus` não é informado) |
 
 ## Exemplos
 
 ```bash
-# Revisar um arquivo específico
+# Revisar todo o módulo de financeiro
+/poui-specialist:review src/app/financeiro
+
+# Revisar um componente específico
 /poui-specialist:review src/app/financeiro/pedidos-list/pedidos-list.component.ts
 
-# Revisar um módulo inteiro
-/poui-specialist:review src/app/financeiro/
+# Focar apenas em segurança
+/poui-specialist:review src/ --focus seguranca
 
-# Focar apenas em performance
-/poui-specialist:review src/app/ --focus performance
+# Checar quais componentes ainda não têm testes
+/poui-specialist:review src/app/ --focus qualidade
 
-# Focar em acessibilidade
-/poui-specialist:review src/app/ --focus acessibilidade
+# Verificar problemas específicos de PO-UI
+/poui-specialist:review src/app/ --focus poui
 ```
 
-## Severidades
+## Regras por categoria
 
-| Severidade | Significado |
-|-----------|-------------|
-| **CRITICAL** | Causa bug em produção ou degradação severa de performance |
-| **WARNING** | Viola boas práticas estabelecidas, pode causar problemas futuros |
-| **INFO** | Sugestão de modernização (Angular 17+ signals, etc.) |
+### Boas Práticas (BP)
 
-Veja o agente [Code Reviewer](/docs/agentes/code-reviewer) para a lista completa de regras.
+| ID | Severidade | Regra |
+|----|-----------|-------|
+| BP-001 | CRITICAL | `ChangeDetectionStrategy.OnPush` ausente |
+| BP-002 | WARNING | Uso de `any` em anotações de tipo |
+| BP-003 | WARNING | Observable sem cleanup (`takeUntilDestroyed`, `takeUntil`, `unsubscribe`) |
+| BP-004 | INFO | `@Input()` legado em vez de `input<T>()` (Angular 17+) |
+| BP-005 | INFO | `@Output()/EventEmitter` legado em vez de `output<T>()` |
+| BP-006 | WARNING | Manipulação direta do DOM (`document.querySelector`, `nativeElement.style`) |
+| BP-007 | WARNING | Erro exibido via `console.error` ou `alert` em vez de `PoNotificationService` |
+| BP-008 | INFO | Injeção via construtor em vez de `inject()` em componente standalone |
+| BP-009 | WARNING | Non-null assertion (`!`) em dados vindos de API HTTP |
+| BP-010 | INFO | Estado derivado como método puro quando deveria ser `computed()` |
+
+### Performance (PERF)
+
+| ID | Severidade | Regra |
+|----|-----------|-------|
+| PERF-001 | CRITICAL | `@for` sem `track` / `*ngFor` sem `trackBy` em array de objetos |
+| PERF-002 | WARNING | Chamada de método no template sem cache (`signal` ou `computed`) |
+| PERF-003 | WARNING | Rota com `component:` direto em vez de `loadComponent` (eager loading) |
+| PERF-004 | INFO | Chamada HTTP no `constructor()` em vez de `ngOnInit()` |
+| PERF-005 | WARNING | Array passado ao `po-table` mutado in-place (`.push`, `.splice`, `.sort`) — OnPush não detecta |
+
+### Acessibilidade (A11Y)
+
+| ID | Severidade | Regra |
+|----|-----------|-------|
+| A11Y-001 | WARNING | Campo PO-UI sem `p-label` (`po-input`, `po-select`, `po-combo`, `po-lookup`) |
+| A11Y-002 | WARNING | Ação de `po-table` sem propriedade `label` |
+| A11Y-003 | INFO | Botão com apenas ícone PO-UI sem `aria-label` |
+| A11Y-004 | INFO | Campo com restrições de negócio (máscara, formato, faixa numérica) sem `p-help` |
+
+### Segurança (SEC)
+
+| ID | Severidade | Regra |
+|----|-----------|-------|
+| SEC-001 | CRITICAL | `DomSanitizer.bypassSecurityTrust*` em código de produção |
+| SEC-002 | WARNING | URL base ou credencial hardcoded no service (deve vir de `environment.*`) |
+| SEC-003 | WARNING | Input do usuário concatenado diretamente em URL HTTP (usar `HttpParams`) |
+
+### PO-UI Específico (PUI)
+
+| ID | Severidade | Regra |
+|----|-----------|-------|
+| PUI-001 | WARNING | `po-table` com `[p-selectable]="true"` sem handler `(p-selected)` |
+| PUI-002 | WARNING | Componente com chamada HTTP sem signal de `isLoading` |
+| PUI-003 | CRITICAL | `po-table` com `type: 'tag'` em coluna — não existe na lib, quebra silenciosamente |
+| PUI-004 | WARNING | `po-modal` com `[p-click-out]="false"` sem `(p-on-close)` — modal sem forma de fechar |
+
+### Qualidade (QUAL)
+
+| ID | Severidade | Regra |
+|----|-----------|-------|
+| QUAL-001 | WARNING | Componente `*.component.ts` sem `*.component.spec.ts` no mesmo diretório |
+| QUAL-002 | INFO | Service `*.service.ts` sem `*.service.spec.ts` no mesmo diretório |
+
+## Formato do relatório
+
+O relatório é gerado por arquivo, com severidades separadas e snippet do código atual + sugestão corrigida:
+
+```
+## Review: pedidos-list.component.ts
+
+### CRITICAL (1)
+1. [BP-001] pedidos-list.component.ts:8 — OnPush ausente
+   Atual:    @Component({ selector: 'app-pedidos-list', standalone: true })
+   Sugestão: adicionar changeDetection: ChangeDetectionStrategy.OnPush
+
+### WARNING (1)
+2. [SEC-002] pedidos.service.ts:5 — URL base hardcoded
+   Atual:    private readonly baseUrl = 'http://localhost:8080/rest';
+   Sugestão: usar environment.apiUrl
+
+### Resumo: 1 critical, 1 warning, 0 info
+```
+
+Em revisões com múltiplos arquivos, é exibida uma tabela resumo ao final com o total de achados por arquivo e por severidade.
