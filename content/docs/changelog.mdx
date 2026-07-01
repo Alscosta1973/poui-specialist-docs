@@ -5,6 +5,73 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.7.0] — 2026-07-01
+
+### Adicionado
+
+**3 novos tipos de geração (família Infraestrutura)**
+
+- **`http-interceptor`** — interceptors funcionais Angular 17+ (`HttpInterceptorFn`). Três variantes prontas para uso no Protheus:
+  - **Auth token**: injeta `Bearer` token do `ProAppConfigService` em toda requisição; sem-op quando fora do Protheus
+  - **Error translation**: captura `HttpErrorResponse`, decodifica mensagens Latin-1 do Protheus via `TextDecoder('iso-8859-1')` e exibe via `PoNotificationService`
+  - **Loading overlay**: exibe overlay global para toda requisição HTTP; suporta header `X-Skip-Loading` para suprimir por request; companion `LoadingService` com contador de requisições concorrentes
+  - Registro em `app.config.ts` via `provideHttpClient(withInterceptors([...]))`
+
+- **`route-guard`** — guards funcionais Angular 17+ (`CanActivateFn`, `CanDeactivateFn`). Três variantes:
+  - **Auth Protheus**: verifica `proAppConfigService.insideProtheus()` antes de ativar rota
+  - **Unsaved changes**: `CanDeactivateFn<HasUnsavedChanges>` com interface exportada que componentes de formulário implementam; confirma antes de navegar
+  - **Permission guard**: lê `route.data['requiredPermission']` e valida perfil do usuário Protheus; suporte a perfil `ADMIN` como bypass
+
+- **`standalone-migrate`** — guia de migração NgModule → Angular 17+ standalone. Inclui:
+  - Checklist pré-migração (NgModule, imports de template, injeção, `@Input/@Output`, lifecycle, `ChangeDetectionStrategy`)
+  - Transformation map completo: `@NgModule` → standalone, `CommonModule` → imports individuais, construtor → `inject()`, `@Input/@Output` → `input()/output()`, `takeUntil(destroy$)` → `takeUntilDestroyed()`
+  - Before/after completo com código TypeScript real
+  - Limpeza do NgModule: como remover ou adaptar o módulo original
+  - Atualização de rota: `component:` direto → `loadComponent` lazy
+  - Pitfalls comuns: tela em branco (falta `ngAfterViewInit`), `NG0304` (imports faltando), `input()` retorna `Signal<T>` no template
+
+**code-reviewer expandido — de 3 para 6 categorias, de 11 para 21 regras**
+
+Novas categorias:
+
+| Categoria | Regras | Destaque |
+|-----------|--------|---------|
+| **SEC** | SEC-001–003 | `bypassSecurityTrust*` (CRITICAL), URL base hardcoded em service, user input concatenado em URL HTTP |
+| **PUI** | PUI-001–004 | `type: 'tag'` inexistente (CRITICAL), `po-table` selectable sem handler, componente HTTP sem signal `isLoading`, `po-modal` sem dismiss |
+| **QUAL** | QUAL-001–002 | Componente sem `.spec.ts`, service sem `.spec.ts` |
+
+Novas regras em categorias existentes:
+
+| ID | Categoria | Regra |
+|----|-----------|-------|
+| BP-008 | BP | `inject()` vs injeção por construtor em standalone |
+| BP-009 | BP | Non-null assertion `!` em dados de API |
+| BP-010 | BP | Estado derivado como método puro em vez de `computed()` |
+| PERF-005 | PERF | Array mutado in-place passado a `po-table` — OnPush não detecta |
+| A11Y-004 | A11Y | Campo com restrições de negócio sem `p-help` |
+
+Novas flags `--focus`: `seguranca`, `poui`, `qualidade`
+Phase 2 do agente agora filtra explicitamente por prefixo de ID ao usar `--focus`.
+
+**CI/Audit — 2 novas regras + 1 check de CI**
+
+- **R6** (`audit-templates`): detecta tipo de coluna inválido (`type: 'tag'`, `type: 'badge'`) em templates
+- **R7** (`audit-templates`): detecta `(p-value-change)` em código não-comentado (evento removido do PO-UI v17)
+- **Q1** (`plugin-lint.yml`): valida que toda referência "Quirk #X" em agentes existe nos arquivos `po-ui-quirks*.md`
+
+**Documentação**
+
+- `skills/poui-patterns/module-structure.md` — seção **Environments** adicionada: estrutura de arquivos (`environment.ts`, `environment.prod.ts`), configuração de `fileReplacements` no `angular.json`, uso correto em services (`environment.apiUrl`), `proxy.conf.json` com nota de segurança (`.gitignore`)
+- Página `/poui-specialist:review` criada no site de docs — estava referenciada no `meta.json` mas sem arquivo MDX
+
+**Comandos**
+
+- `/poui-specialist:test` — clarificado que funciona para **qualquer componente Angular**, não apenas os gerados pelo plugin. Adicionados exemplos com componentes legados e services externos.
+
+### Corrigido
+
+- `skills/poui-code-generation/SKILL.md` — header `@generated poui-specialist v1.3` corrigido para `v1.7.0`
+
 ## [1.6.0] — 2026-06-30
 
 ### Adicionado
