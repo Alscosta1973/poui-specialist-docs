@@ -5,6 +5,17 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.9.0] — 2026-07-01
+
+### Atualizado
+
+- **Angular 21 + PO-UI 21.22.0** — suporte completo às versões mais recentes. Templates de módulo agora geram `package.json` com `@angular/core: ^21.0.0`, `@po-ui/ng-components: ^21.22.0`, `zone.js: ~0.15.0` e TypeScript `~5.9.0`.
+- **`@angular/cdk ^21.0.0`** — adicionado ao `templates-module.md` (dependência obrigatória do PO-UI 21).
+- **Intervalo de versões atualizado** — toda a documentação, comandos e agents passaram de `Angular 17+` para `Angular 17–21+`.
+- **Release management automatizado** — `commit-and-tag-version` configurado com `.versionrc.json`; a partir desta versão, releases são gerados via `npm run release:minor` / `npm run release:patch`.
+
+---
+
 ## [1.8.0] — 2026-07-01
 
 ### Adicionado
