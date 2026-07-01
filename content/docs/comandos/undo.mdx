@@ -1,0 +1,70 @@
+---
+title: /undo
+description: Reverte componentes gerados pelo poui-specialist — lista arquivos e remove o escolhido junto com a rota
+---
+
+# /poui-specialist:undo
+
+Reverte componentes gerados pelo plugin — remove os arquivos `.ts`, `.html` e `.scss` e desfaz a entrada correspondente em `app.routes.ts`.
+
+## Sintaxe
+
+```bash
+/poui-specialist:undo [<module>/<kebab-name>] [--list]
+```
+
+## Modos de uso
+
+| Modo | Comando | Comportamento |
+|------|---------|---------------|
+| **Listagem** | `--list` | Lista todos os componentes gerados no projeto (identificados pelo header `@generated poui-specialist`) |
+| **Remoção direta** | `financeiro/pedidos-list` | Remove o componente especificado sem perguntar qual |
+| **Interativo** | sem argumentos | Lista os componentes e pergunta qual remover antes de agir |
+
+## Exemplos
+
+```bash
+# Ver o que foi gerado no projeto
+/poui-specialist:undo --list
+
+# Remover um componente específico
+/poui-specialist:undo financeiro/pedidos-list
+
+# Modo interativo — lista e confirma antes de remover
+/poui-specialist:undo
+```
+
+## O que é removido
+
+Para cada componente selecionado, o comando:
+
+1. Localiza os arquivos com header `@generated poui-specialist` em `src/app/`
+2. Remove o diretório do componente (`*.component.ts`, `*.component.html`, `*.component.scss`)
+3. Remove a entrada de rota correspondente em `app.routes.ts`
+4. Exibe um relatório do que foi excluído
+
+## Confirmação obrigatória
+
+O comando sempre pede confirmação antes de remover qualquer arquivo. A remoção é **irreversível** — certifique-se de ter o código em um commit antes de prosseguir.
+
+```
+Encontrados 2 componentes gerados:
+
+  1. src/app/financeiro/pedidos-list/
+     ├── pedidos-list.component.ts
+     ├── pedidos-list.component.html
+     └── pedidos-list.component.scss
+
+  2. src/app/compras/aprovacao-pedido/
+     ├── aprovacao-pedido.component.ts
+     ├── aprovacao-pedido.component.html
+     └── aprovacao-pedido.component.scss
+
+Qual deseja remover? (1/2/todos/cancelar)
+```
+
+## Limitações
+
+- Só identifica arquivos que contêm o header `@generated  poui-specialist` — arquivos editados manualmente depois da geração ainda são reconhecidos, mas o header deve estar presente
+- Serviços (`*.service.ts`) gerados em conjunto **não são removidos automaticamente** — o mesmo serviço pode ser compartilhado por outros componentes
+- Não desfaz alterações feitas em `angular.json` ou `styles.scss` pela geração original
