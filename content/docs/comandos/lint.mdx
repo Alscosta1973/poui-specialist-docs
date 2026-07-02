@@ -1,0 +1,88 @@
+---
+title: /lint
+description: Analisa componentes PO-UI Angular para os 18 quirks e anti-padrões conhecidos — reporta por severidade e corrige automaticamente os problemas com fix seguro
+---
+
+# /poui-specialist:lint
+
+Analisa componentes Angular PO-UI contra os **18 quirks documentados** e anti-padrões conhecidos. Reporta problemas por severidade e, com `--fix`, corrige automaticamente os que têm fix seguro — sem risco de quebrar lógica de negócio.
+
+## Sintaxe
+
+```bash
+/poui-specialist:lint <arquivo|diretório> [--fix] [--dry-run]
+```
+
+## Exemplos
+
+```bash
+# Apenas reportar problemas
+/poui-specialist:lint src/app/financeiro
+
+# Corrigir automaticamente os problemas com fix seguro
+/poui-specialist:lint src/app/financeiro --fix
+
+# Ver o que seria corrigido sem alterar nada
+/poui-specialist:lint src/app/financeiro --fix --dry-run
+```
+
+## Verificações aplicadas
+
+### No arquivo `.component.ts`
+
+| ID | Severidade | Problema detectado | Fix automático |
+|----|-----------|-------------------|----------------|
+| L01 | ERROR | `ChangeDetectionStrategy.OnPush` ausente | Sim |
+| L02 | ERROR | Componente com `po-page-*` sem `ngAfterViewInit` + `detectChanges` (Quirk #1) | Sim |
+| L03 | WARNING | Estado local com `public x =` em vez de `signal()` | Não — risco de quebra |
+| L04 | WARNING | `@Input()` em vez de `input()` | Não — risco de quebra |
+| L05 | ERROR | Construtor com injeção de dependência em vez de `inject()` | Não |
+| L06 | WARNING | `subscribe()` sem callback `error:` — loading pode travar eternamente | Sim (adiciona stub) |
+| L07 | ERROR | `error:` sem `loading.set(false)` — loading trava em caso de falha | Sim |
+
+### No arquivo `.component.html`
+
+| ID | Severidade | Problema detectado | Fix automático |
+|----|-----------|-------------------|----------------|
+| H01 | INFO | `*ngIf` em vez de `@if` (Angular 17+ Control Flow) | Sim |
+| H02 | INFO | `*ngFor` em vez de `@for` (Angular 17+ Control Flow) | Sim |
+| H03 | WARNING | `@for` sem expressão `track` — impacto em performance | Sim (`track $index`) |
+| H04 | ERROR | `p-selected-rows` em `po-table` — propriedade não existe (Quirk #6) | Sim (remove atributo) |
+| H05 | WARNING | `po-table` sem `[p-height]` em componente OnPush (Quirk #12) | Não |
+| H06 | WARNING | `p-max-length` em vez de `p-maxlength` (Quirk #4) | Sim |
+| H07 | ERROR | `(p-value-change)` em `po-dynamic-form` — evento não existe (Quirk #13) | Não — complexo |
+
+## Exemplo de relatório
+
+```
+/poui-specialist:lint — src/app/financeiro
+
+Arquivos analisados: 8 componentes, 8 templates
+
+ERRORS (3):
+  titulos-list.component.ts:12   [L01] ChangeDetectionStrategy.OnPush ausente
+  titulos-list.component.ts:34   [L02] po-page-list sem ngAfterViewInit + detectChanges (Quirk #1)
+  titulos-list.component.html:23 [H04] p-selected-rows não existe em po-table (Quirk #6)
+
+WARNINGS (4):
+  pedidos-list.component.ts:45   [L06] subscribe() sem callback error:
+  pedidos-list.component.html:12 [H01] *ngIf → @if disponível (Angular 17+)
+  pedidos-list.component.html:28 [H01] *ngIf → @if disponível (Angular 17+)
+  pedidos-edit.component.html:67 [H06] p-max-length → p-maxlength (Quirk #4)
+
+Total: 3 erros, 4 avisos
+
+Para corrigir automaticamente:
+  /poui-specialist:lint src/app/financeiro --fix
+```
+
+## Diferença entre `/lint` e `/review`
+
+| | `/lint` | `/review` |
+|---|---------|----------|
+| **Foco** | Quirks PO-UI e anti-padrões técnicos | Boas práticas, performance, acessibilidade, segurança |
+| **Fix automático** | Sim, para problemas com fix seguro | Não — apenas relatório com sugestão |
+| **Escopo** | Angular PO-UI específico | Angular geral + PO-UI |
+| **Quando usar** | Após geração ou ao revisar código legado | Antes de abrir PR ou entregar feature |
+
+Use `/lint --fix` para corrigir problemas técnicos rápidos, e `/review` para uma análise mais profunda de qualidade de código.

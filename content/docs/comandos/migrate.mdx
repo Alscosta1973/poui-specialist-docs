@@ -1,0 +1,92 @@
+---
+title: /migrate
+description: Converte componentes Angular legados (NgModule-based) para standalone + OnPush + signals — analisa, planeja e aplica as migrações automaticamente
+---
+
+# /poui-specialist:migrate
+
+Converte componentes Angular legados (NgModule-based) para o padrão moderno: **standalone + `ChangeDetectionStrategy.OnPush` + signals**. Analisa o arquivo, mapeia todas as mudanças necessárias, apresenta o plano antes de escrever qualquer coisa e remove o componente do NgModule automaticamente.
+
+## Sintaxe
+
+```bash
+/poui-specialist:migrate <caminho-do-componente.ts> [--dry-run]
+```
+
+## Exemplos
+
+```bash
+# Migrar um componente específico
+/poui-specialist:migrate src/app/financeiro/titulos/titulos.component.ts
+
+# Ver o que seria migrado sem alterar nada
+/poui-specialist:migrate src/app/financeiro/titulos/titulos.component.ts --dry-run
+```
+
+## O que é migrado
+
+| Legado | Moderno |
+|--------|---------|
+| Ausente de `standalone: true` | `standalone: true` no decorator |
+| `ChangeDetectionStrategy.Default` ou ausente | `ChangeDetectionStrategy.OnPush` |
+| `@Input() x: T` | `readonly x = input<T>()` |
+| `@Output() x = new EventEmitter<T>()` | `readonly x = output<T>()` |
+| `public x = valor` (estado local) | `readonly x = signal(valor)` |
+| `this.x = valor` (atribuição de estado) | `this.x.set(valor)` |
+| `*ngIf="cond"` no template | `@if (cond) { }` |
+| `*ngFor="let x of items"` no template | `@for (x of items(); track x.id) { }` |
+| Declarado em `NgModule.declarations` | Removido do módulo |
+| Imports via NgModule | `imports: [...]` explícitos no decorator |
+
+## Fluxo de execução
+
+### 1. Análise
+
+O comando lê o arquivo `.ts` e identifica todas as mudanças necessárias. Se o componente já for standalone, encerra informando que não há migração necessária.
+
+### 2. Plano
+
+Antes de escrever qualquer arquivo, exibe o plano completo:
+
+```
+Migrações identificadas em titulos.component.ts:
+
+✓ Adicionar standalone: true
+✓ Adicionar ChangeDetectionStrategy.OnPush
+✓ Migrar 3 @Input() → input()
+✓ Migrar 2 @Output() EventEmitter → output()
+✓ Migrar 5 variáveis de estado → signal()
+✓ Substituir *ngIf (3 ocorrências) → @if
+✓ Adicionar imports: [PoTableModule, PoPageModule, PoButtonModule]
+✓ Adicionar ngAfterViewInit com detectChanges() (Quirk #1)
+
+Arquivo: src/app/financeiro/titulos/titulos.component.ts
+Módulo:  src/app/financeiro/financeiro.module.ts (remover de declarations)
+
+Prosseguir? (s/n)
+```
+
+### 3. Aplicação
+
+Aplica todas as migrações e reporta os arquivos alterados com caminhos absolutos.
+
+## Flag `--dry-run`
+
+Exibe o plano completo sem alterar nenhum arquivo. Útil para revisar o escopo antes de migrar.
+
+## Quirk #1 incluído automaticamente
+
+Todo componente migrado que usa `po-page-*` recebe automaticamente o fix do Quirk #1 (tela em branco ao navegar no menu com OnPush):
+
+```typescript
+ngAfterViewInit(): void {
+  setTimeout(() => this.cdr.detectChanges());
+}
+```
+
+## Limitações
+
+- Migra um componente por execução — para múltiplos, executar o comando uma vez para cada arquivo
+- Não migra serviços (`*.service.ts`) — serviços geralmente não precisam de migração para standalone
+- Substituições de estado complexas (ex: `this.x = { ...this.x, campo: valor }`) são sinalizadas para revisão manual em vez de aplicadas automaticamente
+- Após migrar, sempre rodar `ng build` para confirmar compilação
