@@ -1,0 +1,64 @@
+---
+title: "Template: upload"
+description: "Componente de upload de arquivos com po-upload integrado ao Protheus REST — três variações: upload único, múltiplo e embutido em formulário"
+---
+
+# Template: upload
+
+Componente de upload integrado ao endpoint REST Protheus usando `po-upload`. O agente escolhe a variação conforme o cenário descrito.
+
+## Variações disponíveis
+
+| Variação | Cenário |
+|----------|---------|
+| **A — Upload único (auto-upload)** | Um arquivo por vez; upload automático ao selecionar; resultado exibido inline |
+| **B — Upload múltiplo** | Vários arquivos; validação de tipo e tamanho; lista de progresso individual por arquivo |
+| **C — Embutido em formulário** | Arquivo é um campo do form; enviado no `POST`/`PUT` junto com os demais dados |
+
+## Arquivos gerados
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `{{kebab-name}}.component.ts` | Componente standalone com `po-upload` |
+| `{{kebab-name}}.component.html` | Template com `po-upload` + feedback de resultado |
+
+## Padrões incluídos
+
+- `ChangeDetectionStrategy.OnPush` + `ngAfterViewInit` com `detectChanges` (Quirk #1)
+- Signal `loading` durante upload
+- Callback `(p-success)` com resposta do servidor
+- Callback `(p-error)` com decode Latin-1 do erro Protheus
+- Validação de extensões permitidas via `p-allowed-extensions`
+- Limite de tamanho via `p-max-file-size` (bytes)
+
+## Contrato do backend
+
+```typescript
+// POST /api/custom/v1/{{apiPath}}/upload
+// Content-Type: multipart/form-data
+// Response: { arquivo: string, url: string, mensagem: string }
+```
+
+## Quirk #17 — `po-upload` em OnPush
+
+O componente `po-upload` não dispara change detection automaticamente ao completar o upload. É necessário chamar `detectChanges()` no callback `(p-success)`:
+
+```typescript
+onUploadSuccess(event: any): void {
+  this.uploadResult.set(event);
+  this.cdr.detectChanges();
+}
+```
+
+## Invocar
+
+```bash
+# Upload único de NF XML
+/poui-specialist:generate upload ImportacaoNF --module fiscal
+
+# Upload múltiplo de anexos
+/poui-specialist:generate upload AnexosPedido --module compras
+
+# Campo de arquivo em formulário
+/poui-specialist:generate upload FotoFuncionario --module rh
+```

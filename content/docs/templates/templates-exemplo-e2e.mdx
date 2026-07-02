@@ -1,0 +1,75 @@
+---
+title: "Template: exemplo-e2e"
+description: "Referência completa ponta-a-ponta: Angular PO-UI + Protheus REST + TLPP backend — use para entender o fluxo de integração real antes de gerar telas"
+---
+
+# Template: exemplo-e2e
+
+Exemplo de referência com fluxo completo de integração: componente Angular → service → endpoint REST Protheus → TLPP backend. Use para entender o padrão antes de gerar telas reais.
+
+> Este template é **referência de integração**, não um template de geração. Para gerar telas, use `/generate page-list`, `/generate page-edit`, etc.
+
+## O que está incluído
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `pedido.model.ts` | Interface TypeScript mapeada para campos do SC6 Protheus |
+| `pedidos.service.ts` | Service Angular com CRUD completo + tratamento de erro Latin-1 |
+| `pedidos-list.component.ts` | Componente `page-list` standalone + OnPush + signals |
+| `pedidos-list.component.html` | Template com `po-table` + busca rápida |
+| `PedidosAPI.tlpp` | Endpoint REST TLPP com query SC6 + paginação |
+| `proxy.conf.json` | Proxy Angular para redirecionar `/rest` para o Protheus local |
+| `appserver.ini` (trecho) | Configuração CORS para desenvolvimento local |
+
+## Entidade de exemplo: Pedidos (SC6)
+
+```typescript
+export interface Pedido {
+  codigo:  string;  // C6_NUM
+  loja:    string;  // C6_LOJA
+  cliente: string;  // C6_CLIENTE
+  produto: string;  // C6_PRODUTO
+  qtd:     number;  // C6_QTDVEN
+  valor:   number;  // C6_PRUNIT
+  status:  string;  // 'A'=Aberto, 'F'=Faturado, 'C'=Cancelado
+}
+```
+
+## Contrato REST
+
+```
+GET  /rest/api/custom/v1/pedidos?page=1&pageSize=20&filtro=
+→    { items: Pedido[], hasNext: boolean }
+
+GET  /rest/api/custom/v1/pedidos/:id
+→    Pedido
+
+POST /rest/api/custom/v1/pedidos
+→    { codigo: string }   (201 Created)
+
+PUT  /rest/api/custom/v1/pedidos/:id
+→    Pedido                (200 OK)
+
+DELETE /rest/api/custom/v1/pedidos/:id
+→    (204 No Content)
+```
+
+## Padrão de erro Protheus
+
+```typescript
+// Todo erro Protheus deve ser decodificado de Latin-1:
+function parseProtheusError(body: ArrayBuffer): string {
+  const text = new TextDecoder('iso-8859-1').decode(body);
+  try { return JSON.parse(text).message; } catch { return text; }
+}
+```
+
+Veja o padrão completo em [Error Handling Protheus](/docs/padroes/protheus-error-handling).
+
+## Invocar (para ver o exemplo completo)
+
+```bash
+/poui-specialist:generate exemplo-e2e
+```
+
+O agente exibe o código completo de todos os arquivos para uso como referência ou adaptação.

@@ -1,0 +1,55 @@
+---
+title: "Template: route-guard"
+description: "Angular 17+ CanActivateFn e CanDeactivateFn — proteção por autenticação Protheus e alerta de mudanças não salvas"
+---
+
+# Template: route-guard
+
+Guards de rota funcionais para Angular 17+. O agente escolhe a variação conforme o cenário descrito.
+
+## Variações disponíveis
+
+| Variação | Guard | Cenário |
+|----------|-------|---------|
+| **A — Auth Protheus** | `CanActivateFn` | Bloqueia rota se app não estiver rodando dentro do Protheus (iframe) |
+| **B — Mudanças não salvas** | `CanDeactivateFn` | Exibe `po-dialog` de confirmação ao sair de formulário com dados alterados |
+
+## Arquivos gerados
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `src/app/{{moduleName}}/{{kebab-name}}.ts` | Guard funcional (`CanActivateFn` ou `CanDeactivateFn`) |
+
+## Variação A — CanActivate: Protheus iframe guard
+
+Útil quando o app pode ser aberto tanto pelo Protheus quanto diretamente por URL. O guard verifica `ProAppConfigService.isProtheus()` e redireciona para a raiz com notificação de erro se o contexto Protheus não estiver disponível.
+
+## Variação B — CanDeactivate: formulário com mudanças não salvas
+
+Requer que o componente implemente a interface `HasUnsavedChanges`:
+
+```typescript
+export interface HasUnsavedChanges {
+  hasUnsavedChanges(): boolean;
+}
+```
+
+O guard exibe um `po-dialog` de confirmação e bloqueia a navegação se o usuário cancelar.
+
+## Como registrar
+
+```typescript
+// app.routes.ts
+{
+  path: 'pedidos/:id/editar',
+  component: PedidoEditComponent,
+  canDeactivate: [unsavedChangesGuard]
+}
+```
+
+## Invocar
+
+```bash
+/poui-specialist:generate route-guard ProtheusAuth --module core
+/poui-specialist:generate route-guard UnsavedChanges --module shared
+```

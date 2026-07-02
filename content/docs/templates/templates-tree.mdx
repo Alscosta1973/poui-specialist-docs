@@ -1,0 +1,59 @@
+---
+title: "Template: tree"
+description: "Navegação hierárquica com po-tree-view — variação A (flat-to-tree pré-carregado) ou B (lazy loading por nó)"
+---
+
+# Template: tree
+
+Componente de navegação hierárquica com `po-tree-view`. O agente escolhe a variação conforme o contexto da hierarquia.
+
+## Variações disponíveis
+
+| Variação | Backend | Quando usar |
+|----------|---------|-------------|
+| **A — Pré-carregado (flat → tree)** | Retorna lista plana com campo `pai` | Hierarquias rasas (até ~3 níveis); toda a árvore cabe em uma única chamada |
+| **B — Lazy loading** | Filhos carregados ao expandir cada nó | Hierarquias profundas ou com muitos nós; custo de carregamento por demanda |
+
+## Arquivo gerado
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `{{kebab-name}}.component.ts` | Componente standalone com `po-tree-view` |
+| `{{kebab-name}}.component.html` | Template com `po-tree-view` + painel de detalhe lateral opcional |
+
+## Padrões incluídos
+
+- `ChangeDetectionStrategy.OnPush` + `ngAfterViewInit` com `detectChanges` (Quirk #1)
+- Signal `treeItems` para a árvore renderizada
+- Signal `selectedNode` para o nó ativo (mestre-detalhe com painel lateral)
+- `takeUntilDestroyed` para cancelamento de subscriptions
+
+## Contrato do backend — Variação A (lista plana)
+
+```typescript
+export interface {{ModelInterface}}Flat {
+  id:        string;    // código do nó
+  pai:       string;    // código do pai; '' ou null = nó raiz
+  descricao: string;
+  icon?:     string;    // po-icon-* opcional
+}
+// GET /api/custom/v1/{{apiPath}} → { items: {{ModelInterface}}Flat[], hasNext: false }
+```
+
+## Contrato do backend — Variação B (lazy loading)
+
+```typescript
+// GET /api/custom/v1/{{apiPath}}?pai=<id>  →  filhos do nó informado
+// pai vazio ou ausente = nós raiz
+```
+
+## Padrão mestre-detalhe
+
+O template inclui variação com painel lateral: ao selecionar um nó da árvore, o painel direito exibe o detalhe do nó usando `po-dynamic-view`.
+
+## Invocar
+
+```bash
+/poui-specialist:generate tree CentroCusto --module financeiro
+/poui-specialist:generate tree EstruturaEmpresa --module rh
+```

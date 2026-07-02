@@ -1,0 +1,73 @@
+---
+title: "Template: action-list"
+description: "Lista com ações procedurais Protheus — confirmação por modal, loading por linha, resultado estruturado por registro com suporte a sucesso parcial"
+---
+
+# Template: action-list
+
+Lista onde o usuário seleciona registros e dispara operações de negócio no Protheus que exigem confirmação e retornam resultado por linha (baixar título, processar NF, confirmar pedido). Para CRUD simples sem ação procedural, use `page-list`.
+
+## Quando usar
+
+| Situação | Template indicado |
+|----------|------------------|
+| Ação que processa N registros no Protheus e retorna resultado linha por linha | **action-list** |
+| Sucesso parcial — alguns registros processam, outros retornam erro | **action-list** |
+| CRUD simples sem ação de negócio | `page-list` ou `modal-crud` |
+
+## Arquivos gerados
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `{{kebab-name}}.component.ts` | Componente standalone com `po-page-list` + `po-table` + `po-modal` |
+| `{{kebab-name}}.component.html` | Template com tabela selecionável e modal de confirmação dinâmica |
+| `{{kebab-name}}.service.ts` | Service com método de ação + CRUD básico |
+
+## Padrões incluídos
+
+- `ChangeDetectionStrategy.OnPush` + `ngAfterViewInit` com `detectChanges` (Quirk #1)
+- Signal `loading` isolado por ação — cada botão tem seu próprio spinner
+- Modal de confirmação com campo de observação opcional
+- Resposta estruturada por linha: `{ codigo, status, mensagem }`
+- Modal de resultado com tabela de sucesso/erro para sucesso parcial
+- `(p-selected)` / `(p-unselected)` para acúmulo de seleção (Quirk #6)
+- `takeUntilDestroyed` para cancelamento automático de observables
+
+## Contratos
+
+### Request para ação
+
+```typescript
+interface AcaoRequest {
+  codigos: string[];   // registros selecionados
+  observacao?: string; // campo extra do modal (opcional)
+}
+```
+
+### Response do Protheus
+
+```typescript
+interface AcaoResultItem {
+  codigo:   string;
+  status:   'OK' | 'ERRO';
+  mensagem: string;
+}
+
+interface AcaoResponse {
+  items: AcaoResultItem[];
+}
+```
+
+## Nota sobre ícones
+
+Sempre use nomes `po-icon-*`. Nunca `an an-*` ou `ph ph-*`.
+
+## Nota sobre `type: 'danger'`
+
+`type: 'danger'` em `PoPageAction` (ações `multi`) só é renderizado visualmente a partir da 3ª ação quando há 4 ou mais page actions na página — comportamento nativo do PO-UI.
+
+## Invocar
+
+```bash
+/poui-specialist:generate action-list TitulosPagar --module financeiro
+```

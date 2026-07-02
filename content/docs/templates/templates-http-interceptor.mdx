@@ -1,0 +1,48 @@
+---
+title: "Template: http-interceptor"
+description: "Angular 17+ HttpInterceptorFn para integração Protheus — headers de contexto, tradução de erros Protheus, overlay de loading e retry em 401"
+---
+
+# Template: http-interceptor
+
+Interceptores HTTP funcionais para Angular 17+. O agente escolhe a variação conforme o cenário descrito.
+
+## Variações disponíveis
+
+| Variação | Cenário |
+|----------|---------|
+| **A — Contexto Protheus** | Injeta headers `X-App-Name` e `X-App-Version` para logging no backend |
+| **B — Tradução de erros** | Decodifica erros Latin-1 do Protheus e exibe notificação via `PoNotificationService` |
+| **C — Loading overlay** | Exibe spinner global enquanto há requisições pendentes (counter de requests) |
+| **D — Retry 401** | Detecta 401, tenta renovar token e reenvia a requisição uma vez |
+
+## Arquivos gerados
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `src/app/{{moduleName}}/{{kebab-name}}.ts` | `HttpInterceptorFn` funcional |
+
+## Como registrar
+
+```typescript
+// app.config.ts
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { meuInterceptor } from './core/meu-interceptor';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(withInterceptors([meuInterceptor]))
+  ]
+};
+```
+
+## Nota importante sobre autenticação Bearer
+
+A autenticação Bearer é tratada internamente por `ProAuthInterceptor` da lib `@totvs/protheus-lib-core` — não existe `getTokenAuthorizationBearer` em `ProAppConfigService`. Use a **Variação A** apenas para headers de contexto extras. Para Bearer de app standalone, use o template `auth-login` que gera o `tokenInterceptor`.
+
+## Invocar
+
+```bash
+/poui-specialist:generate http-interceptor ProtheusContext --module core
+/poui-specialist:generate http-interceptor ErrorTranslation --module core
+```

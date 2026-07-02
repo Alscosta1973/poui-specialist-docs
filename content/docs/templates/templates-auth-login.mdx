@@ -1,0 +1,60 @@
+---
+title: "Template: auth-login"
+description: "Tela de autenticação completa: po-page-login + AuthService (token localStorage) + authGuard funcional + tokenInterceptor + endpoint TLPP de login"
+---
+
+# Template: auth-login
+
+Tela de login integrada ao Protheus REST com `po-page-login`. Inclui serviço de autenticação com persistência em `localStorage`, guard de rota funcional e interceptor Bearer.
+
+## Quando usar
+
+| Cenário | Usar |
+|---------|------|
+| App Angular acessado diretamente por URL (fora do Protheus) | **auth-login** |
+| App que precisa de login próprio independente do Protheus iframe | **auth-login** |
+| App rodando DENTRO do Protheus (iframe) | ❌ — Protheus já autentica o usuário |
+
+## Arquivos gerados
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `src/app/auth/login/login.component.ts` | Componente `po-page-login` standalone + OnPush |
+| `src/app/auth/auth.service.ts` | Service com signal `isAuthenticated` + token `localStorage` |
+| `src/app/auth/auth.guard.ts` | `CanActivateFn` funcional |
+| `src/app/auth/token.interceptor.ts` | `HttpInterceptorFn` que injeta Bearer token |
+| `src/app/auth/login/login.component.html` | Template do formulário de login |
+
+## Padrões incluídos
+
+- `ChangeDetectionStrategy.OnPush` + signal `loading` no botão de entrar
+- `AuthService.isAuthenticated` como signal — reativo em qualquer componente
+- `authGuard` redireciona para `/login` quando não autenticado
+- `tokenInterceptor` injeta `Authorization: Bearer <token>` em toda requisição
+- Logout com `localStorage.clear()` + redirect para `/login`
+
+## Contrato TLPP gerado
+
+```tlpp
+// POST /api/custom/v1/auth/login
+// Body: { "usuario": "ADMIN", "senha": "123" }
+// Response: { "token": "eyJ...", "nome": "Administrador", "expires": "2026-12-31" }
+```
+
+## Invocar
+
+```bash
+/poui-specialist:generate auth-login --module auth
+```
+
+## Integração com outras rotas
+
+Após gerar, proteja as rotas no `app.routes.ts`:
+
+```typescript
+{
+  path: 'financeiro',
+  canActivate: [authGuard],
+  loadChildren: () => import('./financeiro/financeiro.routes')
+}
+```

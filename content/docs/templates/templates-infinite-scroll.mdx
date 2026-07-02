@@ -1,0 +1,50 @@
+---
+title: "Template: infinite-scroll"
+description: "Lista com carregamento automático ao rolar a página usando IntersectionObserver — alternativa silenciosa ao botão 'Ver mais' do po-table"
+---
+
+# Template: infinite-scroll
+
+Lista com carregamento progressivo via `IntersectionObserver`. Quando o usuário rola até o sentinel element no fim da lista, a próxima página é carregada automaticamente.
+
+## Quando usar cada estratégia
+
+| Estratégia | UX | Quando escolher |
+|------------|-----|-----------------|
+| **show-more** (po-table padrão) | Botão explícito "Ver mais" | Listas com paginação navegável; usuário controla o ritmo |
+| **infinite-scroll** (este template) | Auto-load silencioso ao rolar | Feeds, logs, histórico de movimentos, listas longas contínuas |
+| **CDK virtual scroll** | Todos os itens virtualizados no DOM | Grades com milhares de linhas onde IntersectionObserver não basta |
+
+**Evite infinite-scroll em:** tabelas de reconciliação/comparação onde o usuário precisa saltar entre registros específicos; listas com ações críticas por linha (aprovação individual).
+
+## Arquivos gerados
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `{{kebab-name}}.component.ts` | Componente com `IntersectionObserver` + paginação por offset |
+| `{{kebab-name}}.component.html` | Template com `po-table` + sentinel `div` no fim da lista |
+
+## Padrões incluídos
+
+- `ChangeDetectionStrategy.OnPush` + `ngAfterViewInit` com `detectChanges` (Quirk #1)
+- Signal `items` acumulativo — cada página appenda ao array existente
+- Signal `hasNext` controla se há mais páginas
+- Signal `loadingMore` — spinner no sentinel (não bloqueia a tabela inteira)
+- `IntersectionObserver` destruído automaticamente via `OnDestroy`
+- `takeUntilDestroyed` para cancelamento de subscriptions
+
+## Contrato do backend
+
+```typescript
+// GET /api/custom/v1/{{apiPath}}?page=1&pageSize=20
+interface ListResponse<T> {
+  items:   T[];
+  hasNext: boolean;
+}
+```
+
+## Invocar
+
+```bash
+/poui-specialist:generate infinite-scroll LogMovimentos --module estoque
+```

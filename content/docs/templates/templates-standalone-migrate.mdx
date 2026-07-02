@@ -1,0 +1,59 @@
+---
+title: "Template: standalone-migrate"
+description: "Guia de migração de componente Angular NgModule-based para standalone + OnPush + signals — mapa de transformações e checklist de migração"
+---
+
+# Template: standalone-migrate
+
+Guia de migração de componentes Angular legados (NgModule-based) para o padrão moderno: **standalone + `ChangeDetectionStrategy.OnPush` + signals**.
+
+> Para migração automática via comando, use [`/migrate`](/docs/comandos/migrate) — ele analisa o arquivo, exibe o plano e aplica as transformações. Este template documenta o mapa de transformações que o comando aplica.
+
+## Mapa de transformações
+
+| Padrão NgModule | Equivalente Standalone |
+|-----------------|----------------------|
+| Ausente `standalone: true` | `standalone: true` no `@Component` |
+| `ChangeDetectionStrategy.Default` ou ausente | `ChangeDetectionStrategy.OnPush` |
+| `@Input() x: T` | `readonly x = input<T>()` |
+| `@Output() x = new EventEmitter<T>()` | `readonly x = output<T>()` |
+| `public estado = valor` | `readonly estado = signal(valor)` |
+| `this.estado = valor` | `this.estado.set(valor)` |
+| `constructor(private svc: MyService)` | `private svc = inject(MyService)` |
+| `imports: [CommonModule]` no NgModule | `imports: [NgIf, NgFor, AsyncPipe]` no `@Component` |
+| `*ngIf="cond"` | `@if (cond) { }` |
+| `*ngFor="let x of items"` | `@for (x of items(); track x.id) { }` |
+| Declarado em `NgModule.declarations` | Removido — componente self-declares |
+
+## Checklist de migração manual
+
+Antes de migrar, leia o `.component.ts` e identifique:
+
+1. Qual NgModule declarava o componente (para encontrar os imports usados no template)
+2. Imports do template (`*ngFor`, `[routerLink]`, `async`, componentes PO-UI)
+3. Serviços injetados no construtor → converter para `inject()`
+4. `@Input`/`@Output` — quantidade e tipos
+5. Lifecycle hooks implementados
+6. `ChangeDetectionStrategy` atual
+
+## Quirk #1 — sempre incluir
+
+Todo componente com `po-page-*` e `OnPush` precisa de:
+
+```typescript
+ngAfterViewInit(): void {
+  setTimeout(() => this.cdr.detectChanges());
+}
+```
+
+Sem isso, a tela fica em branco na primeira navegação pelo menu Protheus.
+
+## Usar via comando
+
+```bash
+# Migrar automaticamente com plano + confirmação
+/poui-specialist:migrate src/app/financeiro/titulos/titulos.component.ts
+
+# Ver o que seria migrado sem alterar nada
+/poui-specialist:migrate src/app/financeiro/titulos/titulos.component.ts --dry-run
+```
