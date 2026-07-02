@@ -5,6 +5,42 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.10.0] — 2026-07-01
+
+### Adicionado
+
+**2 novos comandos**
+
+- **`/migrate`** — converte componentes Angular legados (NgModule-based) para standalone + `OnPush` + signals. Analisa o componente, mapeia todas as mudanças necessárias (`@Input()` → `input()`, `@Output()` → `output()`, `*ngIf` → `@if`, atribuições → `.set()`), apresenta o plano antes de escrever e remove o componente do NgModule automaticamente.
+
+- **`/lint`** — analisa componentes PO-UI para os 18 quirks e anti-padrões conhecidos e corrige automaticamente os que têm fix seguro: `OnPush` ausente, `ngAfterViewInit` faltando (Quirk #1), `*ngIf`/`*ngFor` legados, `p-selected-rows` inexistente (Quirk #6), `p-max-length` vs `p-maxlength` (Quirk #4), `subscribe()` sem `error:` callback.
+
+**1 novo template**
+
+- **`auth-login`** — tela de autenticação completa: `po-page-login` + `AuthService` com `localStorage` + `authGuard` funcional + `tokenInterceptor` (Bearer token) + endpoint TLPP de login com validação de usuário Protheus.
+
+**Novos padrões e documentação**
+
+- **Quick Start** (`docs/quickstart.md`) — guia "primeiro componente em 5 minutos": scaffold → generate → conectar ao Protheus → review → gerar tela de edição.
+- **Troubleshooting** (`skills/poui-patterns/troubleshooting.md`) — 10 erros comuns com causa raiz e fix: `TypeScript >=5.9.0`, budget exceeded, `NG8002`, `TS2353`, tela em branco (Quirk #1), `po-table` invisível (Quirk #12), `po-dynamic-form` sem valores (Quirk #13), CORS, Latin-1, paginação duplicada.
+- **Error Handling Protheus** (`skills/poui-patterns/protheus-error-handling.md`) — padrão único para tratamento de erros 400/500: função `parseProtheusError()` com decode Latin-1, tabela de status HTTP Protheus, regras obrigatórias para todo componente.
+
+**Flags no `/scaffold`**
+
+- `--with-dark-mode` — gera `ThemeService` singleton com toggle persistente em `localStorage`, detecção de `prefers-color-scheme` do sistema e SCSS dark-safe.
+- `--with-i18n` — gera estrutura `src/i18n/` com dicionários PT-BR/EN e `providePoI18n()` configurado em `app.config.ts`.
+
+**Suite de testes do plugin**
+
+- `scripts/test-plugin.js` — 61 verificações automáticas: arquivos obrigatórios, versões sincronizadas, contagem de templates, ausência de `*ngIf/*ngFor` nos templates gerados, frontmatter nos comandos, quirks numerados sequencialmente, `@generated` headers atualizados. Rodar com `npm test`.
+
+### Corrigido
+
+- Quirk #21 renumerado para **#18** — numeração agora é sequencial de #1 a #18.
+- `marketplace.json` — versão, contagens e lista de comandos sincronizados automaticamente a cada release.
+
+---
+
 ## [1.9.0] — 2026-07-01
 
 ### Atualizado
