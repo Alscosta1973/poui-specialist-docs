@@ -5,6 +5,21 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.12.0] — 2026-07-13
+
+### Adicionado
+
+**Aviso de ambiente desatualizado no `/generate`**
+
+- O `/generate` já detectava a versão do Node.js e do `@angular/core` do projeto para preencher o cabeçalho de atribuição (v1.11.0). Agora ele também compara essas versões com o mínimo suportado pelo plugin e imprime um aviso de uma linha antes de gerar os arquivos, caso estejam desatualizadas:
+  - Node.js abaixo de `18.19`
+  - `@angular/core` abaixo de `17.0.0`
+- O aviso é apenas informativo — **não bloqueia a geração e não tenta atualizar nada automaticamente**. A ideia é dar um heads-up antes que uma sintaxe mais nova (standalone components, control flow `@if`/`@for`, signals) falhe silenciosamente por incompatibilidade de versão.
+
+### Corrigido
+
+- Intervalo de versão do Angular inconsistente em `poui-patterns` (`17+` em vez de `17-21+`) — corrigido em `module-structure.md` e `deploy-protheus.md`.
+
 ## [1.11.0] — 2026-07-13
 
 ### Adicionado

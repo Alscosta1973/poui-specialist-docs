@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { baseOptions } from '@/lib/layout.shared';
 
-const PLUGIN_VERSION = 'v1.11.0';
+const PLUGIN_VERSION = 'v1.12.0';
 
 export default function Home() {
   return (
