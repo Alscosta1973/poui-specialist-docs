@@ -35,6 +35,45 @@ Após instalar, confirme que os comandos estão disponíveis:
 
 Se os comandos responderem, o plugin está ativo.
 
+## Cabeçalho de atribuição
+
+Todo arquivo `.ts` e `.component.html` gerado pelo plugin recebe um cabeçalho no topo, antes do primeiro `import` (ou do primeiro elemento, no HTML):
+
+```typescript
+/**
+ * @generated  poui-specialist v1.11.0
+ * @author     Andre Costa <andre.andrelscosta@gmail.com>
+ * @license    Uso permitido · redistribuição proibida sem autorização escrita
+ * @see        https://github.com/Alscosta1973/poui-specialist
+ * @node       v20.14.0 (>=18.19 required)
+ * @angular    ^21.0.0 (17-21+ supported)
+ */
+```
+
+```html
+<!--
+  @generated  poui-specialist v1.11.0
+  @author     Andre Costa <andre.andrelscosta@gmail.com>
+  @license    Uso permitido · redistribuição proibida sem autorização escrita
+  @see        https://github.com/Alscosta1973/poui-specialist
+  @node       v20.14.0 (>=18.19 required)
+  @angular    ^21.0.0 (17-21+ supported)
+-->
+```
+
+| Campo | Significado |
+|---|---|
+| `@generated` | Versão do poui-specialist que gerou o arquivo |
+| `@author` | Autoria e licenciamento do template usado |
+| `@license` | Termos de uso — redistribuição não autorizada |
+| `@see` | Repositório do plugin |
+| `@node` | Versão do Node.js detectada no ambiente no momento da geração, e a faixa mínima suportada pelo plugin entre parênteses |
+| `@angular` | Versão do `@angular/core` detectada no `package.json` do projeto, e a faixa suportada pelo plugin entre parênteses |
+
+`@node` e `@angular` refletem o ambiente real onde o arquivo foi gerado (detectados via `node --version` e leitura do `package.json`), não um valor fixo — ajudam a rastrear em qual stack cada componente foi criado, útil ao auditar projetos com múltiplas gerações ao longo do tempo.
+
+O comando `/poui-specialist:undo` e os relatórios do plugin identificam arquivos gerados por este cabeçalho — nunca o remova manualmente de um arquivo que você queira manter sob rastreamento do plugin.
+
 ## Atualizar o plugin
 
 Para atualizar para uma versão mais recente:
