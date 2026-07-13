@@ -5,6 +5,12 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.12.1] — 2026-07-13
+
+### Corrigido
+
+- **Aviso de ambiente desatualizado agora bloqueia a geração até confirmação.** Na v1.12.0 o aviso era apenas informativo e os arquivos eram gerados mesmo assim. Agora, se o Node.js estiver abaixo de `18.19` ou o `@angular/core` abaixo de `17.0.0`, o `/generate` **para antes de escrever qualquer arquivo**, mostra a versão mínima necessária e sugere instalar uma compatível via `nvm-windows`/`fnm` (lado a lado, sem desinstalar a atual e sem precisar reiniciar a máquina). Só prossegue com a geração mediante confirmação explícita do dev. O plugin nunca desinstala/reinstala Node ou Angular por conta própria — essa ação afeta a máquina inteira e exigiria reinício, então fica sempre a cargo do dev.
+
 ## [1.12.0] — 2026-07-13
 
 ### Adicionado
@@ -15,6 +21,7 @@ description: Histórico de versões do plugin poui-specialist
   - Node.js abaixo de `18.19`
   - `@angular/core` abaixo de `17.0.0`
 - O aviso é apenas informativo — **não bloqueia a geração e não tenta atualizar nada automaticamente**. A ideia é dar um heads-up antes que uma sintaxe mais nova (standalone components, control flow `@if`/`@for`, signals) falhe silenciosamente por incompatibilidade de versão.
+  > **Nota:** esse comportamento foi revisado na v1.12.1 — agora bloqueia até confirmação (veja acima).
 
 ### Corrigido
 
