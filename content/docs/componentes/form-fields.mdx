@@ -158,8 +158,8 @@ mais que apenas o label — avatar, status, departamento, badges, etc.
         p-size="xs">
       </po-avatar>
       <div>
-        <div>\{\{ option.label \}\}</div>
-        <small style="color: #888">\{\{ option.departamento \}\}</small>
+        <div>{{ option.label }}</div>
+        <small style="color: #888">{{ option.departamento }}</small>
       </div>
       <po-tag
         class="po-ml-auto"
@@ -174,8 +174,6 @@ mais que apenas o label — avatar, status, departamento, badges, etc.
 
 > **Contexto do template:** `let-option` expõe o objeto completo de `p-options` — inclua
 > propriedades extras como `avatarUrl`, `departamento`, `status` além de `label` e `value`.
-
-<PreviewModal src="/poui-specialist-docs/previews/component-option-template.svg" label="Veja como fica a tela" />
 
 ---
 
@@ -240,23 +238,23 @@ Ideal para filtros de relatório, parametrização de períodos ou intervalo de 
 ### PoDatepickerRange
 
 ```typescript
-interface PoDatepickerRange \{
+interface PoDatepickerRange {
   start: Date | string;
   end:   Date | string;
-\}
+}
 ```
 
 ### Exemplos
 
 ```typescript
-import \{ PoDatepickerRangeModule, PoDatepickerRange \} from '@po-ui/ng-components';
+import { PoDatepickerRangeModule, PoDatepickerRange } from '@po-ui/ng-components';
 // em imports: [PoDatepickerRangeModule]
 
 readonly periodo = signal<PoDatepickerRange | null>(null);
 
-onPeriodoChange(range: PoDatepickerRange): void \{
+onPeriodoChange(range: PoDatepickerRange): void {
   this.periodo.set(range);
-\}
+}
 ```
 
 ```html
@@ -299,7 +297,7 @@ Campo que combina data e hora em um único input — substitui o uso de `po-date
 ### Exemplos
 
 ```typescript
-import \{ PoDatetimepickerModule \} from '@po-ui/ng-components';
+import { PoDatetimepickerModule } from '@po-ui/ng-components';
 // em imports: [PoDatetimepickerModule]
 ```
 
@@ -344,8 +342,8 @@ import \{ PoDatetimepickerModule \} from '@po-ui/ng-components';
 
 ```typescript
 readonly permissaoOptions = [
-  \{ value: 'read', label: 'Leitura' \},
-  \{ value: 'write', label: 'Escrita' \},
+  { value: 'read', label: 'Leitura' },
+  { value: 'write', label: 'Escrita' },
 ];
 ```
 
@@ -423,8 +421,8 @@ Customiza a renderização de cada opção na lista do multiselect — mesma mec
   <ng-template p-multiselect-option-template let-option>
     <div class="po-row po-align-items-center">
       <span class="po-mr-2" [style.color]="option.cor">●</span>
-      <span>\{\{ option.label \}\}</span>
-      <small class="po-ml-auto" style="color: #888">\{\{ option.total \}\} itens</small>
+      <span>{{ option.label }}</span>
+      <small class="po-ml-auto" style="color: #888">{{ option.total }} itens</small>
     </div>
   </ng-template>
 
@@ -642,7 +640,7 @@ Prefira `po-timepicker` em novos componentes; `po-time` segue suportado mas não
 ### Exemplos
 
 ```typescript
-import \{ PoTimepickerModule \} from '@po-ui/ng-components';
+import { PoTimepickerModule } from '@po-ui/ng-components';
 // em imports: [PoTimepickerModule]
 ```
 
@@ -660,8 +658,6 @@ import \{ PoTimepickerModule \} from '@po-ui/ng-components';
 
 > **po-time vs po-timepicker:** Ambos funcionam, mas `po-timepicker` é a API mais recente
 > com painel flutuante de seleção. Use `po-timepicker` em novos componentes.
-
-<PreviewModal src="/poui-specialist-docs/previews/component-datetime-fields.svg" label="Veja como fica a tela" />
 
 ---
 
@@ -689,14 +685,14 @@ Cada valor digitado vira um chip removível; o formulário recebe `string[]`.
 ### Exemplos
 
 ```typescript
-import \{ PoChipsModule \} from '@po-ui/ng-components';
+import { PoChipsModule } from '@po-ui/ng-components';
 // em imports: [PoChipsModule]
 
 readonly tecnologias = signal<string[]>([]);
 
-onTecnologiasChange(lista: string[]): void \{
+onTecnologiasChange(lista: string[]): void {
   this.tecnologias.set(lista);
-\}
+}
 ```
 
 ```html
@@ -721,8 +717,6 @@ onTecnologiasChange(lista: string[]): void \{
 
 > **Valor no formulário:** `formControl.value` é `string[]`.
 > Para pré-popular, inicialize o controle com um array: `new FormControl(['Angular', 'TypeScript'])`.
-
-<PreviewModal src="/poui-specialist-docs/previews/component-chips.svg" label="Veja como fica a tela" />
 
 ---
 

@@ -7,9 +7,15 @@
     "protheus-connect",
     "reactive-forms",
     "po-ui-quirks",
+    "po-ui-quirks-onpush",
+    "po-ui-quirks-forms",
+    "po-ui-quirks-table",
     "deploy-protheus",
-    "dark-mode",
-    "i18n",
-    "deployment"
+    "po-ui-patterns-dark-mode",
+    "po-ui-patterns-i18n",
+    "po-ui-patterns-deployment",
+    "po-ui-patterns-search",
+    "protheus-error-handling",
+    "troubleshooting"
   ]
 }

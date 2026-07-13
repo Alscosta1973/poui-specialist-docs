@@ -225,14 +225,14 @@ o conteúdo secundário precisa coexistir visualmente com a página principal.
 ### Uso com @ViewChild
 
 ```typescript
-import \{ ViewChild \} from '@angular/core';
-import \{ PoPageSlideComponent, PoPageSlideModule \} from '@po-ui/ng-components';
+import { ViewChild } from '@angular/core';
+import { PoPageSlideComponent, PoPageSlideModule } from '@po-ui/ng-components';
 // em imports: [PoPageSlideModule]
 
 @ViewChild(PoPageSlideComponent) slide!: PoPageSlideComponent;
 
-openSlide():  void \{ this.slide.open();  \}
-closeSlide(): void \{ this.slide.close(); \}
+openSlide():  void { this.slide.open();  }
+closeSlide(): void { this.slide.close(); }
 ```
 
 ### Exemplo completo
@@ -264,5 +264,3 @@ closeSlide(): void \{ this.slide.close(); \}
 
 > **po-page-slide vs po-modal:** Use `po-page-slide` quando o usuário precisa continuar vendo a
 > página principal enquanto visualiza o detalhe. Use `po-modal` quando a tarefa exige atenção total.
-
-<PreviewModal src="/poui-specialist-docs/previews/component-page-slide.svg" label="Veja como fica a tela" />

@@ -263,14 +263,12 @@ import { PoSkeletonModule } from '@po-ui/ng-components';
 
 ## PoHttpInterceptorService
 
-Intercepta todas as requisições `HttpClient` e exibe `po-loading-overlay` automaticamente. Exibe notificação de erro para respostas 5xx.
-
-<PreviewModal src="/poui-specialist-docs/previews/component-services.svg" label="Veja como fica a tela" />
+Intercepta todas as requisições `HttpClient` e exibe `po-loading-overlay` automaticamente. Exibe notificação de erro (via `PoNotificationService`) para respostas 5xx.
 
 **Configuração (standalone / app.config.ts):**
 
 ```typescript
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import \{ provideHttpClient, withInterceptorsFromDi \} from '@angular/common/http';
 import \{ HTTP_INTERCEPTORS \} from '@angular/common/http';
 import \{ PoHttpInterceptorService \} from '@po-ui/ng-components';
 

@@ -1,11 +1,11 @@
 ---
-title: "Padrões de Integração REST Protheus"
-description: "Contratos de request/response, autenticação, tratamento de erros e configuração de proxy para integração Angular com o Protheus REST"
+title: "Protheus REST Integration Patterns"
+description: "typescript"
 ---
 
-# Padrões de Integração REST Protheus
+# Protheus REST Integration Patterns
 
-## Contrato de Resposta Padrão
+## Standard Response Contract
 
 ```typescript
 interface ProtheusListResponse<T> {
@@ -15,18 +15,18 @@ interface ProtheusListResponse<T> {
 }
 ```
 
-## Parâmetros de Query Padrão
+## Standard Query Parameters
 
-| Parâmetro | Tipo | Descrição |
-|-----------|------|-----------|
-| `page` | `number` | Número da página (começa em 1) |
-| `pageSize` | `number` | Itens por página (padrão: 10, máximo: 50) |
-| `q` | `string` | Busca rápida em todos os campos de texto |
-| `order` | `string` | Campo de ordenação; prefixar com `-` para descendente (ex: `-nome`) |
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `page` | `number` | Page number (starts at 1) |
+| `pageSize` | `number` | Items per page (default: 10, max: 50) |
+| `q` | `string` | Quick search across all text fields |
+| `order` | `string` | Sort field, prefix with `-` for descending (e.g., `-nome`) |
 
 ---
 
-## Padrão de Service Genérico
+## Generic Service Pattern
 
 ```typescript
 import { Injectable, inject } from '@angular/core';
@@ -48,7 +48,7 @@ export interface GetAllParams {
 
 @Injectable({ providedIn: 'root' })
 export class PedidosService {
-  private readonly http    = inject(HttpClient);
+  private readonly http = inject(HttpClient);
   private readonly baseUrl = '/rest/api/custom/v1/pedidos';
 
   getAll(params: GetAllParams = {}): Observable<ProtheusListResponse<Pedido>> {
@@ -84,12 +84,12 @@ export class PedidosService {
 
 ---
 
-## Chave Composta (código + loja)
+## Composite Key Pattern (código + loja)
 
-A maioria das entidades Protheus usa chave composta: `codigo` (6 chars) + `loja` (2 chars).
+Most Protheus entities use a composite key: `codigo` (6 chars) + `loja` (2 chars).
 
 ```typescript
-// Service — chave composta no path da URL
+// Service — composite key in URL path
 getByKey(codigo: string, loja: string): Observable<Parceiro> {
   return this.http.get<Parceiro>(`${this.baseUrl}/${codigo}/${loja}`);
 }
@@ -102,7 +102,7 @@ deleteByKey(codigo: string, loja: string): Observable<void> {
   return this.http.delete<void>(`${this.baseUrl}/${codigo}/${loja}`);
 }
 
-// Componente de lista — navega para edição com dois parâmetros de rota
+// List component — navigate to edit using separate route params
 tableActions: PoTableAction[] = [
   {
     label: 'Editar',
@@ -112,15 +112,15 @@ tableActions: PoTableAction[] = [
   },
 ];
 
-// Rotas — edição recebe ambos os parâmetros
+// Routes — edit receives both params
 { path: ':codigo/:loja', loadComponent: () => ... }
 
-// Componente de edição — lê chave composta da rota
+// Edit component — read composite key from route
 ngOnInit(): void {
   const { codigo, loja } = this.route.snapshot.params;
   if (codigo && loja) {
     this.codigo = codigo;
-    this.loja   = loja;
+    this.loja = loja;
     this.isEdit.set(true);
     this.loadRecord();
   }
@@ -129,9 +129,9 @@ ngOnInit(): void {
 
 ---
 
-## Tratamento de Erros do Protheus
+## Protheus Error Handling
 
-O Protheus REST **não** retorna um `{ message }` simples. Os erros chegam assim:
+Protheus REST does **not** follow a simple `\{ message \}` error shape. Errors arrive as:
 
 ```json
 {
@@ -139,28 +139,24 @@ O Protheus REST **não** retorna um `{ message }` simples. Os erros chegam assim
 }
 ```
 
-A string interna é JSON e o texto está codificado em URI. Use sempre este decodificador:
+The inner string is JSON and the text is URI-encoded. Always use this decoder:
 
 ```typescript
-// Em componentes que chamam create / update / delete
-private parseProtheusError(err: unknown): string {
+// In components that call create/update/delete
+private parseProtheusError(err: any): string {
   try {
-    const e      = err as { error?: { errorMessage?: string; message?: string } };
-    const errObj = JSON.parse(e.error?.errorMessage ?? '{}') as {
-      code?: string; message?: string; detailedMessage?: string;
-    };
+    const errObj = JSON.parse(err.error?.errorMessage ?? '{}');
     const msg    = decodeURIComponent(escape(errObj.message ?? ''));
     const detail = errObj.detailedMessage
       ? ` — ${decodeURIComponent(escape(errObj.detailedMessage))}`
       : '';
     return `Erro ${errObj.code}: ${msg}${detail}`;
   } catch {
-    return (err as { error?: { message?: string } }).error?.message
-      ?? 'Erro ao processar a requisição.';
+    return err.error?.message ?? 'Erro ao processar a requisição.';
   }
 }
 
-// Uso
+// Usage
 save(): void {
   this.service.create(this.values)
     .pipe(
@@ -178,22 +174,182 @@ save(): void {
 
 ---
 
-## Códigos de Status HTTP
+## HTTP Status Code Handling
 
-| Status | Significado | Ação sugerida |
-|--------|-------------|---------------|
-| 400 | Requisição inválida / validação | Exibir mensagem decodificada do erro Protheus |
-| 401 | Não autenticado | Redirecionar para login (tratar no interceptor) |
-| 403 | Sem permissão | Exibir mensagem "Sem permissão para esta operação" |
-| 404 | Não encontrado | Exibir "Registro não encontrado" e voltar à lista |
-| 409 | Conflito / duplicidade | Exibir mensagem específica do conflito |
-| 500 | Erro interno do servidor | Exibir mensagem genérica "Erro interno do servidor" |
+| Status | Meaning | Suggested Action |
+|--------|---------|-----------------|
+| 400 | Bad request / validation | Show decoded Protheus error message |
+| 401 | Unauthorized | Redirect to login (handle in interceptor) |
+| 403 | Forbidden | Show "Sem permissão" message |
+| 404 | Not found | Show "Registro não encontrado" and navigate back |
+| 409 | Conflict / duplicate | Show specific conflict message |
+| 500 | Server error | Show generic "Erro interno" message |
 
 ---
 
-## Configuração do Proxy (proxy.conf.json)
+## Estratégias de Paginação
 
-Em desenvolvimento local, faça o proxy de `/rest` para o AppServer do Protheus para evitar problemas de CORS:
+### Offset Pagination (padrão atual — page/pageSize)
+
+```
+GET /rest/api/custom/v1/pedidos?page=2&pageSize=10
+```
+
+| Vantagem | Desvantagem |
+|----------|-------------|
+| Simples — TOTVS REST Framework suporta nativamente | Dados dinâmicos: insert no meio desloca itens entre páginas |
+| `page` intuitivo para o usuário | Ineficiente em tabelas grandes (SQL usa OFFSET que varre todas as linhas anteriores) |
+| Compatível com po-table `show-more` padrão | Duplicatas ou itens pulados quando dados mudam entre requests |
+
+**Quando usar:** a maioria dos cenários ERP — listas de pedidos, clientes, produtos. Dados estáticos ou com baixa taxa de inserção simultânea.
+
+---
+
+### Cursor Pagination (keyset — para grandes datasets)
+
+O servidor retorna um `cursor` opaco na resposta. O cliente envia `cursor=<token>` em vez de `page=N` nas requisições seguintes.
+
+**Contrato esperado do backend Protheus:**
+
+```json
+// GET /rest/api/custom/v1/logs?pageSize=50
+{
+  "items": [ ... ],
+  "hasNext": true,
+  "cursor": "eyJpZCI6MTAwMH0="
+}
+
+// Próxima página — sem page=2, com cursor
+// GET /rest/api/custom/v1/logs?pageSize=50&cursor=eyJpZCI6MTAwMH0=
+{
+  "items": [ ... ],
+  "hasNext": false,
+  "cursor": null
+}
+```
+
+O cursor é gerado pelo backend — pode ser um ID codificado em Base64, timestamp, ou hash. O frontend trata como string opaca.
+
+**Interface TypeScript:**
+
+```typescript
+export interface ProtheusListResponse<T> {
+  items: T[];
+  hasNext: boolean;
+  cursor?: string | null;   // presente em cursor pagination
+  po_sync_date?: string;
+}
+```
+
+**Service com suporte a ambos os modos:**
+
+```typescript
+export interface GetAllParams {
+  // Offset mode
+  page?: number;
+  pageSize?: number;
+  // Cursor mode (mutuamente exclusivo com page)
+  cursor?: string;
+  // Compartilhados
+  q?: string;
+  order?: string;
+  [key: string]: unknown;
+}
+
+@Injectable({ providedIn: 'root' })
+export class LogsService {
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = '/rest/api/custom/v1/logs';
+
+  getAll(params: GetAllParams = {}): Observable<ProtheusListResponse<Log>> {
+    // Se cursor fornecido, omitir page (mutuamente exclusivos)
+    const cleanedParams = { ...params };
+    if (cleanedParams.cursor) {
+      delete cleanedParams.page;
+    }
+    const httpParams = new HttpParams({ fromObject: this.cleanParams(cleanedParams) });
+    return this.http.get<ProtheusListResponse<Log>>(this.baseUrl, { params: httpParams });
+  }
+
+  private cleanParams(params: GetAllParams): Record<string, string> {
+    return Object.fromEntries(
+      Object.entries(params)
+        .filter(([, v]) => v !== null && v !== undefined && v !== '')
+        .map(([k, v]) => [k, String(v)])
+    );
+  }
+}
+```
+
+**Componente com cursor pagination:**
+
+```typescript
+@Component({ standalone: true, changeDetection: ChangeDetectionStrategy.OnPush })
+export class LogsComponent implements OnInit, AfterViewInit {
+  private readonly service  = inject(LogsService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  readonly items   = signal<Log[]>([]);
+  readonly loading = signal(false);
+  readonly hasNext = signal(false);
+
+  private currentCursor: string | null = null;
+  private lastSearch = '';
+
+  ngOnInit(): void { this.load(); }
+  ngAfterViewInit(): void { setTimeout(() => this.cdr.detectChanges()); }
+
+  onShowMore(): void {
+    if (!this.currentCursor) return;
+    this.loading.set(true);
+    this.service
+      .getAll({ cursor: this.currentCursor, pageSize: 50, q: this.lastSearch })
+      .pipe(finalize(() => this.loading.set(false)), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => {
+          this.items.update(prev => [...prev, ...res.items]);
+          this.hasNext.set(res.hasNext);
+          this.currentCursor = res.cursor ?? null;
+        },
+        error: () => this.notification.error('Erro ao carregar mais registros.'),
+      });
+  }
+
+  private load(q = ''): void {
+    this.lastSearch = q;
+    this.currentCursor = null;   // reset cursor ao recarregar
+    this.loading.set(true);
+    this.service
+      .getAll({ pageSize: 50, q })
+      .pipe(finalize(() => this.loading.set(false)), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => {
+          this.items.set(res.items);
+          this.hasNext.set(res.hasNext);
+          this.currentCursor = res.cursor ?? null;
+        },
+        error: () => this.notification.error('Erro ao carregar registros.'),
+      });
+  }
+}
+```
+
+| Vantagem | Desvantagem |
+|----------|-------------|
+| Estável com dados dinâmicos — insert não desloca itens | Requer implementação adicional no backend ADVPL |
+| Eficiente em tabelas grandes (usa índice, sem OFFSET) | Não permite saltar para página arbitrária (ex: ir direto p/ pág 5) |
+| Sem duplicatas entre páginas | Cursor expira se sessão REST reinicia no Protheus |
+
+**Quando usar:** logs de auditoria, tabelas com milhões de linhas, dados com alta taxa de inserção (filas, eventos), `po-infinite-scroll` custom.
+
+**Como negociar com o backend:** pedir ao desenvolvedor ADVPL que adicione campo `cursor` na resposta (Base64 do último ID ou timestamp retornado). No frontend, basta passar `cursor=<token>` em vez de `page=N`.
+
+---
+
+## Proxy Configuration (proxy.conf.json)
+
+For local development, proxy `/rest` to the Protheus AppServer so CORS is avoided:
 
 ```json
 {
@@ -206,17 +362,14 @@ Em desenvolvimento local, faça o proxy de `/rest` para o AppServer do Protheus 
 }
 ```
 
-Adicionar ao script `start` do `package.json`:
-
+Add to `package.json` start script:
 ```json
 "start": "ng serve --proxy-config proxy.conf.json"
 ```
 
-> Para configurar proxy com autenticação Basic Auth, consulte o [Guia de Integração Protheus](/docs/padroes/protheus-connect).
-
 ---
 
-## URL Base por Ambiente
+## Environment-Based Base URL
 
 ```typescript
 // src/environments/environment.ts
@@ -231,6 +384,6 @@ export const environment = {
   apiBaseUrl: '/rest',
 };
 
-// No service — usa environment para compor a URL
+// In service — use environment to build URL
 private readonly baseUrl = `${environment.apiBaseUrl}/api/custom/v1/pedidos`;
 ```

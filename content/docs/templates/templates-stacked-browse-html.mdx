@@ -15,6 +15,14 @@ description: "> Sub-arquivo de templates-stacked-browse.md. Use este arquivo ao 
 ## \{\{kebab-name\}\}.component.html
 
 ```html
+<!--
+  @generated  poui-specialist v1.11.0
+  @author     Andre Costa <andre.andrelscosta@gmail.com>
+  @license    Uso permitido · redistribuição proibida sem autorização escrita
+  @see        https://github.com/Alscosta1973/poui-specialist
+  @node       v20.14.0 (>=18.19 required)
+  @angular    ^21.0.0 (17-21+ supported)
+-->
 <po-page-default p-title="{{PageTitle}}">
 
   <!-- Filtros ─────────────────────────────────────────────────────────── -->
@@ -58,9 +66,11 @@ description: "> Sub-arquivo de templates-stacked-browse.md. Use este arquivo ao 
   <div class="browse-cabecalho" [class.browse-cabecalho-ativo]="activeBrowse() === 'master'">
     <span class="browse-titulo">{{MasterTitle}}</span>
     <div class="browse-direita">
-      <span class="browse-count" *ngIf="items().length > 0">
-        {{ items().length }} registro(s) &nbsp;·&nbsp; Tab para alternar browse &nbsp;·&nbsp; ↑↓ para navegar
-      </span>
+      @if (items().length > 0) {
+        <span class="browse-count">
+          {{ items().length }} registro(s) &nbsp;·&nbsp; Tab para alternar browse &nbsp;·&nbsp; ↑↓ para navegar
+        </span>
+      }
       <span class="link-remover-filtro"
             [class.link-remover-filtro--ativo]="isFiltrado()"
             (click)="isFiltrado() && removerFiltro()">✕ Remover Filtro</span>
@@ -82,7 +92,9 @@ description: "> Sub-arquivo de templates-stacked-browse.md. Use este arquivo ao 
   <!-- Browse Detail ────────────────────────────────────────────────────── -->
   <div class="browse-cabecalho browse-cabecalho-detail" [class.browse-cabecalho-ativo]="activeBrowse() === 'detail'">
     <span class="browse-titulo">{{ tituloDetail() }}</span>
-    <span class="browse-count" *ngIf="detailItems().length > 0">{{ detailItems().length }} item(ns)</span>
+    @if (detailItems().length > 0) {
+      <span class="browse-count">{{ detailItems().length }} item(ns)</span>
+    }
   </div>
   <div class="detail-browse" [class.browse-ativo]="activeBrowse() === 'detail'" (click)="onDetailClick()">
     <po-table

@@ -216,8 +216,6 @@ import { PoPageModule } from '@po-ui/ng-components';
 
 Template de página de login — pertence a `@po-ui/ng-templates`.
 
-<PreviewModal src="/poui-specialist-docs/previews/component-page-login.svg" label="Veja como fica a tela" />
-
 | Input | Type | Descrição |
 |-------|------|-----------|
 | `p-logo` | `string` | URL do logo exibido no card |
@@ -235,9 +233,9 @@ Template de página de login — pertence a `@po-ui/ng-templates`.
 | `(p-login-submit)` | `\{ login: string, password: string \}` | Disparado ao clicar em Entrar |
 
 ```typescript
-import \{ PoPageLoginModule \} from '@po-ui/ng-templates';
+import { PoPageLoginModule } from '@po-ui/ng-templates';
 
-@Component(\{
+@Component({
   imports: [PoPageLoginModule],
   template: `
     <po-page-login
@@ -247,18 +245,18 @@ import \{ PoPageLoginModule \} from '@po-ui/ng-templates';
       (p-login-submit)="onLogin($event)">
     </po-page-login>
   `,
-\})
-export class LoginComponent \{
+})
+export class LoginComponent {
   loading = signal(false);
 
-  onLogin(event: \{ login: string; password: string \}): void \{
+  onLogin(event: { login: string; password: string }): void {
     this.loading.set(true);
-    this.authService.login(event.login, event.password).subscribe(\{
+    this.authService.login(event.login, event.password).subscribe({
       next: () => this.router.navigate(['/home']),
       error: () => this.loading.set(false),
-    \});
-  \}
-\}
+    });
+  }
+}
 ```
 
 > **Integração com Protheus:** Usar `login` como `cod_usuario` e `password` como senha do Protheus. Use `p-custom-field` para selecionar a filial/empresa antes do login.

@@ -1,13 +1,13 @@
 ---
 title: "PO-UI Feedback e Status Components"
-description: "Etiqueta visual para status, categorias e indicadores coloridos. Alternativa ao type: 'label' do po-table quando o tag p"
+description: "Visual para status/categorias; usar quando o tag precisa aparecer fora da po-table (alternativa ao type: 'label')."
 ---
 
 # PO-UI Feedback e Status Components
 
 ## po-tag
 
-Etiqueta visual para status, categorias e indicadores coloridos. Alternativa ao `type: 'label'` do `po-table` quando o tag precisa aparecer fora da tabela.
+Visual para status/categorias; usar quando o tag precisa aparecer fora da `po-table` (alternativa ao `type: 'label'`).
 
 ### Key Inputs
 
@@ -19,12 +19,6 @@ Etiqueta visual para status, categorias e indicadores coloridos. Alternativa ao 
 | `p-icon` | `string` | Ícone PO (ex: `'po-icon-ok'`, `'po-icon-warning'`) |
 | `p-removable` | `boolean` | Exibe botão X para remover |
 | `p-inverse` | `boolean` | Inverte cor de fundo/texto |
-
-### Outputs
-
-| Output | Payload | Description |
-|--------|---------|-------------|
-| `(p-remove)` | `void` | Emitido ao clicar no X de remoção |
 
 ### Exemplos
 
@@ -71,7 +65,7 @@ tagLabel(ativo: string): string {
 
 ## po-info
 
-Par rótulo/valor em layout compacto — alternativa leve ao `po-dynamic-view` quando os campos são fixos em tempo de compilação.
+Par rótulo/valor compacto. Usar para campos fixos em compilação; `po-dynamic-view` para campos configurados em runtime.
 
 ### Key Inputs
 
@@ -81,8 +75,6 @@ Par rótulo/valor em layout compacto — alternativa leve ao `po-dynamic-view` q
 | `p-value` | `string \| number` | Valor exibido |
 | `p-orientation` | `'horizontal' \| 'vertical'` | Layout rótulo/valor (default `'horizontal'`) |
 | `p-url` | `string` | Torna o valor um link clicável |
-
-### Exemplo em tela de detalhe
 
 ```html
 <div class="po-row">
@@ -99,8 +91,6 @@ Par rótulo/valor em layout compacto — alternativa leve ao `po-dynamic-view` q
 import { PoInfoModule } from '@po-ui/ng-components';
 // em imports do @Component: [PoInfoModule]
 ```
-
-> **po-info vs po-dynamic-view:** Use `po-info` para campos fixos com controle total de grid; use `po-dynamic-view` para campos configurados em runtime ou reaproveitados de um `po-dynamic-form`.
 
 ---
 
@@ -119,7 +109,7 @@ Posicione ao lado de campos, labels ou seções para orientar o usuário sem pol
 ### Exemplos
 
 ```typescript
-import \{ PoHelperModule \} from '@po-ui/ng-components';
+import { PoHelperModule } from '@po-ui/ng-components';
 // em imports: [PoHelperModule]
 ```
 
@@ -150,13 +140,9 @@ import \{ PoHelperModule \} from '@po-ui/ng-components';
 > disponível em `po-input`, `po-select`, `po-combo` e demais campos de formulário:
 > `<po-input p-help="Texto de ajuda aqui" ...>`.
 
-<PreviewModal src="/poui-specialist-docs/previews/component-helper.svg" label="Veja como fica a tela" />
-
 ---
 
 ## [p-tooltip] — Diretiva de tooltip
-
-Exibe tooltip ao hover/foco em qualquer tag HTML ou componente PO-UI.
 
 ### Key Inputs
 
@@ -166,8 +152,6 @@ Exibe tooltip ao hover/foco em qualquer tag HTML ou componente PO-UI.
 | `p-tooltip-position` | `'top' \| 'bottom' \| 'left' \| 'right' \| 'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'` | Posição (default `'top'`) |
 | `p-hide-arrow` | `boolean` | Oculta a seta direcional |
 | `p-inner-html` | `boolean` | Permite HTML no texto do tooltip |
-
-### Exemplos
 
 ```html
 <!-- Botão com tooltip explicativo -->
@@ -204,7 +188,7 @@ import { PoTooltipModule } from '@po-ui/ng-components';
 
 ## po-progress
 
-Barra de progresso linear ou circular para uploads, importações e indicadores de meta.
+Barra de progresso para uploads, importações e indicadores de meta.
 
 ### Key Inputs
 
@@ -216,8 +200,6 @@ Barra de progresso linear ou circular para uploads, importações e indicadores 
 | `p-status` | `'default' \| 'success' \| 'error'` | Estado de cor |
 | `p-text` | `string` | Texto abaixo da barra (só linear) |
 | `p-size` | `'medium' \| 'thin'` | Espessura da barra (só linear) |
-
-### Exemplos
 
 ```typescript
 readonly uploadProgress = signal(0);
@@ -269,63 +251,60 @@ Não requer componente no template: injete o serviço e chame o método desejado
 
 ### Métodos
 
-| Método | Cor | Quando usar |
-|--------|-----|-------------|
-| `.success(msg)` | Verde | Operação concluída com êxito |
-| `.error(msg)` | Vermelho | Falha irrecuperável ou erro de servidor |
-| `.warning(msg)` | Amarelo | Ação concluída com ressalvas |
-| `.information(msg)` | Azul | Mensagem neutra ou lembrete |
+| Método | Cor | Ícone | Quando usar |
+|--------|-----|-------|-------------|
+| `.success(msg)` | Verde | ✓ | Operação concluída com êxito |
+| `.error(msg)` | Vermelho | ✕ | Falha irrecuperável ou erro de servidor |
+| `.warning(msg)` | Amarelo | ⚠ | Ação concluída com ressalvas |
+| `.information(msg)` | Azul | ℹ | Mensagem neutra ou lembrete |
 
-### Assinatura com action
+### Assinatura com action (ação na notificação)
 
 ```typescript
-// Três argumentos: mensagem, label do botão, callback
 notification.information(
   '3 pedidos aguardam aprovação.',
-  'Ver lista',
-  () => this.abrirLista()
+  'Ver lista',          // actionLabel — botão de ação opcional
+  () => this.abrirLista()  // callback ao clicar na ação
 );
 ```
 
-### PoNotification — interface completa
+### PoNotification (sobrecarga com objeto)
 
 ```typescript
-interface PoNotification \{
+interface PoNotification {
   message:      string;
   actionLabel?: string;     // texto do botão de ação
   action?:      () => void; // callback ao clicar no botão
-  duration?:    number;     // ms antes de fechar (default 3500)
-\}
+  duration?:    number;     // ms antes de fechar automaticamente (default 3500)
+}
 ```
 
 ### Exemplos
 
 ```typescript
-import \{ PoNotificationService \} from '@po-ui/ng-components';
+import { PoNotificationService } from '@po-ui/ng-components';
 
 private readonly notification = inject(PoNotificationService);
 
 // Forma direta (mais comum)
-this.notification.success('Pedido aprovado com sucesso.');
-this.notification.error('Falha ao comunicar com o servidor.');
-this.notification.warning('Estoque abaixo do mínimo para o item.');
-this.notification.information('3 pedidos aguardam aprovação.');
+this.notification.success('Pedido PC-0042 aprovado com sucesso.');
+this.notification.error('Falha ao comunicar com o servidor. Tente novamente.');
+this.notification.warning('Estoque abaixo do mínimo para o item selecionado.');
+this.notification.information('Existem 3 pedidos aguardando sua aprovação.');
 
-// Com ação — notificação com botão de ação
+// Com ação (notification com botão)
 this.notification.information(
   'Registro salvo. Deseja revisar antes de enviar?',
   'Revisar',
   () => this.openRevisaoModal()
 );
 
-// Via objeto PoNotification — controle fino de duração
-this.notification.success(\{
+// Via objeto PoNotification (controle fino de duração)
+this.notification.success({
   message:  'Importação concluída — 1.248 registros processados.',
   duration: 6000,
-\});
+});
 ```
 
-> **Sem declaração no template:** `PoNotificationService` é `providedIn: 'root'`.
-> Injete com `inject()` direto — não precisa de `<po-toaster>` ou declaração em providers.
-
-<PreviewModal src="/poui-specialist-docs/previews/component-notification.svg" label="Veja como fica a tela" />
+> **Sem declaração em template:** `PoNotificationService` é `providedIn: 'root'`.
+> Injete diretamente com `inject()` — não precisa de `<po-toaster>` ou declaração em providers.

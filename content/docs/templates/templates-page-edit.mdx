@@ -1,11 +1,11 @@
 ---
 title: "Template: page-edit"
-description: "Gera um componente standalone po-page-edit usando po-dynamic-form + PoDynamicFormField[] para operações de criação e"
+description: "Componente standalone po-page-edit com po-dynamic-form + PoDynamicFormField[] para criação e edição."
 ---
 
 # Template: page-edit
 
-Gera um componente standalone `po-page-edit` usando `po-dynamic-form` + `PoDynamicFormField[]` para operações de criação e edição — o padrão de formulário PO-UI/Protheus.
+Componente standalone `po-page-edit` com `po-dynamic-form` + `PoDynamicFormField[]` para criação e edição.
 
 <PreviewModal src="/poui-specialist-docs/previews/templates-page-edit.svg" label="Ver como fica a tela" />
 
@@ -13,16 +13,19 @@ Gera um componente standalone `po-page-edit` usando `po-dynamic-form` + `PoDynam
 
 ```typescript
 import {
-  Component,
+  AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
   DestroyRef,
+  OnDestroy,
   OnInit,
   inject,
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription, catchError, EMPTY } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, EMPTY } from 'rxjs';
 import {
   PoDynamicFormField,
   PoDynamicModule,
@@ -40,19 +43,23 @@ import { {{ModelInterface}} } from '../models/{{modelFile}}.model';
   styleUrl: './{{kebab-name}}.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class {{ComponentClass}} implements OnInit {
+export class {{ComponentClass}} implements OnInit, AfterViewInit, OnDestroy {
   private readonly service = inject({{ServiceClass}});
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly notification = inject(PoNotificationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly isEdit = signal(false);
   readonly loading = signal(false);
   private recordId = '';
 
-  // Binding bidirecional com po-dynamic-form; populado ao carregar para edição
+  // Propriedade simples — NÃO usar signal (Quirk #15: re-init do form a cada keystroke).
+  // Atualizado via (p-form)+valueChanges (Quirk #13: (p-value-change) não existe em PO-UI).
   values: Partial<{{ModelInterface}}> = {};
+
+  private formSub: Subscription | null = null;
 
   // TODO: defina os campos correspondentes às propriedades de {{ModelInterface}}.
   // `divider` cria um cabeçalho de seção acima do campo; `gridColumns` (1-12) controla a largura.
@@ -86,7 +93,7 @@ export class {{ComponentClass}} implements OnInit {
       label: 'Valor',
       type: 'currency',
       required: true,
-      min: 0,
+      decimalsLength: 2,
       gridColumns: 6,
     },
     // { property: 'cnpj',        label: 'CNPJ',             type: 'cnpj',   required: true,  gridColumns: 6 },
@@ -95,8 +102,8 @@ export class {{ComponentClass}} implements OnInit {
     // { property: 'telefone',    label: 'Telefone',         mask: '(99) 99999-9999',          gridColumns: 4 },
     // { property: 'situacao',    label: 'Situação',         divider: 'Status',
     //   options: [{ label: 'Ativo', value: '1' }, { label: 'Inativo', value: '2' }],         gridColumns: 6 },
-    // { property: 'dataEmissao', label: 'Data de Emissão',  type: 'date',   required: true,  gridColumns: 4 },
-    // { property: 'quantidade',  label: 'Quantidade',       type: 'number', min: 0, max: 9999, gridColumns: 4 },
+    // { property: 'dataEmissao', label: 'Data de Emissão',  type: 'date',   required: true, format: 'dd/MM/yyyy', gridColumns: 4 },
+    // { property: 'quantidade',  label: 'Quantidade',       type: 'number', gridColumns: 4 },
   ];
 
   get pageTitle(): string {
@@ -110,6 +117,10 @@ export class {{ComponentClass}} implements OnInit {
       this.isEdit.set(true);
       this.loadRecord();
     }
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.cdr.detectChanges());
   }
 
   save(): void {
@@ -154,21 +165,34 @@ export class {{ComponentClass}} implements OnInit {
       });
   }
 
+  onFormInit(form: any): void {
+    if (!form?.valueChanges) return;
+    this.formSub?.unsubscribe();
+    this.formSub = form.valueChanges.subscribe((vals: Partial<{{ModelInterface}}>) => {
+      this.values = { ...this.values, ...vals };
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.formSub?.unsubscribe();
+  }
+
   private goBack(): void {
     this.router.navigate(['..'], { relativeTo: this.route });
   }
 
   // Decodifica o formato de erro REST do Protheus: { errorMessage: JSON.stringify({code, message, detailedMessage}) }
-  private parseError(err: any): string {
+  private parseError(err: unknown): string {
     try {
-      const errObj = JSON.parse(err.error?.errorMessage ?? '{}');
-      const msg = decodeURIComponent(escape(errObj.message ?? ''));
-      const detail = errObj.detailedMessage
-        ? ` — ${decodeURIComponent(escape(errObj.detailedMessage))}`
-        : '';
+      const errObj = JSON.parse((err as any).error?.errorMessage ?? '{}');
+      const decode = (s: string) => new TextDecoder('iso-8859-1').decode(
+        Uint8Array.from(s, c => c.charCodeAt(0))
+      );
+      const msg    = decode(errObj.message ?? '');
+      const detail = errObj.detailedMessage ? ` — ${decode(errObj.detailedMessage)}` : '';
       return `Erro ${errObj.code}: ${msg}${detail}`;
     } catch {
-      return err.error?.message ?? 'Erro ao processar a requisição.';
+      return (err as any).error?.message ?? 'Erro ao processar a requisição.';
     }
   }
 }
@@ -185,7 +209,8 @@ export class {{ComponentClass}} implements OnInit {
 
   <po-dynamic-form
     [p-fields]="fields"
-    [(p-value)]="values">
+    [p-value]="values"
+    (p-form)="onFormInit($event)">
   </po-dynamic-form>
 
 </po-page-edit>

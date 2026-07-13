@@ -257,6 +257,7 @@ O `let-item` expõe o objeto completo do array `p-items`.
 ### [p-list-view-detail-template] — detalhe expandível por card
 
 Exibido ao clicar no botão de expandir — ideal para relações master-detail.
+Combine com `p-list-view-content-template` para cards completos com detalhe.
 
 ```html
 <po-list-view
@@ -282,8 +283,6 @@ Exibido ao clicar no botão de expandir — ideal para relações master-detail.
 
 > **Contexto compartilhado:** `let-item` acessa o mesmo objeto em ambos os templates —
 > `item.pedidos`, `item.contatos` e qualquer array de sub-itens ficam disponíveis no detail.
-
-<PreviewModal src="/poui-specialist-docs/previews/component-listview-template.svg" label="Veja como fica a tela" />
 
 ---
 
@@ -357,5 +356,3 @@ onFilterRemove(remaining: PoDisclaimer[]): void {
 
 > **Integração com po-page-list:** Use `[p-disclaimer-group]` diretamente no `po-page-list`
 > para que o PO-UI gerencie a exibição e remoção automaticamente — apenas implemente `p-filter`.
-
-<PreviewModal src="/poui-specialist-docs/previews/component-disclaimer-group.svg" label="Veja como fica a tela" />
