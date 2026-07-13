@@ -5,6 +5,24 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.11.0] — 2026-07-13
+
+### Adicionado
+
+**Cabeçalho de atribuição com versão de ambiente**
+
+- O cabeçalho `@generated` de todo arquivo gerado ganhou duas novas linhas: `@node` e `@angular`, com a versão do Node.js (`node --version`) e do `@angular/core` (lido do `package.json` do projeto) detectadas no momento da geração, junto com a faixa suportada pelo plugin entre parênteses.
+- O cabeçalho agora também é aplicado a todo arquivo `.component.html` gerado (como comentário HTML) — antes só existia nos `.ts`.
+- Documentação de cada campo do cabeçalho adicionada à página [Instalação](/docs/instalacao#cabeçalho-de-atribuição).
+
+### Corrigido
+
+- **`stacked-browse`** — corrida entre múltiplos `setTimeout` concorrentes (clique do mouse, navegação por teclado, seleção automática no load) podia deixar duas linhas destacadas simultaneamente no `po-table`. `_highlightMasterRow`/`_highlightDetailRow` agora chamam `cdr.detectChanges()` de forma síncrona, sem `setTimeout`.
+- **`/generate auth-login`** — o tipo `auth-login`, lançado na v1.10.0, não estava registrado na tabela de tipos válidos de `generate.md` nem nos agentes de geração, fazendo o comando rejeitá-lo como tipo desconhecido.
+- `scripts/bump-version.js` — passou a sincronizar também o `package.json` da raiz (antes só atualizava `plugin.json`/`marketplace.json`, causando divergência de versão detectada pela suíte de testes).
+
+---
+
 ## [1.10.0] — 2026-07-01
 
 ### Adicionado
