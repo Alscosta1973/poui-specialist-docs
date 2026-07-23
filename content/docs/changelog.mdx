@@ -5,6 +5,32 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.13.0] — 2026-07-23
+
+### Adicionado
+
+**Novo comando `/e2e`**
+
+- `/poui-specialist:e2e <ComponentClass> --module <modulo>` gera um spec `@playwright/test` **real** — sobe o dev server Angular, inspeciona o DOM ao vivo via Playwright para descobrir os seletores certos, escreve `e2e/<nome>.e2e.spec.ts` com o roteiro de interação por família de componente (list, form, detail, complex) e roda `npx playwright test` para validar.
+- Complementa o `/test` (unitário, HTTP mockado com `HttpTestingController`) com um teste ponta-a-ponta contra o app rodando de verdade no browser.
+- Inspirado no `tir-test-generator` do pacote oficial de skills ADVPL/TLPP da TOTVS (`totvs/engpro-advpl-tlpp-skills`), que gera testes E2E robotizados para telas nativas Protheus — adaptado aqui para Angular/PO-UI.
+
+**Validação de campos padrão Protheus no `/discover`**
+
+- Nova etapa opcional confirma tamanho máximo, decimais e obrigatoriedade de campos **padrão** (SA1, SA2, SB1, SC5, SC6, SE1, SE2) contra uma referência estática embutida no plugin, em vez de inferir só pelo formato do JSON.
+- Autocontido — não depende de nenhum outro plugin instalado. Campos sem correspondência (prováveis customizados `X_*`) são sinalizados como "confirme manualmente", nunca adivinhados.
+
+### Corrigido
+
+- `skills/poui-connect/SKILL.md` estava sem frontmatter YAML — o Claude Code não conseguia auto-invocar essa skill por descrição. Corrigido.
+- BOM (marca de encoding) removido de `skills/poui-quality/SKILL.md`.
+- `templates-tlpp-contract.md` alinhado ao padrão TTALK oficial da TOTVS: campo `remainingRecords` na paginação, formato de erro plano `{code,message,detailedMessage}` documentado ao lado do formato legado `errorMessage` (WsRestFul), e um skeleton de REST por anotações (`@Get`/`@Post`/`oRest`) como alternativa moderna.
+- Metadata (`domain`, `author`, `version`, `category`) adicionada ao frontmatter de todas as 14 skills.
+
+### Removido
+
+- `skills/poui-discover/SKILL.md` — código morto. O comando `/discover` sempre teve lógica própria e completa em `commands/discover.md`; esse skill nunca era invocado.
+
 ## [1.12.1] — 2026-07-13
 
 ### Corrigido
