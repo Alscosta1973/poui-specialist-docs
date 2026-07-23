@@ -1,0 +1,57 @@
+---
+title: /e2e
+description: Gera um teste E2E real com Playwright para componentes PO-UI Angular, drivando o app de verdade no browser
+---
+
+# /poui-specialist:e2e
+
+Gera um spec `@playwright/test` real (`e2e/<kebab-name>.e2e.spec.ts`) para um componente Angular
+criado pelo plugin — sobe o dev server, inspeciona o DOM real via Playwright para descobrir os
+seletores certos, escreve o spec e roda `npx playwright test` para validar.
+
+Inspirado no `tir-test-generator` do pacote oficial de skills ADVPL/TLPP da TOTVS (que gera
+testes E2E robotizados para telas nativas Protheus), adaptado aqui para telas Angular/PO-UI.
+
+> Complementa o [`/test`](/docs/comandos/test) (unitário, HTTP mockado com `HttpTestingController`)
+> com um teste ponta-a-ponta contra o app real rodando no browser.
+
+## Sintaxe
+
+```bash
+/poui-specialist:e2e <ComponentClass> --module <modulo>
+```
+
+## Exemplos
+
+```bash
+/poui-specialist:e2e TitulosListComponent --module financeiro/titulos-list
+/poui-specialist:e2e ParceirosEditComponent --module faturamento/parceiros
+```
+
+## Fluxo de geração
+
+1. **Parse de argumentos** — deriva `kebab-name`, `componentPath`, identifica família (list, form, detail, complex, other) igual ao `/test`
+2. **Ambiente Playwright Test** — verifica `playwright.config.ts`; oferece criar um mínimo se não existir
+3. **Sobe o app Angular** — reaproveita a lógica do `/scaffold`/preview: localiza `angular.json`, detecta porta livre (4200–4209), inicia `ng serve` em background
+4. **Inspeciona o DOM real** — navega até a rota do componente e captura um `browser_snapshot` (árvore de acessibilidade) para descobrir seletores reais — nunca inventa seletores genéricos
+5. **Gera o spec** — escreve `e2e/<kebab-name>.e2e.spec.ts` com o roteiro de interação correspondente à família detectada
+6. **Executa e reporta** — roda `npx playwright test <spec>` e exibe o resultado
+
+## Roteiro por família
+
+| Família | Interação gerada |
+|---------|-------------------|
+| `list` | Carrega a lista e valida linha visível (ou estado vazio); testa busca rápida e valida filtro |
+| `form` / `edit` | Preenche campos obrigatórios reais, clica em salvar, valida navegação/toast de sucesso |
+| `detail` | Navega até o registro e valida que os campos-chave aparecem com texto não vazio |
+| `complex` | Valida que os dois painéis (master/detail ou two-panel) renderizam linhas e a seleção habilita a ação |
+
+## Saída esperada
+
+```
+✅ E2E gerado: e2e/titulos-list.e2e.spec.ts
+Dev server continua rodando em http://localhost:4200. Ctrl+C no terminal para encerrar.
+```
+
+Se o teste falhar na primeira execução, o plugin ajusta seletor/timing uma vez e roda de novo.
+Se falhar de novo, o spec é entregue como está para ajuste manual.

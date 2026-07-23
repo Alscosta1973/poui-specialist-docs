@@ -45,6 +45,14 @@ O `/discover` faz uma chamada `GET` ao endpoint usando o proxy local e inspecion
 
 Se o endpoint estiver fora do ar, o `/discover` aceita um JSON colado manualmente pelo usuário.
 
+### Validação contra campos padrão Protheus (opcional)
+
+Os tipos acima vêm só do formato do JSON. Se a tabela por trás do endpoint for uma das cobertas
+pela referência estática embutida no plugin (SA1, SA2, SB1, SC5, SC6, SE1, SE2), o `/discover`
+oferece confirmar tamanho máximo, decimais e obrigatoriedade reais dos campos **padrão** —
+sem depender de nenhum outro plugin instalado. Campos sem correspondência (prováveis
+customizados `X_*`) são sinalizados como "confirme manualmente", nunca adivinhados.
+
 ### Modo fonte
 
 Extrai campos do arquivo ADVPL/TLPP a partir de:
