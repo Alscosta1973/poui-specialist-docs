@@ -1,0 +1,73 @@
+---
+title: /package
+description: Compila um projeto PO-UI já pronto e empacota em Resource/<projeto>.app para publicar no Protheus
+---
+
+# /poui-specialist:package
+
+Compila um projeto Angular + PO-UI **já pronto** (depois que os componentes já foram gerados,
+testados e revisados) e empacota o resultado em `Resource/<projeto>.app`, pronto para copiar
+ao AppServer do Protheus.
+
+> Diferente do [`/scaffold`](/docs/comandos/scaffold), este comando não cria projeto novo —
+> roda em qualquer projeto Angular + PO-UI existente, na pasta atual ou em um caminho informado.
+
+## Sintaxe
+
+```bash
+/poui-specialist:package [caminho-do-projeto] [--skip-build]
+```
+
+## Exemplos
+
+```bash
+# Build de produção + empacotamento completo — pasta atual
+/poui-specialist:package
+
+# Informando a pasta do projeto — sem precisar entrar nela antes
+/poui-specialist:package C:\caminho\do\projeto
+
+# Já rodei o build manualmente — só empacotar o dist/ existente
+/poui-specialist:package --skip-build
+
+# Combinando os dois
+/poui-specialist:package C:\caminho\do\projeto --skip-build
+```
+
+## Fluxo
+
+1. **Identifica o projeto** — se um caminho for informado, localiza `angular.json` nele; senão usa a pasta atual
+2. **Verifica/corrige o `outputPath`** — o builder `@angular/build:application` (padrão desde Angular 17+) gera a saída em `dist/<projeto>/browser/` por padrão, reservando a raiz para uma eventual build SSR. O Protheus (`FWCallApp`/`AjustaIndex`) espera `index.html` na raiz, então o comando achata a saída em `angular.json`: `outputPath: { base: "dist/<projeto>", browser: "" }`
+3. **Build de produção** — `ng build --configuration production` (pulado com `--skip-build`)
+4. **Empacota** — zipa `dist/<projeto>/`, cria a pasta `Resource/` se não existir e copia o zip para dentro dela renomeado como `<projeto>.app`
+5. **Atualiza o `.gitignore`** — garante `dist/`, `*.zip` e `Resource/` ignorados
+
+## Saída esperada
+
+```
+✅ Pacote gerado — meu-projeto
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📦 Resource/meu-projeto.app — pronto para publicar
+
+🔧 Próximos passos (dentro do Protheus):
+   1. Copiar Resource/meu-projeto.app para
+      <rootpath>\web\meu-projeto\meu-projeto.app\ no AppServer
+   2. Criar/confirmar o .prw com FWCallApp apontando para
+      "web/meu-projeto/meu-projeto.app"
+   3. Confirmar a porta multiprotocolo (MPP) no appserver.ini
+   4. Compilar o .prw no RPO e executar a rotina no SmartClient
+```
+
+O restante do fluxo de publicação (estrutura de pastas no AppServer, `.prw` com `FWCallApp`,
+`appserver.ini`) está documentado em [Deploy: Angular → Protheus](/docs/padroes/deploy-protheus).
+
+## Notas
+
+- **Idempotente** — pode ser executado várias vezes seguidas (ex: depois de cada nova leva de
+  componentes gerados com [`/generate`](/docs/comandos/generate)); sempre sobrescreve o
+  `.zip`/`.app` anteriores.
+- **A correção do `outputPath` é permanente** — grava no `angular.json`; nas próximas execuções
+  não há mais nada a corrigir nesse passo.
+- Não instala pacotes nem roda `ng new` — se `angular.json` não existir no caminho informado,
+  o comando encerra com uma instrução clara em vez de tentar adivinhar.

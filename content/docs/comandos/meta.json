@@ -1,4 +1,4 @@
 {
   "title": "Comandos",
-  "pages": ["generate", "scaffold", "migrate", "lint", "review", "test", "e2e", "discover", "connect", "docs", "undo"]
+  "pages": ["generate", "scaffold", "package", "migrate", "lint", "review", "test", "e2e", "discover", "connect", "docs", "undo"]
 }
