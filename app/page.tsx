@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { baseOptions } from '@/lib/layout.shared';
 
-const PLUGIN_VERSION = 'v1.13.1';
+const PLUGIN_VERSION = 'v1.14.0';
 
 export default function Home() {
   return (
@@ -63,7 +63,7 @@ export default function Home() {
           </span>
         </div>
         <div className="flex flex-col items-center text-center rounded-xl border bg-fd-card p-6 gap-2">
-          <span className="text-3xl font-bold">11</span>
+          <span className="text-3xl font-bold">12</span>
           <span className="text-sm font-medium">Comandos</span>
           <span className="text-xs text-fd-muted-foreground">
             Invocáveis diretamente no Claude Code
