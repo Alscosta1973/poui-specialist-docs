@@ -5,6 +5,17 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.15.4] e [1.15.5] — 2026-07-30
+
+### Corrigido
+
+**A causa real do `UNZIPAPP FError: 161` — zip achatado, sem a pasta do projeto como raiz**
+
+- As correções da v1.15.1 (formato) e v1.15.3 (removeu o prefixo `dist\<projeto>\`) foram na direção errada nesse último ponto: produziam um zip **achatado** (`index.html` direto na raiz do zip). Confirmado comparando byte a byte com um `.app` gerado manualmente que funcionou: o `UNZIPAPP` (`FWCALLAPP.PRW`) extrai o `.app` esperando encontrar uma pasta com o **nome do projeto** dentro do zip, para processar/renomear. Sem essa pasta, o "renomear" falha — mesmo sintoma, causa raiz diferente da v1.15.1/v1.15.2.
+- Estrutura correta: `<projeto>.app` (zip) → `<projeto>/` (pasta) → `index.html`, `main.js` etc.
+- `/package` e o Passo 10.5 do `/scaffold` agora entram em `dist/` (a pasta pai) e compactam a pasta `<projeto>` inteira pelo nome, preservando-a como raiz do zip.
+- **v1.15.5:** adicionada auto-verificação — depois de gerar o `.app`, o comando abre o zip e confirma que a pasta do projeto está lá antes de declarar sucesso, em vez de assumir que deu certo.
+
 ## [1.15.3] — 2026-07-30
 
 ### Corrigido
