@@ -5,6 +5,16 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.15.2] — 2026-07-30
+
+### Corrigido
+
+**Detecção do 7-Zip falhava quando instalado fora do PATH**
+
+- A v1.15.1 checava o 7-Zip só via `Get-Command 7z.exe`, que só olha o `PATH`. Confirmado em produção: um usuário tinha o 7-Zip instalado normalmente, mas fora do `PATH` — a detecção falhou silenciosamente, o comando caiu no `Compress-Archive` (o mesmo formato incompatível corrigido na v1.15.1) e ainda reportou sucesso, gerando de novo o erro `UNZIPAPP FError: 161`.
+- `/package` e o Passo 10.5 do `/scaffold` agora também checam os locais padrão de instalação (`C:\Program Files\7-Zip\7z.exe` e a versão x86) quando o `PATH` não tem o 7-Zip.
+- Se mesmo assim nenhum 7-Zip for encontrado, o plugin **para e pergunta** ao usuário antes de prosseguir com o fallback — nunca mais empacota silenciosamente com uma ferramenta sabidamente incompatível e declara sucesso.
+
 ## [1.15.1] — 2026-07-30
 
 ### Corrigido

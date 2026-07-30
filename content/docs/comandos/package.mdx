@@ -73,5 +73,6 @@ O restante do fluxo de publicação (estrutura de pastas no AppServer, `.prw` co
   o comando encerra com uma instrução clara em vez de tentar adivinhar.
 - **Requer 7-Zip para empacotamento confiável.** Zips gerados por `Compress-Archive` (fallback
   sem 7-Zip) são conhecidos por falhar ao extrair no Protheus — `UNZIPAPP FError: 161`, "Falha
-  ao renomear". Instale o [7-Zip](https://www.7-zip.org/) e garanta `7z.exe` no `PATH` antes de
-  publicar em produção. Ver [Troubleshooting](/docs/padroes/troubleshooting).
+  ao renomear". O comando detecta o 7-Zip no `PATH` **ou** em `C:\Program Files\7-Zip\7z.exe`
+  — se nenhum for encontrado, ele para e pergunta antes de usar o fallback, em vez de empacotar
+  silenciosamente com uma ferramenta incompatível. Ver [Troubleshooting](/docs/padroes/troubleshooting).
