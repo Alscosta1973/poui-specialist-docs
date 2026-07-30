@@ -5,6 +5,16 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.15.1] — 2026-07-30
+
+### Corrigido
+
+**Empacotamento `.app` falhava ao extrair no Protheus**
+
+- `/package` e o Passo 10.5 do `/scaffold` usavam `Compress-Archive` (PowerShell/.NET) para gerar o zip empacotado como `.app`. Confirmado em produção: esse formato falha na extração pela função interna `UNZIPAPP` do Protheus (`FWCALLAPP.PRW`), com o erro `UnZipApp: Não foi possível extrair... / Falha ao renomear, FError: 161`. Um zip gerado com 7-Zip funciona normalmente.
+- Ambos os comandos agora usam `7z.exe` quando disponível no `PATH`, caindo de volta para `Compress-Archive` apenas se o 7-Zip não estiver instalado — com aviso explícito nesse caso.
+- Nova entrada no [Troubleshooting](/docs/padroes/troubleshooting) documentando o erro e o fix.
+
 ## [1.15.0] — 2026-07-30
 
 ### Adicionado
