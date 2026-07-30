@@ -5,6 +5,16 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.16.0] — 2026-07-30
+
+### Adicionado
+
+**Aviso de versão desatualizada (não-bloqueante)**
+
+- Reaproveita o mesmo gist e a mesma chamada remota (com timeout de 5s) que já valida a licença beta — sem round-trip de rede adicional. O gist agora também carrega um campo `latest_version`, atualizado automaticamente pelo `scripts/bump-version.js` a cada release.
+- A skill `poui-license-check` compara a versão instalada localmente (lida de `installed_plugins.json` → `installPath` → `.claude-plugin/plugin.json`) contra o `latest_version` remoto. Se estiver desatualizada, mostra um aviso sugerindo `/plugin update poui-specialist@poui-specialist-marketplace` — mas **nunca bloqueia** o comando, diferente de licença expirada/revogada.
+- Qualquer falha nessa checagem (arquivo ausente, campo faltando, timeout) é ignorada silenciosamente.
+
 ## [1.15.4] e [1.15.5] — 2026-07-30
 
 ### Corrigido
