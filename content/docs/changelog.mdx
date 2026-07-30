@@ -5,6 +5,46 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.15.0] — 2026-07-30
+
+### Adicionado
+
+**`/package` aceita o caminho do projeto como argumento**
+
+- `/poui-specialist:package <caminho-do-projeto>` — não precisa mais entrar na pasta do projeto antes de rodar o comando; ele localiza o `angular.json` no caminho informado e faz o `Set-Location` internamente antes dos demais passos.
+- Continua funcionando sem argumento (roda na pasta atual) e combina normalmente com `--skip-build`.
+
+## [1.14.0] — 2026-07-30
+
+### Adicionado
+
+**Novo comando `/package`**
+
+- `/poui-specialist:package` compila um projeto PO-UI **já pronto** (depois que os componentes já foram gerados, testados e revisados) e empacota o resultado em `Resource/<projeto>.app`, pronto para copiar ao AppServer do Protheus.
+- Diferente do `/scaffold`, não cria projeto novo — roda em qualquer projeto Angular + PO-UI existente. Detecta o nome do projeto pelo `angular.json`, corrige o `outputPath` se necessário, builda em produção (`ng build --configuration production`) e empacota.
+- Flag `--skip-build` para reempacotar um `dist/` já buildado manualmente sem rodar o build de novo.
+
+## [1.13.1] — 2026-07-30
+
+### Corrigido
+
+**Fluxo de instalação do `/scaffold` alinhado ao guia oficial do PO-UI**
+
+- `ng add @po-ui/ng-components`/`ng add @po-ui/ng-templates` (não-interativo via `--configSideMenu=false`) no lugar de `npm install` manual — segue o fluxo documentado em [po-ui.io/guides/getting-started](https://po-ui.io/guides/getting-started). `@totvs/po-theme` e `@totvs/protheus-lib-core` continuam via `npm install`, já que não têm schematic `ng add`.
+- Node.js mínimo elevado para `20.11.x` (exigido pelo PO-UI 21), com verificação real que bloqueia o scaffold em vez de só exibir a versão detectada.
+- Nota sobre o erro `Could not find the @angular/build:dev-server builder's package`, comum em Angular 19+/21+ com o novo build system baseado em `@angular/build`.
+
+**Corrigida falha "Falha ao Ajustar os arquivos Index" ao publicar no Protheus**
+
+- O builder `@angular/build:application` (padrão desde Angular 17+) gera a saída em `dist/<projeto>/browser/`, reservando a raiz de `dist/<projeto>/` para uma eventual build de servidor (SSR). O `FWCallApp`/`AjustaIndex` (`FWCALLAPP.PRW`) espera `index.html` diretamente na raiz da pasta publicada e não encontrava o arquivo dentro da subpasta.
+- Corrigido configurando `outputPath: { base: "dist/<projeto>", browser: "" }` no `angular.json` — já aplicado automaticamente pelo `/scaffold` em projetos novos.
+- `/scaffold` agora também empacota automaticamente o resultado em `Resource/<projeto>.app` ao final (build de produção + zip + cópia renomeada).
+
+**Outros ajustes**
+
+- Referências residuais a "Angular 17"/`17.x` (deixadas pelo último bump de versão) corrigidas para Angular 21 no `/scaffold`.
+- Novo script `npm run renew-license` automatiza a renovação da licença beta (+90 dias por padrão), atualizando source, gist e cache instalado numa única operação.
+
 ## [1.13.0] — 2026-07-23
 
 ### Adicionado
