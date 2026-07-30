@@ -39,7 +39,7 @@ ao AppServer do Protheus.
 1. **Identifica o projeto** — se um caminho for informado, localiza `angular.json` nele; senão usa a pasta atual
 2. **Verifica/corrige o `outputPath`** — o builder `@angular/build:application` (padrão desde Angular 17+) gera a saída em `dist/<projeto>/browser/` por padrão, reservando a raiz para uma eventual build SSR. O Protheus (`FWCallApp`/`AjustaIndex`) espera `index.html` na raiz, então o comando achata a saída em `angular.json`: `outputPath: { base: "dist/<projeto>", browser: "" }`
 3. **Build de produção** — `ng build --configuration production` (pulado com `--skip-build`)
-4. **Empacota** — zipa `dist/<projeto>/` com **7-Zip** (usa `Compress-Archive` do PowerShell apenas como fallback, quando `7z.exe` não está no PATH — com aviso explícito), cria a pasta `Resource/` se não existir e copia o zip para dentro dela renomeado como `<projeto>.app`
+4. **Empacota** — entra em `dist/<projeto>/` e zipa o **conteúdo** (não a pasta) com **7-Zip**, garantindo `index.html` na raiz do zip (usa `Compress-Archive` do PowerShell apenas como fallback, quando `7z.exe` não está no PATH — com aviso explícito), cria a pasta `Resource/` se não existir e copia o zip para dentro dela renomeado como `<projeto>.app`
 5. **Atualiza o `.gitignore`** — garante `dist/`, `*.zip` e `Resource/` ignorados
 
 ## Saída esperada

@@ -5,6 +5,15 @@ description: Histórico de versões do plugin poui-specialist
 
 # Changelog
 
+## [1.15.3] — 2026-07-30
+
+### Corrigido
+
+**Zip do `.app` continha os arquivos dentro de uma subpasta `dist\<projeto>\`, não na raiz**
+
+- Mesmo sintoma da v1.15.1/v1.15.2 (`UNZIPAPP FError: 161`), causa raiz diferente: `7z a arquivo.zip dist\<projeto>\*` rodado da raiz do projeto preserva o caminho `dist\<projeto>\` dentro do zip — diferente do `Compress-Archive`, que já achata automaticamente. Confirmado inspecionando um `.app` real gerado: `index.html` estava em `dist\<projeto>\index.html` dentro do zip, não na raiz.
+- `/package` e o Passo 10.5 do `/scaffold` agora entram (`Push-Location`) dentro de `dist/<projeto>/` antes de compactar com `7z a ... *`, garantindo zip sem prefixo de pasta — testado localmente (7z + PowerShell) antes de publicar.
+
 ## [1.15.2] — 2026-07-30
 
 ### Corrigido
