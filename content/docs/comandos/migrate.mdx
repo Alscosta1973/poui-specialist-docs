@@ -35,6 +35,8 @@ Converte componentes Angular legados (NgModule-based) para o padrão moderno: **
 | `this.x = valor` (atribuição de estado) | `this.x.set(valor)` |
 | `*ngIf="cond"` no template | `@if (cond) { }` |
 | `*ngFor="let x of items"` no template | `@for (x of items(); track x.id) { }` |
+| `ngOnDestroy` + `Subject`/`takeUntil` manual | `takeUntilDestroyed(inject(DestroyRef))` |
+| Rota `{ path, component: X }` | `{ path, loadComponent: () => import(...).then(m => m.X) }` |
 | Declarado em `NgModule.declarations` | Removido do módulo |
 | Imports via NgModule | `imports: [...]` explícitos no decorator |
 
@@ -83,6 +85,14 @@ ngAfterViewInit(): void {
   setTimeout(() => this.cdr.detectChanges());
 }
 ```
+
+## Armadilhas comuns
+
+| Problema | Causa | Fix |
+|----------|-------|-----|
+| Tela em branco após migração | Faltou o hook do Quirk #1 num componente `po-page-*` | Ver seção acima |
+| `NG0304: 'po-table' is not a known element` | Módulo PO-UI do template não está em `imports: []` do `@Component` | Adicionar ao array `imports` |
+| `input()`/`output()` no template sem `()` | Template não atualizado para sintaxe de signal | `{{ titulo() }}` — `output()` mantém `.emit(valor)`, sem mudança |
 
 ## Limitações
 
